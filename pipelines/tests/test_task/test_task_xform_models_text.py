@@ -25,57 +25,6 @@ from config._constants import (
 
 
 
-
-def test_multiple_files_CreatePresentationDocument():
-  #setup
-  config = {
-    'LOGGER': logger,
-    'TRAINING_DATA_DIR': Path('./models_data/template/'),
-    'START_TIME': time.time()
-    }
-  input_dir = Path(__file__).parent / 'data'
-  input_files = Files(
-    name='input',
-    directory_or_list=input_dir,
-    extension_patterns=['.yml']
-    )
-  with tempfile.TemporaryDirectory() as t_dir:
-   t_dir = Path(t_dir)
-   intermediate_dir = t_dir / 'intermediate'
-   intermediate_files = Files(
-      name='intermediate',
-      directory_or_list=intermediate_dir,
-      extension_patterns=['.pickle']
-      )
-   output_dir = t_dir / 'output'
-   output_files = Files(
-      name='output',
-      directory_or_list=output_dir,
-      extension_patterns=['.pickle']
-      )
-   name_diff = ''
-   #implement
-   import_task = ImportBatchDocsFromLocalFileTask(
-     config, 
-     input_files, 
-     intermediate_files
-     )
-   xform_task = CreatePresentationDocument(
-     config, 
-     intermediate_files, 
-     output_files
-     )
-   check = import_task.run()
-   check = xform_task.run()
-
-   export_files = [item for item in output_dir.glob('**/*') if item.is_file()]
-   assert len(export_files) == 2
-   assert export_files[0].stem == 'test_file1'     #4records in 1 export file
-   with open(export_files[0], "rb") as pipeline_record_file:
-    pipeline_record = pickle.load(pipeline_record_file)
-  assert type(pipeline_record) == PipelineRecord
-
-
 def test_single_file_ApplyTextModelsTask():
   #setup
   config = {

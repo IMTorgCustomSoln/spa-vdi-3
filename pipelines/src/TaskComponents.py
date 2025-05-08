@@ -28,7 +28,7 @@ import datetime
 
 
 
-
+'''
 from src.io import utils
 
 class UnzipTask(Task):
@@ -51,7 +51,7 @@ class UnzipTask(Task):
         sound_files_list = [file for file in set(sound_files_list) if file!=None]
         self.config['LOGGER'].info(f"end ingest file location from {self.input_files.directory.resolve().__str__()} with {len(sound_files_list)} files matching {self.target_extension}")
         return True
-
+'''
 
 from src.models import asr
 

@@ -8,7 +8,7 @@ __author__ = "Jason Beach"
 __version__ = "0.1.0"
 __license__ = "AGPL-3.0"
 
-
+from src.io import utils
 from src.Files import File
 from src.Task import Task
 from src.models.classification import TextClassifier
@@ -20,6 +20,27 @@ import time
 import copy
 
 
+class UnzipTask(Task):
+    """Decompress archive files in a folder"""
+
+    def __init__(self, config, input, output):
+        super().__init__(config, input, output)
+        self.target_folder = output.directory
+        self.target_extension=['.wav','.mp3','.mp4']
+
+    def run(self):
+        sound_files_list = []
+        for file in self.get_next_run_file():
+            extracted_sound_files = utils.decompress_filepath_archives(
+                filepath=file.filepath,
+                extract_dir=self.target_folder,
+                target_extension=self.target_extension
+                )
+            sound_files_list.extend(extracted_sound_files)
+        sound_files_list = [file for file in set(sound_files_list) if file!=None]
+        self.config['LOGGER'].info(f"end ingest file location from {self.input_files.directory.resolve().__str__()} with {len(sound_files_list)} files matching {self.target_extension}")
+        return True
+    
 
 class CreatePresentationDocument(Task):
     """Create the presentation Document from multiple collected, added Documents.

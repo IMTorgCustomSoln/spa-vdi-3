@@ -46,7 +46,7 @@ config = {
     'INPUT_DIR': Path('./tests/test_wf_template/data/'),
     'WORKING_DIR': Path('./tests/test_wf_template/tmp/'),
     'TRAINING_DATA_DIR': {
-        'template': Path('./models_data/template/'),
+        'template': Path('./models_data/template1/'),
         'account': Path('./models_data/account/'),
         },
     'TASKS':[
