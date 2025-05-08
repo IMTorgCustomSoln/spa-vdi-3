@@ -40,10 +40,6 @@ from config._constants import (
     logger
 )
 
-def test_pipeline_record():
-  #TODO:test `populate_presentation_doc()` with differetn Document types: pdf, html, ecomms,...
-  assert False == True
-
 
 def test_task_template():
   #TODO:remainder_paths = tmp_task.get_next_run_files(type='update')

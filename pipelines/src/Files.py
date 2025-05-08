@@ -190,7 +190,7 @@ class Files:
         if type(directory_or_list) == list:
             self.list = directory_or_list
         elif Path(directory_or_list).is_dir()==True:
-            self.directory = directory_or_list
+            self.directory = Path(directory_or_list)
         elif Path(directory_or_list).is_dir()==False:
             path = Path(directory_or_list)
             check = Path(path).mkdir()

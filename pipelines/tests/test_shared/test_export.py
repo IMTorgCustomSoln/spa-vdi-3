@@ -9,6 +9,7 @@ from src.io import export
 
 from pathlib import Path
 import json
+import tempfile
 
 
 dialogue1 = {
@@ -79,9 +80,11 @@ def test_export_to_output_excel_single_file():
     '''
     dialogues = [dialogue1]
     schema = {"documentsIndex": {"documents": {}}}
-    filepath = Path('/workspaces/spa-vdi-2/pipelines/tests/tmp/OUTPUT/') / "batch-TEST.xlsx"
-    export.export_dialogues_to_output(schema, dialogues, filepath, output_type="excel")
-    assert True == True
+    with tempfile.TemporaryDirectory() as t_dir:
+        outpath = Path(t_dir)
+        filepath = outpath / "batch-TEST.xlsx"
+        export.export_dialogues_to_output(schema, dialogues, filepath, output_type="excel")
+        assert True == True
 
 
 def test_export_to_output_vdi_workspace_single_file():
@@ -91,10 +94,13 @@ def test_export_to_output_vdi_workspace_single_file():
         dialogue1 = json.load(f)
     '''
     dialogues = [dialogue1]
-    schema_path = Path('/workspaces/spa-vdi-2/pipelines/tests/data/meta/') / 'workspace_schema_v0.2.1.json'
+    workspace_schema = None
+    schema_path = Path('/workspaces/spa-vdi-3/pipelines/tests/data') / 'workspace_schema_v0.2.1.json'
     if schema_path.is_file():
         with open(schema_path, 'r') as f:
             workspace_schema = json.load(f)
-    filepath = Path('/workspaces/spa-vdi-2/pipelines/tests/tmp/PROCESSED/') / "batch-TEST.gz"
-    export.export_dialogues_to_output(workspace_schema, dialogues, filepath, output_type="vdi_workspace")
-    assert True == True
+    with tempfile.TemporaryDirectory() as t_dir:
+        outpath = Path(t_dir)
+        filepath = outpath / "batch-TEST.gz"
+        export.export_dialogues_to_output(workspace_schema, dialogues, filepath, output_type="vdi_workspace")
+        assert True == True

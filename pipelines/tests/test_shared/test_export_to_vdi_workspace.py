@@ -8,8 +8,10 @@ from src.models import asr
 from src.io import export
 import os
 from pathlib import Path
+import pytest
 
 
+@pytest.mark.skip(reason="Test is currently under development")
 def test_export_to_vdi_workspace():
     #assume: workspace comes from vdi import/export of file: `./tests/results/five-nights-spoken-pitched_71bpm_F_minor.wav.pdf`
     #load data

@@ -274,7 +274,7 @@ def export_dialogues_to_output(schema, dialogues, filepath, output_type='vdi_wor
             #file info
             record_path = Path(pdf['dialogue']['file_path'])
             document_record['file_extension'] = record_path.suffix
-            document_record['file_size_mb'] = record_path.stat().st_size
+            document_record['file_size_mb'] = record_path.stat().st_size if record_path.is_file() else None
             document_record['filename_original'] = record_path.name
             document_record['title'] = record_path.name
             document_record['filepath'] = str(record_path)
@@ -299,8 +299,8 @@ def export_dialogues_to_output(schema, dialogues, filepath, output_type='vdi_wor
                 models = None
             document_record['sort_key'] = highest_pred_target['pred'] if 'pred' in highest_pred_target.keys() else 0.0
             document_record['hit_count'] = hit_count
-            document_record['time_asr'] = pdf['dialogue']['time_asr']
-            document_record['time_textmdl'] = pdf['dialogue']['time_textmdl']
+            document_record['time_asr'] = pdf['dialogue']['time_asr'] if 'time_asr' in pdf['dialogue'].keys() else None
+            document_record['time_textmdl'] = pdf['dialogue']['time_textmdl'] if 'time_textmdl' in pdf['dialogue'].keys() else None
 
             document_record['snippets'] = []
             document_record['summary'] = "TODO:summary"

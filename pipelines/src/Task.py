@@ -18,6 +18,7 @@ from src.Files import File
 from src.modules.enterodoc.entero_document.document_factory import DocumentFactory
 from src.modules.enterodoc.entero_document.config import EnteroConfig
 
+from pathlib import Path
 
 config = EnteroConfig(apply_logger=False)
 DocFactory = DocumentFactory()

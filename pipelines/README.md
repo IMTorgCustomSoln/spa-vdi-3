@@ -60,14 +60,17 @@ python main.py workflow_* run
 * build and test
 
 
+## Install
 
-## TODO:
+Manage python versions with [pyenv](https://github.com/pyenv/pyenv).  Ensure your python version matches with Pipfile.  Create your venv with `pipenv install`.
 
-* ~~create separate `workflow-text_classify`~~
-* ~~enable topics of multiple models available to apply in the same pipeline~~
-* ~~enable interactive work with notebook~~
-* ~~create workflow template~~
-* ~~convert workflow_template.py~~
+Some external modules are maintained within this repo to enable quick editing: `src/modules/`.
+
+
+
+
+## TODO: Project-level
+
 * improve multi-model topics and Classification() class
   - fix vdiworkspace export so it runs with client search: pre-run models
   - ~~move pretrained_models/ to models/~~ => ERRORS, can't add .env to vscode pytest
@@ -75,37 +78,10 @@ python main.py workflow_* run
 * improve interactive mode with notebook.ipynb
   - enable lists, instead of Files to be used with Tasks
   - test_workflow > test_task > test_files
-* ~~create `workflow-template` to be used as a template~~
-* ~~add `workflow_template` Tasks tests~~
-* discussion on foundation Task class
-* ~~single parent class for workflow
-  - just provide i) list of tasks and ii) shape of records
-  - all Files and intermediate objects created for you
-  - automated validation, logging, error handling, and failover
-  - use pickle to preserve objects, until task penultimate to output
-  - each record should be intermediary file
-* record structure for Task i/o and provisioning output
-  ```urls.json
-  {
-  'indexed group': {
-    'source': 'one_of_many',
-    'root_url: 'https://www...',
-    'given_urls: [Url1, Url2, ...],
-    'added_docs': [DocPath1, DocPath2, ...],
-    'documents': [DocumentRecord, DocumentRecord, ...]
-    }
-  }
-  ```
-* indexed group | (output format) file_field | doc_display
-  - wf_site_scrape-tgt: bank_name | (vdi client) Url,DocPath | Doc
-  - wf_site_scrape-multi: bank_name | (table) Url | reference to docpath
-  - wf_asr: acct_num | (vdi client) acct_num | {audio file-date}\n asr_text
-  - wf_ecomms: msg_chain_subject | (vdi client) msg_chain_subject-msg_count | {msg file-date}\n msg_text
-  - wf_text_classify: indv_file | (indv_file) indv_file | Doc
-  - wf_default: indv_file | (vdi client) indv_file | Doc
 
 
-### Ecomms
+
+### Wf-Ecomms
 
 * ~~output to .json~~
 * ingest data

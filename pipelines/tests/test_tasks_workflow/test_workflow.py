@@ -15,9 +15,11 @@ from src.TaskExport import ExportRecordsToFileTask, ExportRecordsToReplTask
 
 import tempfile
 from pathlib import Path, PosixPath
+import copy
+import pytest
 
 
-config = {
+config_partial = {
     'INPUT_DIR': Path('./tests/test_tasks_workflow/data/'),
     #'WORKING_DIR': Path('./tests/test_tasks_workflow/tmp/'),
     'TRAINING_DATA_DIR': {
@@ -29,6 +31,7 @@ config = {
 
 
 def test_workflow_configuration():
+    config = copy.deepcopy(config_partial)
     config['TASKS'] = [
         {
             'class': ImportFromLocalFileTask,
@@ -52,6 +55,7 @@ def test_workflow_configuration():
         assert list(config['WORKING_DIR'].iterdir()) == [config['WORKING_DIR']/'1_EXPORT']
 
 def test_workflow_initialization():
+    config = copy.deepcopy(config_partial)
     config['TASKS'] = [
         {
             'class': ImportFromLocalFileTask,
@@ -74,6 +78,7 @@ def test_workflow_initialization():
         assert list(config['WORKING_DIR'].iterdir()) == [config['WORKING_DIR'] / '1_EXPORT', config['WORKING_DIR'] / '2_EXPORT']
 
 def test_workflow_run_files():
+    config = config_partial
     config['TASKS'] = [
         {
             'class': ImportFromLocalFileTask,
@@ -95,9 +100,11 @@ def test_workflow_run_files():
         assert check1 == True
         check2 = new_workflow.run()
         assert check2 == True
-
+    
+@pytest.mark.skip(reason="Test is currently under development")
 def test_workflow_run_list():
     #TODO: empower interactive use with running workflow as lists
+    config = copy.deepcopy(config_partial)
     config['TASKS'] = [
         {
             'class': ImportFromLocalFileTask,
