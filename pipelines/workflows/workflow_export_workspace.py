@@ -34,98 +34,34 @@ import time
 import sys
 
 
+
+config = {
+    'INPUT_DIR': Path('./tests/test_wf_export_workspace/data/'),
+    'WORKING_DIR': Path('./tests/test_wf_export_workspace/tmp/'),
+    'TRAINING_DATA_DIR': {},
+    'TASKS':[
+        {
+            'class': ImportFromLocalFileCustomFormatTask,
+            'name': 'input',
+            'extension_patterns': ['.json'],
+         },
+        {
+            'class': CreatePresentationDocument,
+            'name': 'presentation',
+            'extension_patterns': ['.pickle'],
+         },
+         {
+             'class': ExportToVdiWorkspaceTask,
+             'name': 'xform',
+             'extension_patterns': ['.pickle'],
+             'vdi_schema': ''
+         }
+    ]
+}
+
 class WorkflowExportWorkspace(WorkflowNew):
-    """..."""
 
-    def __init__(self):
-        CONFIG = {}
-        try:
-            #user input
-            CONFIG['INPUT_DIR'] = Path('./tests/test_wf_export_workspace/data/')
-            CONFIG['WORKING_DIR'] = Path('./tests/test_wf_export_workspace/tmp/')
-            CONFIG['OUTPUT_DIRS'] = [Path('./tests/test_wf_export_workspace/tmp/OUTPUT')]
-
-            #system input
-            CONFIG['START_TIME'] = None
-            CONFIG['LOGGER'] = logger
-            CONFIG['BATCH_RECORD_COUNT'] = 50
-            CONFIG['WORKSPACE_SCHEMA'] = None
-
-            #working dirs
-            CONFIG['WORKING_DIR'].mkdir(parents=True, exist_ok=True)
-            DIR_VALIDATED = CONFIG['WORKING_DIR'] / '1_VALIDATED'
-            DIR_XFORM = CONFIG['WORKING_DIR'] / '2_XFORM'
-            DIR_OUTPUT = CONFIG['WORKING_DIR'] / '3_OUTPUT'
-            self.config = CONFIG
-
-            #files
-            input_files = Files(
-                name='input',
-                directory_or_list=self.config['INPUT_DIR'],
-                extension_patterns=['.json']
-                )
-            validated_files = Files(
-                name='validated',
-                directory_or_list=DIR_VALIDATED,
-                extension_patterns=['.pickle']
-                )
-            xform_files = Files(
-                name='xform',
-                directory_or_list=DIR_XFORM,
-                extension_patterns=['.pickle']
-                )
-            output_files = Files(
-                name='output',
-                directory_or_list=DIR_OUTPUT,
-                extension_patterns=['.gz']
-                )
-            self.files = {
-                'input_files': input_files,
-                'validated_files': validated_files,
-                'xform_files': xform_files,
-                'output_files': output_files
-            }
-        except Exception as e:
-            print(e)
-            sys.exit()
-
-    def config_tasks(self):
-        """Configure Tasks, some of which may need to be initialized
-        after other preparations.
-        """
-        try:
-            #tasks
-            import_task = ImportFromLocalFileCustomFormatTask(
-                config=self.config, 
-                input=self.files['input_files'],
-                output=self.files['validated_files']
-                )
-            xform_task = CreatePresentationDocument(
-                config=self.config,
-                input=self.files['validated_files'],
-                output=self.files['xform_files']
-                )
-            output_task = ExportBatchToVdiWorkspaceTask(
-                config=self.config,
-                input=self.files['xform_files'],
-                output=self.files['output_files'],
-                vdi_schema=None
-            )
-            tasks = [
-                import_task,
-                xform_task,
-                output_task
-                ]
-            self.tasks = tasks
-        except Exception as e:
-            print(e)
-            sys.exit()
-        return True
-        
-
-    def prepare_workspace(self):
-        """Prepare workspace with output schema and file paths"""
-        #prepare schema
+    def _prepare_scheme(self):
         filepath = Path('./tests/data/VDI_ApplicationStateData_v0.2.1.gz')
         if filepath.is_file():
             workspace_schema = load.get_schema_from_workspace(filepath)
@@ -135,18 +71,14 @@ class WorkflowExportWorkspace(WorkflowNew):
         schema_file.load_file(return_content=False)
         schema_file.content = workspace_schema
         check1 = schema_file.export_to_file()
-        check2 = self.config_tasks()
-        return all([check1,check2])
+        return check1
     
-    def run(self):
-        """Run the workflow of tasks"""
-        self.config['LOGGER'].info('begin process')
-        self.config['START_TIME'] = time.time()
-        for task in self.tasks:
-            task.run()
-        self.config['LOGGER'].info(f"end process, execution took: {round(time.time() - self.config['START_TIME'], 3)}sec")
-        return True
+    def prepare_workspace(self):
+        check1 = self._prepare_scheme()
+        check2 = super().prepare_workspace()
+        return all([check1, check2])
         
 
 
-workflow_export_workspace = WorkflowExportWorkspace()
+
+workflow_export_workspace = WorkflowExportWorkspace(config)
