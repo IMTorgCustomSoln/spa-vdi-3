@@ -18,6 +18,7 @@ import pandas as pd
 from pathlib import Path
 import time
 import copy
+import shutil
 
 
 class UnzipTask(Task):
@@ -30,7 +31,7 @@ class UnzipTask(Task):
 
     def run(self):
         sound_files_list = []
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             extracted_sound_files = utils.decompress_filepath_archives(
                 filepath=file.filepath,
                 extract_dir=self.target_folder,
@@ -40,8 +41,27 @@ class UnzipTask(Task):
         sound_files_list = [file for file in set(sound_files_list) if file!=None]
         self.config['LOGGER'].info(f"end ingest file location from {self.input_files.directory.resolve().__str__()} with {len(sound_files_list)} files matching {self.target_extension}")
         return True
-    
 
+class FlattenFileStructureTask(Task):
+    """..."""
+    def __init__(self, config, input, output):
+        super().__init__(config, input, output)
+    def get_next_run_file_from_directory(self):
+        filelist = []
+        for item in list(self.input_files.directory.iterdir()):
+            if item.is_dir():
+                for file in list(item.iterdir()):
+                    if file.is_file():
+                        filelist.append(file)
+        return filelist
+    def run(self):
+        sound_files_list = []
+        for file in self.get_next_run_file_from_directory():
+            outfile_path = self.output_files.directory / file.name
+            shutil.copy(file.__str__(), outfile_path)
+            sound_files_list.append(outfile_path)
+        return True
+   
 class CreatePresentationDocument(Task):
     """Create the presentation Document from multiple collected, added Documents.
     The `.presentation_doc` is used for final export.
@@ -52,7 +72,7 @@ class CreatePresentationDocument(Task):
         super().__init__(config, input, output)
 
     def run(self):
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             check = file.load_file(return_content=False)
             record = file.get_content()
             check = record.populate_presentation_doc()
@@ -101,7 +121,7 @@ class ApplyTextModelsTask(Task):
 
     def run(self):
         TextClassifier.config(self.config)
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             check = file.load_file(return_content=False)
             record = file.get_content()
             new_presentation_doc = self.apply_models(record)
@@ -136,7 +156,7 @@ class TextClassifyEcommEmailTask(Task):
     def run(self):
         TextClassifier.config(self.config)
         intermediate_save_dir=self.target_files.directory
-        unprocessed_files = self.get_next_run_file()
+        unprocessed_files = self.get_next_run_file_from_directory()
         if len(unprocessed_files)>0:
             #process by batch
             for idx, batches in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_COUNT']) ):
@@ -207,7 +227,7 @@ class TextClassifyEcommTask(Task):
     def run(self):
         TextClassifier.config(self.config)
         intermediate_save_dir=self.target_files.directory
-        unprocessed_files = self.get_next_run_file()
+        unprocessed_files = self.get_next_run_file_from_directory()
         if len(unprocessed_files)>0:
             #process by batch
             for idx, batches in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_COUNT']) ):

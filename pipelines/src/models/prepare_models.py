@@ -30,7 +30,7 @@ def validate_key_terms(config, model_topic):
     """..."""
     wdir = config['TRAINING_DATA_DIR'][model_topic]
     path_pos_keywords = wdir / 'pos_kw.txt'  
-    path_neg_keywords = wdir / 'pos_kw.txt'   
+    path_neg_keywords = wdir / 'neg_kw.txt'   
     if path_pos_keywords.is_file():
         pos_file = File(path_pos_keywords, 'txt')
         pos_kw = [line.rstrip() for line in pos_file.load_file(return_content=True)]
@@ -78,10 +78,12 @@ def finetune_classification_model(config, model_topic):
     from setfit import SetFitModel
     load_foundation_model_path = "BAAI/bge-small-en-v1.5"
     save_finetuned_model_path = f"pretrained_models/finetuned--BAAI-{model_topic}"
+    if Path(save_finetuned_model_path).is_dir():
+        logger.info(f'model is cached and previously refined: {save_finetuned_model_path}')
+        return True
     model = SetFitModel.from_pretrained(load_foundation_model_path)
     model.to(device)
     model.labels = ["negative", "positive"]
-
     if path_tng_records.is_file():
         with open(path_tng_records, 'r') as file:
             train_records = json.load(file)['records']

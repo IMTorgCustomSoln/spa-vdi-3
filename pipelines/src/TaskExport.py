@@ -35,7 +35,7 @@ class ExportRecordsToReplTask(Task):
 
     def run(self):
         documents = []
-        for idx,file in enumerate(self.get_next_run_file()):
+        for idx,file in enumerate(self.get_next_run_file_from_directory()):
             check = file.load_file(return_content=False)
             record = file.get_content()
             documents.append(record)
@@ -49,7 +49,7 @@ class ExportRecordsToFileTask(Task):
         super().__init__(config, input, output)
 
     def run(self):
-        for idx,file in enumerate(self.get_next_run_file()):
+        for idx,file in enumerate(self.get_next_run_file_from_directory()):
             check = file.load_file(return_content=False)
             record = file.get_content()
             self.pipeline_record_ids.append(record.id)
@@ -89,7 +89,7 @@ class ExportToLocalTableTask(Task):
 
     def run(self):
         table_records = []
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             check = file.load_file(return_content=False)
             record = file.get_content()
             table_row_records = self.add_collected_docs_to_table_record(record)
@@ -152,7 +152,7 @@ class ExportToVdiWorkspaceTask(Task):
     def run(self):
         workspace_schema = copy.deepcopy(self._vdi_schema)
         workspace_documents = []
-        for idx,file in enumerate(self.get_next_run_file()):
+        for idx,file in enumerate(self.get_next_run_file_from_directory()):
             check = file.load_file(return_content=False)
             record = file.get_content()
             workspace_document = map_record_presentation_doc_to_workspace_document(self._vdi_schema, record)
@@ -179,7 +179,7 @@ class ExportBatchToVdiWorkspaceTask(Task):
 
     def run(self):
         workspace_schema = copy.deepcopy(self._vdi_schema)
-        processed_files = self.get_next_run_file()
+        processed_files = self.get_next_run_file_from_directory()
         cnt = 0
         #for idx,file in enumerate(self.get_next_run_file()):
         for batch_id, batch in enumerate( utils.get_next_batch_from_list(processed_files, self.config['BATCH_RECORD_COUNT']) ):
@@ -298,7 +298,7 @@ class ExportEcommsToVdiWorkspaceTask(Task):
             sys.exit()
 
         #export by batch
-        processed_files = self.get_next_run_file()
+        processed_files = self.get_next_run_file_from_directory()
         cnt = 0
         for idx, batch in enumerate( utils.get_next_batch_from_list(processed_files, self.config['BATCH_COUNT']) ):
             self.config['LOGGER'].info("begin export")

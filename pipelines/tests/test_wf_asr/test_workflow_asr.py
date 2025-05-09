@@ -11,10 +11,10 @@ import pytest
 
 from workflows.workflow_asr import workflow_asr
 
-
+@pytest.mark.skip(reason='training is too slow on local machine')
 def test_workflow_asr_prepare_models():
-    check = True    #workflow_asr.prepare_models()
-    assert True == True
+    check = workflow_asr.prepare_models()
+    assert check == True
 
 def test_workflow_asr_prepare_workspace():
     check = workflow_asr.prepare_workspace()

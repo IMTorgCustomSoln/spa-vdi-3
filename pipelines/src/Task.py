@@ -134,7 +134,7 @@ class Task:
             )
         return record
 
-    def get_next_run_file(self, method='same'):
+    def get_next_run_file_from_directory(self, method='same'):
         """Get the remaining files that should be provided to run()
         Each record is an file and they are processed, individually, as opposed
         to multiple records within a file.

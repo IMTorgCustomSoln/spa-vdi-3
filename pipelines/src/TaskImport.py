@@ -27,7 +27,7 @@ import datetime
 DocFactory = DocumentFactory()
 
 class ImportFromLocalFileTask(Task):
-    """Simple import of local files.
+    """Simple import of local files to PipelineRecord.
     
     input: File
     output: PipelineRecord[collected_docs:Documents]
@@ -37,7 +37,7 @@ class ImportFromLocalFileTask(Task):
         self.target_extension.extend(['.txt','.md','.json'])
 
     def run(self):
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             check = file.load_file(return_content=False)
             record = self.create_pipeline_record_from_file(file, source_type='single_file')
             doc = DocFactory.build(file.filepath)
@@ -60,7 +60,7 @@ class ImportBatchDocsFromLocalFileTask(Task):
         self.target_extension.extend(['.rec'])
 
     def run(self):
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             check = file.load_file(return_content=False)
             record = self.create_pipeline_record_from_file(file, source_type='multiple_files')
             content = file.get_content()
@@ -90,7 +90,7 @@ class ImportFromLocalFileCustomFormatTask(Task):
         self.target_extension.extend(['.txt','.md','.json'])
 
     def run(self):
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             check = file.load_file(return_content=False)
             record = self.create_pipeline_record_from_file(file, source_type='single_file')
             doc = DocFactory.build(file.filepath)
@@ -261,7 +261,7 @@ class ImportCombinedDatsEcommsTask(Task):
         #orgchart_parser = OrgChartParser(file_path=file_path_csv)
         #check = orgchart_parser.validate()
         #load and collect msg records
-        file = list(self.get_next_run_file())[0]
+        file = list(self.get_next_run_file_from_directory())[0]
         dfdats = pd.read_pickle(file.filepath)
         dfdats['text'] = None
         contents = []

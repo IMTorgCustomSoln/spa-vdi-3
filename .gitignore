@@ -8,8 +8,9 @@ Pipfile.lock
 client/tests/data/TMP/*
 client/public/pdfjs-dist/*
 
-pipelines/runs/*
-pipelines/pretrained_models/*
+pipelines/runs
+pipelines/checkpoints
+pipelines/pretrained_models
 
 pipelines/tests/test_tasks_workflow/tmp/*
 pipelines/tests/test_wf_template/tmp/*

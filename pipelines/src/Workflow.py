@@ -191,6 +191,7 @@ class WorkflowNew:
                 tasks.append(new_task)
         except Exception as e:
             print(e)
+            print(f'Task: {task_attrs}')
             sys.exit()
         result = {
             'files': files,

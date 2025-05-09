@@ -59,16 +59,16 @@ class AsrTask(Task):
     """Apply Automatic Speech Recognition to audio files
     """
 
-    def __init__(self, config, input, output, name_diff):
-        super().__init__(config, input, output, name_diff)
+    def __init__(self, config, input, output):
+        super().__init__(config, input, output)
         self.target_files = output
         #self.infer_text_classify_only = False       #TODO:separate into another Task???
 
     def run(self):
-        unprocessed_files = self.get_next_run_file()
+        unprocessed_files = self.get_next_run_file_from_directory()
         if len(unprocessed_files)>0:
             #process by batch
-            for idx, batch in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_COUNT']) ):
+            for idx, batch in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_RECORD_COUNT']) ):
                 batch_files = asr.run_workflow(
                     config=self.config,
                     sound_files=batch, 
@@ -78,7 +78,6 @@ class AsrTask(Task):
                 self.config['LOGGER'].info(f"end model workflow, batch-index: {idx} with {len(batch_files)} files")
         return True
     
-
 #from src.models.classification import classifier
 from src.models.classification import TextClassifier
 import time
@@ -95,10 +94,10 @@ class TextClassificationTask(Task):
     def run(self):
         TextClassifier.config(self.config)
         intermediate_save_dir=self.target_files.directory
-        unprocessed_files = self.get_next_run_file()
+        unprocessed_files = self.get_next_run_file_from_directory()
         if len(unprocessed_files)>0:
             #process by batch
-            for idx, batches in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_COUNT']) ):
+            for idx, batches in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_RECORD_COUNT']) ):
                 '''
                 batch_files = asr.run_workflow(
                     config=self.config,
@@ -150,11 +149,15 @@ class TextClassificationTask(Task):
 class ExportAsrToVdiWorkspaceTask(Task):
     """Export files to a VDI Workspace file."""
 
-    def __init__(self, config, input, output):
+    def __init__(self, config, input, output, vdi_schema):
         super().__init__(config, input, output)
         self.target_folder = output.directory
+        if not vdi_schema:
+            vdi_schema = self.config['WORKING_DIR'] / 'workspace_schema_v0.2.1.json'
+        self._vdi_schema = File(vdi_schema, filetype='json').load_file(return_content=True)
 
     def run(self):
+        '''
         #load schema
         workspace_filepath = self.config['WORKING_DIR'] / 'workspace_schema_v0.2.1.json'
         if workspace_filepath.is_file():
@@ -163,11 +166,11 @@ class ExportAsrToVdiWorkspaceTask(Task):
         else:
             self.config['LOGGER'].info(f"run prepare() to load workspace schema")
             sys.exit()
-
-        #export by batch
-        processed_files = self.get_next_run_file()
+        '''
+        workspace_schema = copy.deepcopy(self._vdi_schema)
+        processed_files = self.get_next_run_file_from_directory()
         cnt = 0
-        for idx, batch in enumerate( utils.get_next_batch_from_list(processed_files, self.config['BATCH_COUNT']) ):
+        for idx, batch in enumerate( utils.get_next_batch_from_list(processed_files, self.config['BATCH_RECORD_COUNT']) ):
             self.config['LOGGER'].info("begin export")
             batch_span = f'{cnt+idx}-{len(batch)}'
             dt = datetime.datetime.now().isoformat().split('T')[0].replace('-','')
@@ -176,7 +179,7 @@ class ExportAsrToVdiWorkspaceTask(Task):
                          for file in batch
                          ]
             check = export.export_dialogues_to_output(
-                schema=self.config['WORKSPACE_SCHEMA'], 
+                schema=workspace_schema, 
                 dialogues=dialogues, 
                 filepath=export_filepath, 
                 output_type='vdi_workspace'
@@ -203,7 +206,7 @@ class ImportAndValidateUrlsTask(Task):
                 logger=self.config['LOGGER'],
                 exporter=None
             )
-        input_files = self.get_next_run_file()
+        input_files = self.get_next_run_file_from_directory()
         if len(input_files) == 1:   #only one input file
             input_file = input_files[0]
             records = File(filepath=input_file, filetype='yaml').load_file(return_content=True)
@@ -240,7 +243,7 @@ class CrawlUrlsTask(Task):
             return flat_list
     
         URL = UrlFactory()
-        input_files = self.get_next_run_file(method='update')
+        input_files = self.get_next_run_file_from_directory(method='update')
         if len(input_files) == 1:
             input_file = input_files[0]
             records = File(filepath=input_file, filetype='json').load_file(return_content=True)
@@ -294,7 +297,7 @@ class ConvertUrlDocToPdf(Task):
         ConfigObj.set_logger(self.config['LOGGER'])
         Doc = DocumentFactory(ConfigObj)
         docrec = DocumentRecord()
-        input_files = self.get_next_run_file(method='update')
+        input_files = self.get_next_run_file_from_directory(method='update')
         if len(input_files) > 0:
             for file_idx, file in enumerate(input_files):
                 record = File(filepath=file, filetype='json').load_file(return_content=True)
@@ -338,7 +341,7 @@ class ApplyModelsTask(Task):
 
     def run(self):
         TextClassifier.config(self.config)
-        input_files = self.get_next_run_file()
+        input_files = self.get_next_run_file_from_directory()
         if len(input_files) > 0:
             for file in input_files:
                 record = File(filepath=file, filetype='json').load_file(return_content=True)
@@ -389,10 +392,10 @@ class ExportVdiWorkspaceTask(Task):
             sys.exit()
 
         #export by batch
-        processed_files = self.get_next_run_file()
+        processed_files = self.get_next_run_file_from_directory()
         processed_files.sort()
         cnt = 0
-        for idx, batch in enumerate( utils.get_next_batch_from_list(processed_files, self.config['BATCH_COUNT']) ):
+        for idx, batch in enumerate( utils.get_next_batch_from_list(processed_files, self.config['BATCH_RECORD_COUNT']) ):
             self.config['LOGGER'].info("begin export")
             batch_span = f'{cnt+idx}-{len(batch)}'
             dt = datetime.datetime.now().isoformat().split('T')[0].replace('-','')
@@ -445,7 +448,7 @@ class ExportIndividualPdfTask(Task):
 
     def run(self):
         #export by batch
-        processed_files = self.get_next_run_file()
+        processed_files = self.get_next_run_file_from_directory()
         processed_files.sort()
         export_fields = ['id', 'date', 'page_nos', 'filetype', 'file_extension', 'file_size_mb', 'title', 'filename_original', 'filepath', 'pp_toc']
         report_records = []
@@ -502,7 +505,7 @@ class ImportEmailsTask(Task):
         #create messages
         check = True
         ecomms_files_list = []
-        for file in self.get_next_run_file():
+        for file in self.get_next_run_file_from_directory():
             try:
                 email_parser = EmailParser(file_path=file, max_depth=2)
                 results = email_parser.parse()

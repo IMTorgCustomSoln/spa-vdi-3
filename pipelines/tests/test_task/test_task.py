@@ -63,7 +63,7 @@ def test_task_template():
       )
     name_diff = ''
     tmp_task = Task(config, input_files, output_files, name_diff)
-    remainder_paths = tmp_task.get_next_run_file(method='same')
+    remainder_paths = tmp_task.get_next_run_file_from_directory(method='same')
     assert len(remainder_paths) == 4
 
     #case-2: some files previously processed
@@ -80,7 +80,7 @@ def test_task_template():
         )
       name_diff = ''
       tmp_task = Task(config, input_files, output_files, name_diff)
-      remainder_paths = tmp_task.get_next_run_file(method='same')
+      remainder_paths = tmp_task.get_next_run_file_from_directory(method='same')
       assert len(remainder_paths) == 2
 
     #case-3: no files should not be processed
@@ -97,6 +97,6 @@ def test_task_template():
         )
       name_diff = ''
       tmp_task = Task(config, input_files, output_files, name_diff)
-      remainder_paths = tmp_task.get_next_run_file(method='same')
+      remainder_paths = tmp_task.get_next_run_file_from_directory(method='same')
       assert len(remainder_paths) == 0
     assert True == True

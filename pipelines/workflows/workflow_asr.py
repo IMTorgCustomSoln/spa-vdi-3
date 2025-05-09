@@ -13,6 +13,7 @@ from src.Files import File, Files
 from src.TaskImport import ImportFromLocalFileTask, ImportBatchDocsFromLocalFileTask 
 from src.TaskTransform import (
     UnzipTask,
+    FlattenFileStructureTask,
     CreatePresentationDocument, 
     ApplyTextModelsTask
 )
@@ -41,6 +42,14 @@ import time
 import sys
 
 
+'''
+        {
+            'class': ImportFromLocalFileTask,
+            'name': 'input_audio',
+            'extension_patterns': ['.wav','.mp3','.mp4'],
+         },
+         '''
+
 
 config = {
     'INPUT_DIR': Path('./tests/test_wf_asr/data/'),
@@ -55,19 +64,19 @@ config = {
             'extension_patterns': ['.zip'],
         },
         {
-            'class': ImportFromLocalFileTask,
-            'name': 'input_audio',
-            'extension_patterns': ['.wav','.mp3','.mp4'],
+             'class': FlattenFileStructureTask,
+             'name': 'flatten',
+             'extension_patterns': ['.zip'],
          },
-         {
+        {
              'class': AsrTask,
              'name': 'asr',
-             'extension_patterns': ['.pickle'],
+             'extension_patterns': ['.mp3','.wav'],
          },
         {
             'class': CreatePresentationDocument,
             'name': 'presentation',
-            'extension_patterns': ['.pickle'],
+            'extension_patterns': ['.json'],
          },
         {
             'class': ApplyTextModelsTask,
