@@ -56,19 +56,21 @@ class File:
     #naming logic
     def get_full_path(self):
         return self.filepath
+    
     def get_name_and_suffix(self):
         return self.filepath.name
+    
     def get_name_without_suffix(self):
         return self.filepath.stem
+    
     def get_name_only(self):
         result = self.filepath.stem
         if '.' in result:
             result = result.split('.')[0]
         return result
+    
     def get_suffix(self):
-        return ''
-    def get_list(record):
-        return record
+        return self.filepath.suffix
 
     #io logic
     def load_file(self, return_content=False):
@@ -220,19 +222,12 @@ class Files:
         """Using a generator, this function returns 
         files from smallest to largest by size
         from a directory, or items from list.
-        """
 
-        """TODO:REMOVE
-        options = {
-            'full_path': get_full_path,
-            'name_and_suffix': get_name_and_suffix,
-            'name_without_suffix': get_name_without_suffix,
-            'name_only': get_name_only,
-            'suffix': get_suffix,
-            'list': get_list,
-        }
-        TODO:do I still need filetype
+        TODO:do I still need filetype? maybe for list input
         """
+        def get_list(record):
+            return record
+        
         #directory used as list (generator)
         if filetype == 'list' and self.list:
             for item in self.list:

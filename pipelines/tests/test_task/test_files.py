@@ -12,6 +12,7 @@ from src.Files import File, Files
 
 import tempfile
 from pathlib import Path
+import copy
 
 
 def test_file():
@@ -27,9 +28,16 @@ def test_file():
             file_content2 = test_file.get_content()
             assert file_content1 == file_content2 == test_file.content
             #export content to new file
-            test_file.filepath = outpath / filename
-            result = test_file.export_to_file()
-            assert test_file.filepath.is_file() == result
+            new_test_file = copy.deepcopy(test_file)
+            new_test_file.filepath = outpath / filename
+            result = new_test_file.export_to_file()
+            assert new_test_file.filepath.is_file() == result
+            #check naming logic
+            assert test_file.get_full_path().__str__() != new_test_file.filepath.__str__()
+            assert test_file.get_name_and_suffix().__str__() == new_test_file.filepath.name.__str__()
+            assert test_file.get_name_without_suffix().__str__() == new_test_file.filepath.stem.__str__()
+            assert test_file.get_name_only().__str__() == new_test_file.filepath.name.split('.')[0]
+            assert test_file.get_suffix().__str__() == new_test_file.filepath.suffix.__str__()
 
 def test_files_using_files(): 
     results = []

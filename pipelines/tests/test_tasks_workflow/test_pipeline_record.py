@@ -20,7 +20,7 @@ def test_pipeline_record_creation_single_file():
     record = factory.create_from_id(id, source_type)
     assert type(record) == PipelineRecord
 
-def test_pipeline_record_creation_single_file():
+def test_pipeline_record_creation_multiple_file():
    assert True == True
 
 
