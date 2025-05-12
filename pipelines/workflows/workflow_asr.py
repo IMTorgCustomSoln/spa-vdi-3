@@ -14,7 +14,7 @@ from src.TaskImport import ImportFromLocalFileTask, ImportBatchDocsFromLocalFile
 from src.TaskTransform import (
     UnzipTask,
     FlattenFileStructureTask,
-    CreatePresentationDocument, 
+    GroupFilesIntoDocumentTask, 
     ApplyTextModelsTask
 )
 from src.TaskComponents import (
@@ -22,6 +22,7 @@ from src.TaskComponents import (
     TextClassificationTask,
     ExportAsrToVdiWorkspaceTask
 )
+from src.TaskExport import ExportToVdiWorkspaceTask
 from src.Report import (
     TaskStatusReport,
     MapBatchFilesReport,
@@ -74,7 +75,7 @@ config = {
              'extension_patterns': ['.mp3','.wav'],
          },
         {
-            'class': CreatePresentationDocument,
+            'class': GroupFilesIntoDocumentTask,
             'name': 'presentation',
             'extension_patterns': ['.json'],
          },
@@ -84,7 +85,8 @@ config = {
             'extension_patterns': ['.pickle'],
          },
          {
-             'class': ExportAsrToVdiWorkspaceTask,
+             #'class': ExportAsrToVdiWorkspaceTask,
+             'class': ExportToVdiWorkspaceTask,
              'name': 'pre_export',
              'extension_patterns': ['.pickle'],
              'vdi_schema': ''

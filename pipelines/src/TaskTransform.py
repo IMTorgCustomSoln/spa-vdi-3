@@ -62,10 +62,54 @@ class FlattenFileStructureTask(Task):
             sound_files_list.append(outfile_path)
         return True
    
-class CreatePresentationDocument(Task):
-    """Create the presentation Document from multiple collected, added Documents.
-    The `.presentation_doc` is used for final export.
+from src.Task import PipelineRecordFactory, PipelineRecord
+from itertools import groupby
+
+class GroupFilesIntoDocumentTask(Task):
+    """..."""
+    def __init__(self, config, input, output):
+        super().__init__(config, input, output)
+
+    def get_file_group_id(self, file):
+        return file.filepath.stem.split('_')[0]
     
+    def run(self):
+        files = list(self.get_next_run_file_from_directory())
+        files_sorted = [file for file in 
+                        sorted(files, key=lambda x: self.get_file_group_id(x))
+                        ]
+        files_grouped = {key: list(group) for key, group in 
+                         groupby(files_sorted, key=lambda x: self.get_file_group_id(x))
+                         }
+        factory = PipelineRecordFactory()
+        for id_group, file_group in files_grouped.items():
+            checks = [file.load_file(return_content=False) for file in file_group]
+            source_type = 'multiple_files'
+            record = factory.create_from_id(id_group, source_type)
+            record.root_source = file_group[0].filepath
+            record.added_sources = [file.filepath for file in file_group]
+            docs = [file.get_content() for file in file_group]
+            #TODO: this should be changed in the AsrTask logic
+            for doc in docs: 
+                doc['filetype']='audio'
+                doc['filepath'] = doc['file_path']
+                del doc['file_path']
+                lines = [f"{chunk['timestamp']}: {chunk['text']}" for chunk in doc['chunks']]
+                doc['body'] = '\n'.join(lines)
+            record.collected_docs = docs
+            check = record.populate_presentation_doc()
+            self.pipeline_record_ids.append(record.id)
+            filepath = self.export_pipeline_record_to_file(record)
+            self.config['LOGGER'].info(f"exported processed file to: {filepath}")
+        self.config['LOGGER'].info(f"end ingest file location from {self.input_files.directory.resolve().__str__()} with {len(self.pipeline_record_ids)} files matching {self.target_extension}")
+        return True
+
+
+class CreatePresentationDocument(Task):
+    """TODO:change name and purpose to CreateSingleFileDocumentTask
+    this is not about just creating the presentation - it is about the transformation into a pipeline record
+    Create the presentation Document from multiple collected, added Documents.
+    The `.presentation_doc` is used for final export.
     """
 
     def __init__(self, config, input, output):

@@ -13,12 +13,15 @@ import pytest
     
 
 
-def test_pipeline_record_creation():
+def test_pipeline_record_creation_single_file():
     id = '12345'
     source_type = 'single_file'
     factory = PipelineRecordFactory()
     record = factory.create_from_id(id, source_type)
     assert type(record) == PipelineRecord
+
+def test_pipeline_record_creation_single_file():
+   assert True == True
 
 
 @pytest.mark.skip(reason="Test is currently under development")

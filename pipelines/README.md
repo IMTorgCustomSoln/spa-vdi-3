@@ -78,7 +78,7 @@ Some external modules are maintained within this repo to enable quick editing: `
 * improve interactive mode with notebook.ipynb
   - enable lists, instead of Files to be used with Tasks
   - test_workflow > test_task > test_files
-
+* update Document module to use msft markitdown: https://github.com/microsoft/markitdown
 
 
 ### Wf-Ecomms

@@ -175,7 +175,7 @@ class ExportAsrToVdiWorkspaceTask(Task):
             batch_span = f'{cnt+idx}-{len(batch)}'
             dt = datetime.datetime.now().isoformat().split('T')[0].replace('-','')
             export_filepath = self.target_folder / f'VDI_ApplicationStateData_v0.2.1_{dt}_{batch_span}.gz'    #v0.2.1_YYYYMMDD_0-100.gz
-            dialogues = [File(file, 'json').load_file(return_content=True)
+            dialogues = [file.load_file(return_content=True)
                          for file in batch
                          ]
             check = export.export_dialogues_to_output(

@@ -52,7 +52,25 @@ class File:
 
     def __str__(self):
         return self.__repr__()
+    
+    #naming logic
+    def get_full_path(self):
+        return self.filepath
+    def get_name_and_suffix(self):
+        return self.filepath.name
+    def get_name_without_suffix(self):
+        return self.filepath.stem
+    def get_name_only(self):
+        result = self.filepath.stem
+        if '.' in result:
+            result = result.split('.')[0]
+        return result
+    def get_suffix(self):
+        return ''
+    def get_list(record):
+        return record
 
+    #io logic
     def load_file(self, return_content=False):
         """Import from file"""
         #support functions
@@ -203,18 +221,8 @@ class Files:
         files from smallest to largest by size
         from a directory, or items from list.
         """
-        def get_full_path(file):
-            return file
-        def get_name_and_suffix(file):
-            return file.name
-        def get_name_without_suffix(file):
-            return file.stem
-        def get_name_only(file):
-            return file.stem.split('.')[0]
-        def get_suffix(file):
-            return ''
-        def get_list(record):
-            return record
+
+        """TODO:REMOVE
         options = {
             'full_path': get_full_path,
             'name_and_suffix': get_name_and_suffix,
@@ -223,6 +231,8 @@ class Files:
             'suffix': get_suffix,
             'list': get_list,
         }
+        TODO:do I still need filetype
+        """
         #directory used as list (generator)
         if filetype == 'list' and self.list:
             for item in self.list:
@@ -242,7 +252,7 @@ class Files:
                 check2 = len(suffixes)==1
                 if all([check1, check2]):
                     if file.is_file():
-                        path_record = options[filetype](file)       #TODO:is this needed?
+                        #path_record = options[filetype](file)       #TODO:is this needed?
                         new_file = File(
                             filepath=file, 
                             filetype=file.suffix.replace('.','')

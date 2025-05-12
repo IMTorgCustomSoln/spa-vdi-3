@@ -148,13 +148,13 @@ class Task:
         """
         if method == 'same':
             Type = 'name_only'
-            input_names = set([file.filepath.name for file in self.input_files.get_files(filetype=Type)])
+            input_names = set([file.get_name_only() for file in self.input_files.get_files()])
             #processed_names = set([file.replace(self.name_diff,'') for file in self.output_files.get_files(filetype=Type)])
-            processed_names = set([file.filepath.name for file in self.output_files.get_files(filetype=Type)])
+            processed_names = set([file.get_name_only() for file in self.output_files.get_files()])
             remainder_names = list( input_names.difference(processed_names) )
             if len(remainder_names)>0 and Type == 'name_only':
                 remainder_files = [file for file in self.input_files.get_files()
-                                    if file.filepath.name in remainder_names
+                                    if file.get_name_only() in remainder_names
                                    #if utils.remove_all_extensions_from_filename(file.stem) in remainder_names    #TODO:possible error for workflow_site_scrape
                                    ]
             else:
