@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 
 import { getDateFromJsNumber, getFormattedFileSize, getFileReferenceNumber } from '@/components/support/utils.js'
-import { camelize } from '@/components/support/utils.js'
 import * as utils from '@/components/support/utils.js'
 import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
@@ -38,7 +37,7 @@ for (let idx=1; idx<=2; idx++){     //change for testing
 
   let title = `<Topic-${idx} placeholder>`
   let edited_title = title.trim()
-  let topic = new TopicRecord(idx.toString(), edited_title, camelize(edited_title) + Date.now())
+  let topic = new TopicRecord(idx.toString(), edited_title, utils.camelize(edited_title) + Date.now())
   topics.push(topic)
 }
 export const ManagedNotesData = ref({
@@ -154,6 +153,12 @@ export class DocumentRecord {
     this.summary = this.clean_body.slice(0, 500)   //TODO:apply model to summarize text
     this.pp_toc = this.toc.map(section => `${section.title} (pg.${section.pageNumber})`)
 
+    if (utils.isEmpty(this.body_chars)){
+      this.body_chars = {}
+      Object.entries(this.body_pages).forEach(([pg,text]) => { 
+        this.body_chars[pg] = text.length 
+      })
+    }
     // prepare page numbers for search snippets
     //item.accumPageLines = item.length_lines_array.map((sum => value => sum += value)(0))    //.map((sum = 0, n => sum += n))  -> assignment to undeclared variable
     if (this.body_chars != null) {

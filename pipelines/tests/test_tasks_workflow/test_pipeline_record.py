@@ -20,6 +20,7 @@ def test_pipeline_record_creation_single_file():
     record = factory.create_from_id(id, source_type)
     assert type(record) == PipelineRecord
 
+@pytest.mark.skip(reason="Test is currently under development")
 def test_pipeline_record_creation_multiple_file():
    assert True == True
 

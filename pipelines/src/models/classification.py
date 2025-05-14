@@ -36,9 +36,10 @@ class Classifier:
             phrase_classifier,
             #fs_classifier
         ]
+        kw_lines = []
         for model_topic, data_dir in self.config['TRAINING_DATA_DIR'].items():
             with open( data_dir / 'pos_kw.txt', 'r') as file:
-                kw_lines = file.readlines()
+                kw_lines.extend( file.readlines() )
         self.config['KEYWORDS'] = [ ' ' + word.replace('\n','') + ' ' for word in kw_lines]      #ensure spacing around word
         
     def run(self, chunk):

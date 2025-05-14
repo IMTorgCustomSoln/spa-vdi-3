@@ -10,7 +10,7 @@ __license__ = "AGPL-3.0"
 
 from src.TaskExport import ExportToLocalTableTask, ExportToVdiWorkspaceTask
 from src.TaskImport import ImportFromLocalFileTask,ImportBatchDocsFromLocalFileTask 
-from src.TaskTransform import CreatePresentationDocument, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
 from src.Files import Files
 from src.io import load
 
@@ -86,7 +86,7 @@ def test_multiple_files_ExportToLocalTableTask():
       input_files, 
       intermediate_files
       )
-    xform_task = CreatePresentationDocument(
+    xform_task = CreateSingleFileRecordTask(
      config, 
      intermediate_files, 
      xform_files
@@ -163,7 +163,7 @@ def test_single_file_ExportToVdiWorkspaceTask():
       input_files, 
       intermediate_files
       )
-    xform_task = CreatePresentationDocument(
+    xform_task = CreateSingleFileRecordTask(
      config, 
      intermediate_files, 
      xform_files
@@ -238,7 +238,7 @@ def test_multiple_files_ExportToVdiWorkspaceTask():
       input_files, 
       intermediate_files
       )
-    xform_task = CreatePresentationDocument(
+    xform_task = CreateSingleFileRecordTask(
      config, 
      intermediate_files, 
      xform_files

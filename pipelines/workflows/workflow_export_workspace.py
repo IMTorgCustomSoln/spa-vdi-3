@@ -18,7 +18,7 @@ from src.Workflow import WorkflowNew
 from src.Files import File, Files
 
 from src.TaskImport import ImportFromLocalFileCustomFormatTask  
-from src.TaskTransform import CreatePresentationDocument
+from src.TaskTransform import CreateSingleFileRecordTask
 from src.TaskExport import ExportToVdiWorkspaceTask, ExportBatchToVdiWorkspaceTask
 
 from src.io import load
@@ -46,7 +46,7 @@ config = {
             'extension_patterns': ['.json'],
          },
         {
-            'class': CreatePresentationDocument,
+            'class': CreateSingleFileRecordTask,
             'name': 'presentation',
             'extension_patterns': ['.pickle'],
          },

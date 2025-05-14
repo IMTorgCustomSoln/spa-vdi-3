@@ -14,7 +14,7 @@ from src.TaskImport import ImportFromLocalFileTask, ImportBatchDocsFromLocalFile
 from src.TaskTransform import (
     UnzipTask,
     FlattenFileStructureTask,
-    GroupFilesIntoDocumentTask, 
+    CreateMultiFileRecordTask, 
     ApplyTextModelsTask
 )
 from src.TaskComponents import (
@@ -75,7 +75,7 @@ config = {
              'extension_patterns': ['.mp3','.wav'],
          },
         {
-            'class': GroupFilesIntoDocumentTask,
+            'class': CreateMultiFileRecordTask,
             'name': 'presentation',
             'extension_patterns': ['.json'],
          },

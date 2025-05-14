@@ -17,7 +17,7 @@ __license__ = "AGPL-3.0"
 
 from src.Workflow import WorkflowNew
 from src.TaskImport import ImportFromLocalFileTask
-from src.TaskTransform import CreatePresentationDocument, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
 from src.TaskExport import ExportRecordsToFileTask   #ExportRecordsToReplTask
 
 from pathlib import Path
@@ -37,8 +37,8 @@ config = {
             'extension_patterns': ['.md','.txt'],
          },
         {
-            'class': CreatePresentationDocument,
-            'name': 'presentation',
+            'class': CreateSingleFileRecordTask,
+            'name': 'record',
             'extension_patterns': ['.pickle'],
          },
         {
@@ -49,7 +49,7 @@ config = {
     ]
 }
 
-"""
+"""TODO:individual files, such as .pdfs, may be useful.
         {
             'class': ExportRecordsToFileTask,
             'name': 'export',

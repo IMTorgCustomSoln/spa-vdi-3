@@ -72,13 +72,14 @@ Some external modules are maintained within this repo to enable quick editing: `
 ## TODO: Project-level
 
 * improve multi-model topics and Classification() class
-  - fix vdiworkspace export so it runs with client search: pre-run models
+  - ~~fix vdiworkspace export so it runs with client search: pre-run models~~
   - ~~move pretrained_models/ to models/~~ => ERRORS, can't add .env to vscode pytest
   - ~~move src/data/ to models_data/~~
+  - design so that multiple models can be selected, independently
 * improve interactive mode with notebook.ipynb
   - enable lists, instead of Files to be used with Tasks
   - test_workflow > test_task > test_files
-* update Document module to use msft markitdown: https://github.com/microsoft/markitdown
+* update EnteroDoc module to use msft markitdown: https://github.com/microsoft/markitdown
 
 
 ### Wf-Ecomms

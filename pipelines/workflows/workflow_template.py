@@ -19,7 +19,7 @@ from src.Workflow import Workflow, WorkflowNew
 from src.Files import File, Files
 
 from src.TaskImport import ImportFromLocalFileTask, ImportBatchDocsFromLocalFileTask 
-from src.TaskTransform import CreatePresentationDocument, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
 from src.TaskExport import ExportToVdiWorkspaceTask
 """TODO
 from src.Report import (
@@ -56,8 +56,8 @@ config = {
             'extension_patterns': ['.md','.txt'],
          },
         {
-            'class': CreatePresentationDocument,
-            'name': 'presentation',
+            'class': CreateSingleFileRecordTask,
+            'name': 'record',
             'extension_patterns': ['.pickle'],
          },
         {

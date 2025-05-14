@@ -313,7 +313,7 @@ high because terms are found that are very similar to the exact terms._`
             }
         },
 
-        createSearchSnippets(row, MARGIN = 250) {
+        createSearchSnippets(row, MARGIN = 250, MAX_SUBGROUP = 10) {
             this.items.map(item => {
                 if (row.id == item.id) {
                     const idx = this.$props.search.resultGroups.map(resultFile => resultFile.ref).indexOf(item.id)
@@ -339,7 +339,7 @@ high because terms are found that are very similar to the exact terms._`
                                 for (let nextIndex = indexCorrected + 1; nextIndex < positions.length; nextIndex++) {
                                     const nextPos = positions[nextIndex]
                                     const diff = nextPos[0] - pos[0]
-                                    if (diff < MARGIN * 2) {
+                                    if (diff < MARGIN * 2 & subgroup.length < MAX_SUBGROUP) {
                                         subgroup.push(nextPos)
                                         incr++
                                         if (index + incr + 1 == positions.length) {

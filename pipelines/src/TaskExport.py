@@ -232,7 +232,7 @@ def map_record_presentation_doc_to_workspace_document(schema, record):
     document_record['dataArray'] = {idx: item for idx,item in enumerate(doc['file_uint8arr'])}                     #TODO: {"0":37, "1": 80, ...   or [37, 80, ...]
     document_record['toc'] = doc['toc']
     document_record['pp_toc'] = ""
-    document_record['clean_body'] = ' '.join(doc['clean_body'])          #NOTE:created during workspace import
+    document_record['clean_body'] = doc['clean_body']     #PREVIOUSLY WRONG:' '.join(doc['clean_body'])          #NOTE:created during workspace import
 
     #file info
     document_record['file_extension'] = doc['file_extension']

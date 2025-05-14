@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 __license__ = "AGPL-3.0"
 
 from src.TaskImport import ImportFromLocalFileTask,ImportBatchDocsFromLocalFileTask 
-from src.TaskTransform import CreatePresentationDocument, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
 from src.Files import Files
 from src.Task import PipelineRecord
 
@@ -65,7 +65,7 @@ def test_single_file_ApplyTextModelsTask():
      input_files, 
      intermediate_files
      )
-   xform_task = CreatePresentationDocument(
+   xform_task = CreateSingleFileRecordTask(
      config, 
      intermediate_files, 
      xform_files
@@ -127,7 +127,7 @@ def test_multiple_files_ApplyTextModelsTask():
      input_files, 
      intermediate_files
      )
-   xform_task = CreatePresentationDocument(
+   xform_task = CreateSingleFileRecordTask(
      config, 
      intermediate_files, 
      xform_files

@@ -19,7 +19,7 @@ from src.modules.parse_ediscovery.loadfile import (
 )
 from src.modules.parse_orgchart.orgchart import OrgChartParser
 from src.TaskImport import ImportValidateCombineEcommsTask, ImportCombinedDatsEcommsTask
-from src.TaskTransform import CreatePresentationDocument, ApplyTextModelsTask, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask, ApplyTextModelsTask
 from src.TaskExport import ExportToVdiWorkspaceTask
 from src.models import prepare_models
 from src.io import load
@@ -116,7 +116,7 @@ class WorkflowEcomms(Workflow):
                 input=input_files,
                 output=validated_files
             )
-            xform_task = CreatePresentationDocument(
+            xform_task = CreateSingleFileRecordTask(
                 config=CONFIG,
                 input=validated_files,
                 output=xform_files

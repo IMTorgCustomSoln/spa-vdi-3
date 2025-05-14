@@ -65,8 +65,11 @@ class FlattenFileStructureTask(Task):
 from src.Task import PipelineRecordFactory, PipelineRecord
 from itertools import groupby
 
-class GroupFilesIntoDocumentTask(Task):
-    """..."""
+class CreateMultiFileRecordTask(Task):
+    """Create a PipelineRecord from a Multiple Files.
+    The pipeline record provides the metadata and final formatted presentation document 
+    for application of text models.  The `.presentation_doc` is used for final export.
+    """
     def __init__(self, config, input, output):
         super().__init__(config, input, output)
 
@@ -105,13 +108,11 @@ class GroupFilesIntoDocumentTask(Task):
         return True
 
 
-class CreatePresentationDocument(Task):
-    """TODO:change name and purpose to CreateSingleFileDocumentTask
-    this is not about just creating the presentation - it is about the transformation into a pipeline record
-    Create the presentation Document from multiple collected, added Documents.
-    The `.presentation_doc` is used for final export.
+class CreateSingleFileRecordTask(Task):
+    """Create a PipelineRecord from a Single File.
+    The pipeline record provides the metadata and final formatted presentation document 
+    for application of text models.  The `.presentation_doc` is used for final export.
     """
-
     def __init__(self, config, input, output):
         super().__init__(config, input, output)
 
@@ -136,6 +137,9 @@ def split_str_into_chunks(str_item, N):
     return chunks
 
 
+
+
+#TODO:put model tasks into a new file
 class ApplyTextModelsTask(Task):
     """Apply text models (keyterms, classification, etc.) to documents in most 
     simple scenario.
