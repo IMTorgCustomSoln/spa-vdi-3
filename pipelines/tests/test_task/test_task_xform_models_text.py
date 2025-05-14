@@ -9,7 +9,8 @@ __version__ = "0.1.0"
 __license__ = "AGPL-3.0"
 
 from src.TaskImport import ImportFromLocalFileTask,ImportBatchDocsFromLocalFileTask 
-from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask
+from src.TaskModel import ApplyTextModelsTask
 from src.Files import Files
 from src.Task import PipelineRecord
 

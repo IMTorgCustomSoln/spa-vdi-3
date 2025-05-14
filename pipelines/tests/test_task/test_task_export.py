@@ -10,7 +10,8 @@ __license__ = "AGPL-3.0"
 
 from src.TaskExport import ExportToLocalTableTask, ExportToVdiWorkspaceTask
 from src.TaskImport import ImportFromLocalFileTask,ImportBatchDocsFromLocalFileTask 
-from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask
+from src.TaskModel import ApplyTextModelsTask
 from src.Files import Files
 from src.io import load
 

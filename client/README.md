@@ -96,6 +96,8 @@ __Staging__
   - ~~ensure compatability of both Workspaces and individual documents~~
   - remove uncommented / old code
   - favicon
+  - text is styled in snippets; while yellow-highlight should be, `<h1>, <img>` should not
+  - snippets contain duplicates: Table.vue > createSearchSnippets() 
 
 * search 
   - ~~dropdown for search type~~

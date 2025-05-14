@@ -17,7 +17,8 @@ __license__ = "AGPL-3.0"
 
 from src.Workflow import WorkflowNew
 from src.TaskImport import ImportFromLocalFileTask
-from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask
+from src.TaskModel import ApplyTextModelsTask
 from src.TaskExport import ExportRecordsToFileTask   #ExportRecordsToReplTask
 
 from pathlib import Path

@@ -75,7 +75,8 @@ Some external modules are maintained within this repo to enable quick editing: `
   - ~~fix vdiworkspace export so it runs with client search: pre-run models~~
   - ~~move pretrained_models/ to models/~~ => ERRORS, can't add .env to vscode pytest
   - ~~move src/data/ to models_data/~~
-  - design so that multiple models can be selected, independently
+  - design so that multiple models can be selected, independently, on the frontend
+  - but can it still be compatible with old vdiworkspace?
 * improve interactive mode with notebook.ipynb
   - enable lists, instead of Files to be used with Tasks
   - test_workflow > test_task > test_files

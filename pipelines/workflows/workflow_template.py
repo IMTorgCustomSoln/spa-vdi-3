@@ -15,11 +15,12 @@ __version__ = "0.1.0"
 __license__ = "AGPL-3.0"
 
 
-from src.Workflow import Workflow, WorkflowNew
+from src.Workflow import WorkflowNew
 from src.Files import File, Files
 
 from src.TaskImport import ImportFromLocalFileTask, ImportBatchDocsFromLocalFileTask 
-from src.TaskTransform import CreateSingleFileRecordTask, ApplyTextModelsTask
+from src.TaskTransform import CreateSingleFileRecordTask
+from src.TaskModel import ApplyTextModelsTask
 from src.TaskExport import ExportToVdiWorkspaceTask
 """TODO
 from src.Report import (
@@ -28,18 +29,12 @@ from src.Report import (
     ProcessTimeAnalysisReport
 )
 """
-from src.models import prepare_models
-from src.io import load
 #TODO: from tests.estimate_processing_time import ProcessTimeQrModel
 
-from config._constants import (
-    logging_dir,
-    logger
-)
+from src.io import load
 
 from pathlib import Path
-import time
-import sys
+
 
 
 config = {

@@ -53,31 +53,7 @@ class UnzipTask(Task):
         return True
 '''
 
-from src.models import asr
 
-class AsrTask(Task):
-    """Apply Automatic Speech Recognition to audio files
-    """
-
-    def __init__(self, config, input, output):
-        super().__init__(config, input, output)
-        self.target_files = output
-        #self.infer_text_classify_only = False       #TODO:separate into another Task???
-
-    def run(self):
-        unprocessed_files = self.get_next_run_file_from_directory()
-        if len(unprocessed_files)>0:
-            #process by batch
-            for idx, batch in enumerate( utils.get_next_batch_from_list(unprocessed_files, self.config['BATCH_RECORD_COUNT']) ):
-                batch_files = asr.run_workflow(
-                    config=self.config,
-                    sound_files=batch, 
-                    intermediate_save_dir=self.target_files.directory,
-                    infer_text_classify_only=False
-                    )
-                self.config['LOGGER'].info(f"end model workflow, batch-index: {idx} with {len(batch_files)} files")
-        return True
-    
 #from src.models.classification import classifier
 from src.models.classification import TextClassifier
 import time
