@@ -1,7 +1,5 @@
 #Custom
 .DS_Store
-Pipfile
-Pipfile.lock
 
 #client/tests/data/broken_examples/
 #client/tests/data/profiles/
