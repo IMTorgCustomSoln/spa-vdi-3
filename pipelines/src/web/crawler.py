@@ -228,7 +228,7 @@ class Crawler:
             try:
                 search_results = googlesearch.search(term = terms, 
                                                      num_results = NumberOfSearchResults,
-                                                     sleep_interval = 1 
+                                                     sleep_interval = 3 
                                                      )
                 self.logger.info(f'request made to google using terms: {terms}')
                 unique_urls = [url for url in search_results if url not in result_url_list]

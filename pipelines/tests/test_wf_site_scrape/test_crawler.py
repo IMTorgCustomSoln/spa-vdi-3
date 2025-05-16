@@ -17,6 +17,7 @@ from src.modules.enterodoc.entero_document.url import UrlFactory, UniformResourc
 from src.web.crawler import Crawler, empty_scenario, example_udap_search_terms
 
 import time
+import pytest
 
 
 urls = ['https://www.jpmorgan.com']
@@ -100,3 +101,7 @@ def test_crawler_generate_href_chain_with_base_url():
     assert list(result_urls.keys())[0] == key.url
     assert len(result_urls[key]) > 40
     assert duration_sec < 180
+
+@pytest.mark.skip(reason="Test is currently under development")
+def test_crawler_get_hrefs_within_depth():
+    assert True == True
