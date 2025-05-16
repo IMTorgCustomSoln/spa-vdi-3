@@ -17,7 +17,7 @@ import copy
 #load models
 #config_env.config()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model_path = Path("pretrained_models/finetuned--BAAI")
+model_path = Path("BAAI/bge-small-en-v1.5")
 model = SetFitModel.from_pretrained(model_path)
 model.to(device)
 

@@ -238,6 +238,7 @@ def map_record_presentation_doc_to_workspace_document(schema, record):
     document_record['file_extension'] = doc['file_extension']
     document_record['file_size_mb'] = doc['file_size_mb']
     document_record['filename_original'] = doc['filename_original']                             #TODO:add suffix
+    doc['title'] = doc['title'] if type(doc['title'])==str else ''
     document_record['title'] = doc['title'] if len(doc['title'])<50 else doc['title'][:50]
     document_record['filepath'] = doc['filepath']
     document_record['filetype'] = doc['filetype']

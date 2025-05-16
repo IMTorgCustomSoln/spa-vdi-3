@@ -76,8 +76,8 @@ def test_crawler_generate_href_chain_without_base_url():
     result_urls = crawler.generate_href_chain()
     key = Url_list[0]
     duration_sec = time.time() - start_time
-    assert list(result_urls.keys())[0] == key
-    assert len(result_urls[key]) > 40
+    assert list(result_urls.keys())[0] == key.url
+    assert len(result_urls[key.url]) > 40
     assert duration_sec < 180
 
 def test_crawler_generate_href_chain_with_base_url():
@@ -97,6 +97,6 @@ def test_crawler_generate_href_chain_with_base_url():
     result_urls = crawler.generate_href_chain()
     key = Url_list[0]
     duration_sec = time.time() - start_time
-    assert list(result_urls.keys())[0] == key
+    assert list(result_urls.keys())[0] == key.url
     assert len(result_urls[key]) > 40
     assert duration_sec < 180

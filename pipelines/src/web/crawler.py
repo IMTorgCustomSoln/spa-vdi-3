@@ -142,7 +142,7 @@ class Crawler:
         if scenario.base_url:
             scenario.base_url = self._ensure_url_class(scenario.base_url)
         if type(scenario.urls) == list:
-            url_list = list(set(scenario.urls))
+            url_list = scenario.urls
             scenario.urls = [self._ensure_url_class(url) for url in url_list]
         scenario._stringified_lists = []
         scenario._valid_urls = []
@@ -202,7 +202,7 @@ class Crawler:
                                                 )
             url_str = url.url
             hrefs_str = [href.url for href in hrefs]
-            result_urls[url] = hrefs_str
+            result_urls[url_str] = hrefs_str
             self.logger.info(f"result of `generate_href_chain()` is {len(hrefs)} result_urls for root {url} listed as: {hrefs}")
         return result_urls
 
