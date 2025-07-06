@@ -1,0 +1,67 @@
+Date : 2024-12-13 16:28:16
+Directory : /workspaces/spa-vdi-2
+Total : 25 files,  7731 codes, 0 comments, 449 blanks, all 8180 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| json             |          2 |      4,230 |          0 |          2 |      4,232 |
+| vue              |         16 |      3,367 |          0 |        432 |      3,799 |
+| toml             |          3 |         78 |          0 |          9 |         87 |
+| jsonc            |          2 |         43 |          0 |          6 |         49 |
+| pip requirements |          2 |         13 |          0 |          0 |         13 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                      | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                         |         25 |      7,731 |          0 |        449 |      8,180 |
+| .devcontainer                                                             |          1 |         27 |          0 |          6 |         33 |
+| backend                                                                   |          2 |         92 |          0 |          5 |         97 |
+| client                                                                    |         17 |      3,371 |          0 |        432 |      3,803 |
+| client/src                                                                |         16 |      3,367 |          0 |        432 |      3,799 |
+| client/src/components                                                     |         16 |      3,367 |          0 |        432 |      3,799 |
+| client/src/components (Files)                                             |          9 |      2,526 |          0 |        324 |      2,850 |
+| client/src/components/support                                             |          7 |        841 |          0 |        108 |        949 |
+| client/tests                                                              |          1 |          4 |          0 |          0 |          4 |
+| client/tests/py                                                           |          1 |          4 |          0 |          0 |          4 |
+| pipelines                                                                 |          5 |      4,241 |          0 |          6 |      4,247 |
+| pipelines (Files)                                                         |          4 |      4,232 |          0 |          6 |      4,238 |
+| pipelines/src                                                             |          1 |          9 |          0 |          0 |          9 |
+| pipelines/src/modules                                                     |          1 |          9 |          0 |          0 |          9 |
+| pipelines/src/modules/parse_emails                                        |          1 |          9 |          0 |          0 |          9 |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                  | language         | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| /workspaces/spa-vdi-2/.devcontainer/devcontainer.json                     | jsonc            |         27 |          0 |          6 |         33 |
+| /workspaces/spa-vdi-2/backend/Pipfile                                     | toml             |         12 |          0 |          4 |         16 |
+| /workspaces/spa-vdi-2/backend/Pipfile.lock                                | json             |         80 |          0 |          1 |         81 |
+| /workspaces/spa-vdi-2/client/src/components/App.vue                       | vue              |        121 |          0 |         16 |        137 |
+| /workspaces/spa-vdi-2/client/src/components/ImportData.vue                | vue              |        569 |          0 |         88 |        657 |
+| /workspaces/spa-vdi-2/client/src/components/NavbarTop.vue                 | vue              |         92 |          0 |         20 |        112 |
+| /workspaces/spa-vdi-2/client/src/components/PdfPlaceholder.vue            | vue              |         80 |          0 |         13 |         93 |
+| /workspaces/spa-vdi-2/client/src/components/PdfViewer.vue                 | vue              |        344 |          0 |         43 |        387 |
+| /workspaces/spa-vdi-2/client/src/components/PdfViewerHtml.vue             | vue              |         97 |          0 |          6 |        103 |
+| /workspaces/spa-vdi-2/client/src/components/SearchBar.vue                 | vue              |        425 |          0 |         43 |        468 |
+| /workspaces/spa-vdi-2/client/src/components/SideBar.vue                   | vue              |        249 |          0 |         35 |        284 |
+| /workspaces/spa-vdi-2/client/src/components/Table.vue                     | vue              |        549 |          0 |         60 |        609 |
+| /workspaces/spa-vdi-2/client/src/components/support/About.vue             | vue              |         41 |          0 |         10 |         51 |
+| /workspaces/spa-vdi-2/client/src/components/support/Draggable.vue         | vue              |         84 |          0 |          9 |         93 |
+| /workspaces/spa-vdi-2/client/src/components/support/Guide.vue             | vue              |         40 |          0 |          3 |         43 |
+| /workspaces/spa-vdi-2/client/src/components/support/NotesIO.vue           | vue              |        277 |          0 |         33 |        310 |
+| /workspaces/spa-vdi-2/client/src/components/support/SaveWork.vue          | vue              |        207 |          0 |         31 |        238 |
+| /workspaces/spa-vdi-2/client/src/components/support/Snippets.vue          | vue              |        103 |          0 |         12 |        115 |
+| /workspaces/spa-vdi-2/client/src/components/support/SnippetsInfinite.vue  | vue              |         89 |          0 |         10 |         99 |
+| /workspaces/spa-vdi-2/client/tests/py/requirements.txt                    | pip requirements |          4 |          0 |          0 |          4 |
+| /workspaces/spa-vdi-2/pipelines/Pipfile                                   | toml             |         49 |          0 |          4 |         53 |
+| /workspaces/spa-vdi-2/pipelines/Pipfile.lock                              | json             |      4,150 |          0 |          1 |      4,151 |
+| /workspaces/spa-vdi-2/pipelines/pyproject.toml                            | toml             |         17 |          0 |          1 |         18 |
+| /workspaces/spa-vdi-2/pipelines/spa-vdi-2.code-workspace                  | jsonc            |         16 |          0 |          0 |         16 |
+| /workspaces/spa-vdi-2/pipelines/src/modules/parse_emails/requirements.txt | pip requirements |          9 |          0 |          0 |          9 |
+| Total                                                                     |                  |      7,731 |          0 |        449 |      8,180 |
++---------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
