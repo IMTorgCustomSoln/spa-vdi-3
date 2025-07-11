@@ -1,9 +1,18 @@
+#!/usr/bin/env python3
+"""
+TaskExport classes
 
+"""
 
+__author__ = "Jason Beach"
+__version__ = "0.1.0"
+__license__ = "AGPL-3.0"
+
+'''
 from .prepare_models import (
     validate_key_terms
-
 )
+'''
 
 import nltk
 nltk.download('punkt')
@@ -11,7 +20,7 @@ nltk.download('punkt_tab')
 from nltk.tokenize import sent_tokenize
 
 from sentence_transformers import SentenceTransformer
-from src.classification import TextClassifier
+from src.modules.model_ensemble import TextClassifier
 import fitz
 import sklearn
 
@@ -30,7 +39,7 @@ train_test_data = {
 }
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-
+'''
 class SearchModelAbstract:
     """..."""
     def __init__(self):
@@ -63,13 +72,26 @@ class SearchHybrid(SearchModelAbstract):
         score = result['pred']     #TODO: TypeError: list indices must be integers or slices, not str
         text = result['target']
         return score, text
+'''
 
 
+def DocumentFactory(filepath, model, pages=None):       #previously: load_doc()
+    """..."""
+    pdfpath = filepath
+    pdf = fitz.open(pdfpath)
+    doc = Document(model)
+    for idx, page in enumerate(pdf):
+        if pages == None:
+            text_blocks = page.get_text('blocks')
+            doc.add_page(idx, text_blocks)
+        else:
+            if idx <= pages:
+                text_blocks = page.get_text('blocks')
+                doc.add_page(idx, text_blocks)
+    return doc
 
 
-
-
-class Doc:
+class Document:
     """"..."""
     def __init__(self, model):
         self.model = model

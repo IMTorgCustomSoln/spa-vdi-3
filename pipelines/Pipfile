@@ -55,6 +55,9 @@ ffmpeg-python = "*"
 fake-useragent = "*"
 lxml = "*"
 pymupdf-fonts = "*"
+langchain-text-splitters = "*"
+tiktoken = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.9"
