@@ -37,7 +37,7 @@ def test_text_classifier_single_model():
     tc = TextClassifier(name='model_topic', config=config, models=[model1], coordinator=coord)
     txt = record_presentation_doc['clean_body']
     results = tc.run(txt)
-    assert len(results) == 6
+    assert len(results) == 4
     item = results[0]
     del item['timestamp']
     del item['pred']

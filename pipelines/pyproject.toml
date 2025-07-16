@@ -1,6 +1,7 @@
 [tool.pytest.ini_options]
 testpaths = [
   "tests/test_wf_site_scrape",
+  "tests/test_modeling",
   #"tests",
   #"src/modules/enterodoc/tests",
   "src/modules/model_ensemble/tests"

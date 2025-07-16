@@ -135,3 +135,18 @@ def decompress_filepath_archives(filepath, extract_dir, target_extension=[]):
         else:
             print('ERROR: not a recognized decompression format')
     return result
+
+
+def xform_VDI_NotesData_to_page_labels(notesdata):
+    """..."""
+    labeled_data = []
+    for note in notesdata['notes']:
+        if '<div ' in note['innerText']:
+            text_item = {}
+            text_item['id'] = note['id']
+            text_item['label'] = [item['title'] for item in notesdata['topics'] if item['dropZoneName']==note['list']]
+            text_item['docname'] = note['innerText'].split('bold\">')[1].split(',')[0]
+            text_item['page'] = int( note['innerText'].split(', pg.')[1].split('|')[0] )
+            text_item['text'] = note['innerText'].split('/div>')[1].strip()
+            labeled_data.append(text_item)
+    return labeled_data
