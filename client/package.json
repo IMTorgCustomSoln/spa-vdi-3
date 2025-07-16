@@ -16,7 +16,7 @@
     "bootstrap-vue": "^2.23.1",
     "dotenv": "^16.3.1",
     "idb": "^8.0.0",
-    "pdfjs-dist": "^4.0.379",
+    "pdfjs-dist": "^5.3.93",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "splitpanes": "^2.4.1",

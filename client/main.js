@@ -6,10 +6,17 @@ import App from '@/components/App.vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+/*
 import * as pdfjsLib from "pdfjs-dist/build/pdf"
 //import *  as pdfjsViewer from "pdfjs-dist/web/pdf_viewer"
 import * as pdfjsWorker from "pdfjs-dist/build/pdf.worker.mjs"
-
+*/
+import * as pdfjsLib from "pdfjs-dist"
+import *  as pdfjsViewer from "pdfjs-dist/web/pdf_viewer"
+pdfjsLib.GlobalWorkerOptions.workerPort = new Worker(
+  new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url),
+  { type: 'module' },
+);
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
@@ -17,8 +24,10 @@ Vue.component('b-icon', BIcon)
 
 export const app = createApp(App)
 app.use(pinia)
+/*
 app.config.globalProperties.$pdf = pdfjsLib
 app.config.globalProperties.$pdf.GlobalWorkerOptions.workerSrc = pdfjsWorker 
+*/
 
 app.mount('#app')
 window.$app = app
