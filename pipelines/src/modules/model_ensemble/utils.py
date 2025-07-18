@@ -105,9 +105,12 @@ nltk.download('punkt')
 from nervaluate.evaluate import Evaluator
 
 def score_model_results(labeled_data, pred_results, doc):
-    """..."""
+    """TODO:convert to class
+    
+    """
     results = {}
     #calibrate text
+    model_topic_labels = set([result['label'] for result in pred_results])
     checks = {}
     for item in labeled_data:
         target_page = item['page'] - 1
@@ -118,7 +121,8 @@ def score_model_results(labeled_data, pred_results, doc):
         doc_page_chars = ''.join(doc_page_sentences)
         check1 = doc_initial_text in item['calibrateSubString'].lower()
         check2 = item['calibratePageLength'] >= len(doc_page_chars)
-        checks[target_page].extend([check1, check2])
+        check3 = item['label'] in model_topic_labels
+        checks[target_page].extend([check1, check2, check3])
     flattened_checks = [item for sublist in checks.values() for item in sublist]
     assert all( flattened_checks ) == True
 
@@ -161,11 +165,12 @@ def score_model_results(labeled_data, pred_results, doc):
     trues = [true_sent['true_BIO'] for true_sent in true_sentences]
     preds = [pred_sent['pred_BIO'] for pred_sent in pred_sentences]
     evaluator = Evaluator(trues, preds, tags=labels, loader='list')
-    results, results_per_tag, result_indices, result_indices_by_tag = evaluator.evaluate()
-    results['IOB_matrix'] = evaluator
-
-    #label confusion matrix scores
-    scores = {'TP':0, 'FP':0,  'TN':0, 'FN':0}
-    results['label_matrix'] = scores
-
+    '''
+    ref: https://pypi.org/project/nervaluate/
+    basic_results, results_per_tag, result_indices, result_indices_by_tag = evaluator.evaluate()
+    evaluator.summary_report()
+    evaluator.summary_report(mode='endtities')
+    '''
+    results['labels'] = labels
+    results['evaluator'] = evaluator
     return results

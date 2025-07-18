@@ -23,6 +23,8 @@ from setfit import SetFitModel
 
 from pathlib import Path
 import copy
+import random
+import string
 
 
 from config._constants import (
@@ -32,6 +34,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_path = Path("BAAI/bge-small-en-v1.5")
 model = SetFitModel.from_pretrained(model_path)
 model.to(device)
+alphanumeric = string.ascii_letters + string.digits
 
 
 class Model:
@@ -39,6 +42,7 @@ class Model:
 
     _default_result = {
         'search': None,
+        'id': None,
         'model_topic': None,
         'topic_class': None,
         'target': None,
@@ -54,6 +58,7 @@ class Model:
     def _get_staged_result(self):
         if not self.staged_result:
             staged_result = copy.deepcopy(Model._default_result)
+            staged_result['id'] = ''.join(random.choices(population=alphanumeric, k=5))
             staged_result['model_topic'] = self.model_topic
             self.staged_result = staged_result
         else:
