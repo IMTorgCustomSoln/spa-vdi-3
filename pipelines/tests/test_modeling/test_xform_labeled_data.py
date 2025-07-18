@@ -19,4 +19,4 @@ with open(filepath, 'r') as f:
 def test_xform_VDI_NotesData_to_page_labels():
     labeled_data = xform_VDI_NotesData_to_page_labels(notesdata)
     assert len(labeled_data) == 3
-    assert list(labeled_data[0].keys()) == ['id', 'label', 'docname', 'page', 'text']
+    assert list(labeled_data[0].keys()) == ['id', 'label', 'docname', 'page', 'text', 'begin', 'end', 'calibrateSubString', 'calibratePageLength']

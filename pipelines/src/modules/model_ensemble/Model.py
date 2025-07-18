@@ -227,13 +227,19 @@ class BinaryClassKeyWordModel(Model):
     def run(self, text):
         results = []
         for key_word in self.key_words:
-            hits = re.findall(key_word, text)
+            hits = list( re.finditer(key_word, text) )
             if len(hits) > 0:
                 staged_results = self._get_staged_result()
                 results = [{
                     'search': staged_results['search'],
                     'model_topic': staged_results['model_topic'],
                     'topic_class': staged_results['topic_class'],
+
+                    'label': staged_results['model_topic'],
+                    'begin': hit.start(),
+                    'end': hit.end(),
+                    'text': hit.group(),
+
                     'target': key_word,
                     'timestamp': time.time(),
                     'pred': len(hits) / len(text),

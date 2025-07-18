@@ -1,1 +1,79 @@
-{"topics":[{"id":"1","title":"<Topic-1 placeholder>","dropZoneName":"<Topic-1Placeholder>1752611394362"},{"id":"2","title":"<Topic-2 placeholder>","dropZoneName":"<Topic-2Placeholder>1752611394362"},{"id":1752611747275,"title":"Credit","dropZoneName":"credit1752611747275"},{"id":1752611752045,"title":"Protection","dropZoneName":"protection1752611752045"}],"notes":[{"id":"1","list":"<Topic-1Placeholder>1752611394362","type":"hand","innerHTML":"","innerText":"<Placeholder for item 1>"},{"id":"2","list":"<Topic-1Placeholder>1752611394362","type":"hand","innerHTML":"","innerText":"<Placeholder for item 2>"},{"id":1752611682990,"list":"protection1752611752045","type":"auto","innerHTML":"<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> null","innerText":"<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> null"},{"id":1752611705557,"list":"credit1752611747275","type":"auto","innerHTML":"<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> purchase the Program.","innerText":"<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> purchase the Program."},{"id":1752611717623,"list":"credit1752611747275","type":"auto","innerHTML":"<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> purchase the Program.","innerText":"<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> purchase the Program."},{"id":1752611772832,"list":"<Topic-2Placeholder>1752611394362","type":"hand","innerHTML":"","innerText":"new manual note"}]}
+{
+    "topics": [
+        {
+            "id": "1",
+            "title": "<Topic-1 placeholder>",
+            "dropZoneName": "<Topic-1Placeholder>1752811584323"
+        },
+        {
+            "id": "2",
+            "title": "<Topic-2 placeholder>",
+            "dropZoneName": "<Topic-2Placeholder>1752811584323"
+        },
+        {
+            "id": 1752811773802,
+            "title": "template1",
+            "dropZoneName": "credit1752811773801"
+        },
+        {
+            "id": 1752811777545,
+            "title": "template2",
+            "dropZoneName": "protection1752811777545"
+        }
+    ],
+    "notes": [
+        {
+            "id": "1",
+            "list": "<Topic-1Placeholder>1752811584323",
+            "type": "hand",
+            "innerHTML": "",
+            "innerText": "<Placeholder for item 1>"
+        },
+        {
+            "id": "2",
+            "list": "<Topic-2Placeholder>1752811584323",
+            "type": "hand",
+            "innerHTML": "",
+            "innerText": "<Placeholder for item 2>"
+        },
+        {
+            "id": 1752811672357,
+            "list": "credit1752811773801",
+            "type": "auto",
+            "page": 1,
+            "file": "./credit-protection-agreement",
+            "text": "CREDIT PROTECTION PROGRAM AGREEMENT ",
+            "begin": 0,
+            "calibrateSubString": "CREDIT PROTECTION PROGRAM AGREEMENT AND DISCLOSURE THIS PRODUCT IS OPTIONAL: Your purchase of the Cr",
+            "calibratePageLength": 3250,
+            "innerHTML": "<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> CREDIT PROTECTION PROGRAM AGREEMENT ",
+            "innerText": "<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> CREDIT PROTECTION PROGRAM AGREEMENT "
+        },
+        {
+            "id": 1752811683173,
+            "list": "protection1752811777545",
+            "type": "auto",
+            "page": 1,
+            "file": "./credit-protection-agreement",
+            "text": "EXPLANATION OF THE PROGRAM:",
+            "begin": 838,
+            "calibrateSubString": "CREDIT PROTECTION PROGRAM AGREEMENT AND DISCLOSURE THIS PRODUCT IS OPTIONAL: Your purchase of the Cr",
+            "calibratePageLength": 3250,
+            "innerHTML": "<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> EXPLANATION OF THE PROGRAM:",
+            "innerText": "<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> EXPLANATION OF THE PROGRAM:"
+        },
+        {
+            "id": 1752811696040,
+            "list": "protection1752811777545",
+            "type": "auto",
+            "page": 1,
+            "file": "./credit-protection-agreement",
+            "text": "We will end this Program automatically with no advance notice to you if",
+            "begin": 2826,
+            "calibrateSubString": "CREDIT PROTECTION PROGRAM AGREEMENT AND DISCLOSURE THIS PRODUCT IS OPTIONAL: Your purchase of the Cr",
+            "calibratePageLength": 3250,
+            "innerHTML": "<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> We will end this Program automatically with no advance notice to you if",
+            "innerText": "<div style=\"font-weight: bold\">./credit-protection-agreement, pg.1 |</div> We will end this Program automatically with no advance notice to you if"
+        }
+    ]
+}

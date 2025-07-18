@@ -58,6 +58,7 @@ pymupdf-fonts = "*"
 langchain-text-splitters = "*"
 tiktoken = "*"
 nltk = "*"
+nervaluate = "*"
 
 [requires]
 python_version = "3.9"

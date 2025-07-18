@@ -144,9 +144,13 @@ def xform_VDI_NotesData_to_page_labels(notesdata):
         if '<div ' in note['innerText']:
             text_item = {}
             text_item['id'] = note['id']
-            text_item['label'] = [item['title'] for item in notesdata['topics'] if item['dropZoneName']==note['list']]
-            text_item['docname'] = note['innerText'].split('bold\">')[1].split(',')[0]
-            text_item['page'] = int( note['innerText'].split(', pg.')[1].split('|')[0] )
-            text_item['text'] = note['innerText'].split('/div>')[1].strip()
+            text_item['label'] = [item['title'] for item in notesdata['topics'] if item['dropZoneName']==note['list']][0]
+            text_item['docname'] = note['file']
+            text_item['page'] = note['page']
+            text_item['text'] = note['text']
+            text_item['begin'] = note['begin']
+            text_item['end'] = note['begin'] + len(note['text'])
+            text_item['calibrateSubString'] = note['calibrateSubString']
+            text_item['calibratePageLength'] = note['calibratePageLength']
             labeled_data.append(text_item)
     return labeled_data
