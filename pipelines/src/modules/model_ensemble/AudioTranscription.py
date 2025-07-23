@@ -65,11 +65,12 @@ class AudioTranscription(ClassifierTemplate):
                 )
             """
             dialogues = []
-            gen = asr_pipeline(KeyDataset(audio_dataset, 'audio'), 
-                               #generate_kwargs={'max_new_tokens': 256}, 
-                               return_timestamps=True,
-                               chunk_length_s=30        #batch processing of single file, [ref](https://huggingface.co/blog/asr-chunking)
-                               )
+            gen = asr_pipeline(
+                KeyDataset(audio_dataset, 'audio'), 
+                #generate_kwargs={'max_new_tokens': 256},
+                return_timestamps=True,
+                chunk_length_s=30        #batch processing of single file, [ref](https://huggingface.co/blog/asr-chunking)
+                )
             for idx, file in enumerate( gen ):
                 file_path = audio_dataset[idx]['audio']['path']
                 file_name = os.path.basename( file_path )
@@ -79,7 +80,7 @@ class AudioTranscription(ClassifierTemplate):
                     'file_path': file_path, 
                     'sampling_rate': sampling_rate, 
                     'chunks': file['chunks'],
-                    'time_asr': time.time() - config['START_TIME']
+                    'time_asr': time.time() - self.config['START_TIME']
                     }
                 self.config['LOGGER'].info(f'asr-processing completed for file {idx} - {file_name}')
                 dialogues.append(record)

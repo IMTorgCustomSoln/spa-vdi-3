@@ -14,11 +14,12 @@ from src.TaskImport import ImportFromLocalFileTask, ImportBatchDocsFromLocalFile
 from src.TaskTransform import (
     UnzipTask,
     FlattenFileStructureTask,
-    CreateMultiFileRecordTask
+    CreateMultiFilelRecordTask,
+    CreateMultiUrlRecordTask
 )
 from src.TaskModel import (
     AsrTask,
-    ApplyTextModelsTask,
+    #ApplyTextModelsTask,
     #TextClassificationTask,
     #ExportAsrToVdiWorkspaceTask
 )
@@ -28,7 +29,7 @@ from src.Report import (
     MapBatchFilesReport,
     ProcessTimeAnalysisReport
 )
-from src.models import prepare_models
+#from src.models import prepare_models
 from src.io import load
 from tests.test_wf_asr.estimate_processing_time import ProcessTimeQrModel
 
@@ -69,15 +70,15 @@ config = {
              'extension_patterns': ['.mp3','.wav'],
          },
         {
-            'class': CreateMultiFileRecordTask,
+            'class': CreateMultiFilelRecordTask,
             'name': 'record',
             'extension_patterns': ['.json'],
          },
-        {
-            'class': ApplyTextModelsTask,
-            'name': 'model',
-            'extension_patterns': ['.pickle'],
-         },
+        #{
+        #    'class': ApplyTextModelsTask,
+        #    'name': 'model',
+        #    'extension_patterns': ['.pickle'],
+        # },
          {
              #'class': ExportAsrToVdiWorkspaceTask,
              'class': ExportToVdiWorkspaceTask,

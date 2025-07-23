@@ -11,7 +11,7 @@ __license__ = "AGPL-3.0"
 from src.io import utils
 from src.Files import File
 from src.Task import Task
-from src.models.classification import TextClassifier
+#from src.models.classification import TextClassifier. TODO:fix
 
 import pandas as pd
 
@@ -49,10 +49,20 @@ import ffmpeg
 import subprocess
 
 def convert_mp4_to_mp3(input_file, output_file):
-    """Convert .mp4 video files to .mp3 audio files for transcription."""
+    """Convert .mp4 video files to .mp3 audio files for transcription.
+    
+    -n `do not overwrite file if it exists`
+    -i `infile`
+    -q:a `q use fixed quality scale (VBR)`
+    0 `...`
+    -map `set input stream mapping`
+    a - `...`
+    
+    ref: [complete list of ffmpeg flags / commands](https://gist.github.com/tayvano/6e2d456a9897f55025e25035478a3a50)
+    """
     #check = ffmpeg.input(input_file).output(output_file).run()
     try:
-        subprocess.run(['ffmpeg', '-i', input_file, '-q:a', '0', '-map', 'a', output_file],check=True)
+        subprocess.run(['ffmpeg', '-n', '-i', input_file, '-q:a', '0', '-map', 'a', output_file],check=True)
         print(f"Conversion successful! Saved as {output_file}")
         return True
     except subprocess.CalledProcessError as e:
@@ -123,8 +133,8 @@ class CreateSingleUrlRecordTask(Task):
         self.config['LOGGER'].info(f"end ingest file location from {self.input_files.directory.resolve().__str__()} with {len(self.pipeline_record_ids)} files matching {self.target_extension}")
         return True
     
-'''
-class CreateMultiUrlRecordTask(Task):
+
+class CreateMultiFilelRecordTask(Task):
     """TODO:Create a PipelineRecord from a Multiple Urls.
     The pipeline record provides the metadata and final formatted presentation document 
     for application of text models.  The `.presentation_doc` is used for final export.
@@ -165,11 +175,12 @@ class CreateMultiUrlRecordTask(Task):
             self.config['LOGGER'].info(f"exported processed file to: {filepath}")
         self.config['LOGGER'].info(f"end ingest file location from {self.input_files.directory.resolve().__str__()} with {len(self.pipeline_record_ids)} files matching {self.target_extension}")
         return True
-'''
+
+
 
 from src.modules.enterodoc.entero_document.url import UrlFactory
 
-class CreateMultiFileRecordTask(Task):
+class CreateMultiUrlRecordTask(Task):
     """Create a PipelineRecord from a Multiple Files.
     THIS IS NECESSARY BECAUSE:
     * URL FILES FROM `ConvertUrlDocsToPdf` ARE DIFFERENT FROM OTHER INPUT
@@ -184,6 +195,8 @@ class CreateMultiFileRecordTask(Task):
 
     def group_urls_by_filename(result_urls):
         """Group result_urls into a dict[filename]=[url1, url2, ...]
+
+        #TODO:add grouping key from filename
         """
         URL = UrlFactory()
         urls_grouped_by_filename = {}

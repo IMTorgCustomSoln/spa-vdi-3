@@ -19,7 +19,7 @@ from src.TaskTransform import (
     FlattenFileStructureTask,
     CreateSingleFileRecordTask,
     CreateSingleUrlRecordTask,
-    CreateMultiFileRecordTask,
+    CreateMultiUrlRecordTask,
     DisplayModelResultsOnPresentationDocTask
 )
 from src.TaskModel import (

@@ -1,5 +1,6 @@
 [tool.pytest.ini_options]
 testpaths = [
+  "tests/test_wf_asr",
   "tests/test_modeling",
   "src/modules/model_ensemble/tests",
   #"tests",

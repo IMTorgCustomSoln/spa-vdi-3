@@ -17,7 +17,7 @@ from src.Report import (
     ProcessTimeAnalysisReport
 )
 """
-from src.models import prepare_models
+#from src.modules.model_ensemble import prepare_models.  TODO:now contained in Model
 from src.io import load
 #TODO: from tests.estimate_processing_time import ProcessTimeQrModel
 
