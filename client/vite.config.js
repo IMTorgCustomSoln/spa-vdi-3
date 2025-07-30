@@ -21,6 +21,7 @@ export default ({mode}) => {
       __EXPORT_TEXT_NAME__: `"${process.env.EXPORT_TEXT_NAME}"`,
       __UPLOAD_LOGS_TEXT_NAME__: `"${process.env.UPLOAD_LOGS_TEXT_NAME}"`
     },
+    base: '/ds/test/vdi/',
     server: {
       host: '127.0.0.1'
     },
