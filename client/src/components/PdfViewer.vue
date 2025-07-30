@@ -108,6 +108,7 @@ export default {
             const doc = this.populateDocument(docId)
             const rec = doc
             this.record = rec
+            this.currentPage = 1
         },
         async processLoadingTask() {
             this.updateRecord()
@@ -127,7 +128,7 @@ export default {
             const viewport = pageProxy.getViewport({ scale: 1 });
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
 
-            this.renderText(pageProxy, textLayer, viewport);
+            //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
             return this.renderCanvas(pageProxy, canvasLayer, viewport);
         },
@@ -155,7 +156,7 @@ export default {
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
             const viewport = pageProxy.getViewport({ scale: 1 });
 
-            this.renderText(pageProxy, textLayer, viewport);
+            //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
             this.renderCanvas(pageProxy, canvasLayer, viewport);
             //TODO: await this.displayAllHighlightedResults()
