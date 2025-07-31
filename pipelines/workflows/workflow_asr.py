@@ -23,6 +23,7 @@ from src.TaskModel import (
     #TextClassificationTask,
     #ExportAsrToVdiWorkspaceTask
 )
+from src.Groupby import Groupby
 from src.TaskExport import ExportToVdiWorkspaceTask
 from src.Report import (
     TaskStatusReport,
@@ -45,6 +46,16 @@ from pathlib import Path
          },
          '''
 
+class GroupbyAccountFilename(Groupby):
+    """..."""
+    def __init__(self):
+        super().__init__(self)
+
+    def get_file_group_id(self, file):
+        return file.filepath.stem.split('_')[0]
+
+groupby_account_filename = GroupbyAccountFilename()
+
 
 config = {
     'INPUT_DIR': Path('./tests/test_wf_asr/data/'),
@@ -52,6 +63,9 @@ config = {
     'TRAINING_DATA_DIR': {
         'template2': Path('./models_data/template2/'),
         },
+    'CUSTOM': {
+        'groupby': groupby_account_filename
+    },
     'TASKS':[
         {
             'class': UnzipTask,

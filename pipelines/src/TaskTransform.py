@@ -142,17 +142,9 @@ class CreateMultiFilelRecordTask(Task):
     def __init__(self, config, input, output):
         super().__init__(config, input, output)
 
-    def get_file_group_id(self, file):
-        return file.filepath.stem.split('_')[0]
-    
     def run(self):
         files = list(self.get_next_run_file_from_directory())
-        files_sorted = [file for file in 
-                        sorted(files, key=lambda x: self.get_file_group_id(x))
-                        ]
-        files_grouped = {key: list(group) for key, group in 
-                         groupby(files_sorted, key=lambda x: self.get_file_group_id(x))
-                         }
+        files_grouped = self.config['CUSTOM']['groupby'].run(files)
         factory = PipelineRecordFactory()
         for id_group, file_group in files_grouped.items():
             checks = [file.load_file(return_content=False) for file in file_group]
