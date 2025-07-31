@@ -3,10 +3,16 @@ Module Docstring
 
 
 TODO: use sklearn to not repeat logic
-* metrics - f1_scores, etc.
+* ~~metrics - f1_scores, etc.~~ nervaluate
 * model selection - train_test_split
 * base.py - base model for mixins to be added
 """
+
+__author__ = "Jason Beach"
+__version__ = "0.1.0"
+__license__ = "AGPL-3.0"
+
+
 
 from src.modules.model_ensemble.utils import (
     load_txt,
@@ -53,8 +59,8 @@ record_presentation_doc = {'clean_body': ''.join(doc.get_sentences(page=0)) }
 config = {
     'TRAINING_DATA_DIR':{
         'model_topic': {
-            'template1': Path('./models_data/template1/pos_kw.txt'),
-            'template2': Path('./models_data/template2/pos_kw.txt'),
+            'template1': Path('./models_data/template1'),
+            'template2': Path('./models_data/template2'),
             'display': '...'
         }
     }

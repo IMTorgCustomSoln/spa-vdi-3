@@ -25,9 +25,29 @@ class TextClassifier(ClassifierTemplate):
         self.models = models
         self.coordinator = coordinator
 
+    def validate_models_input(self):
+        """..."""
+        checks = {}
+        for model in self.models:
+            check = model.validate(self.config)
+            staged_result = model._get_staged_result()
+            key = f"{staged_result['model_topic']}-{staged_result['topic_class']}"
+            checks[key] = check
+        return checks
+    
+    def finetune_models(self):
+        """..."""
+        checks = {}
+        for model in self.models:
+            if hasattr(model, 'finetune' ):
+                check = model.finetune(self.config)
+                staged_result = model._get_staged_result()
+                key = f"{staged_result['model_topic']-{staged_result['topic_class']}}"
+                checks[key] = check
+        return checks
+
     def run(self, text):
         """Run inference on string of text.
-        
         
         """
         workers = len(self.models)
