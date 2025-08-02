@@ -227,7 +227,7 @@ class BinaryClassKeyWordModel(Model):
     def run(self, text):
         results = []
         for key_word in self.key_words:
-            hits = list( re.finditer(key_word, text) )
+            hits = [ *re.finditer(key_word, text) ]
             if len(hits) > 0:
                 staged_results = self._get_staged_result()
                 results = [{
@@ -293,7 +293,7 @@ class ClassificationModel(Model):
         chunks = text_splitter.split_text(text)
         for chunk in chunks:
             probs = self.model.predict_proba(chunk)
-            pos_idx = self.model.labels.index('positive')
+            pos_idx = self.model.labels.index('pos')
             prob_positive = probs.tolist()[pos_idx]
             if prob_positive > 0.5:
                 result = self.get_staged_result()

@@ -1,6 +1,5 @@
 [tool.pytest.ini_options]
 testpaths = [
-  "pipelines/tests/test_wf_asr",
   #"src/modules/model_ensemble/tests",
   #"tests/test_modeling",
   #"tests/test_shared",
@@ -18,6 +17,5 @@ norecursedirs = [
   "runs",
   "workflows",
 
-  "tests/test_asr",
   "tests/test_site_scrape",
 ]

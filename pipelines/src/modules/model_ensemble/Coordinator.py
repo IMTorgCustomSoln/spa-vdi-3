@@ -36,10 +36,13 @@ class FirstHitCoord(Coordinator):
     """
     def run(self, model_futures):
         results = []
-        done_and_not_done = concurrent.futures.wait(
-            model_futures,
-            return_when=concurrent.futures.FIRST_COMPLETED
-        )
-        for done in done_and_not_done.done:
-            results.extend( done.result() )
+        if type(model_futures) == list:
+            results.extend( model_futures[0] )
+        elif type(model_futures) == concurrent.futures:
+            done_and_not_done = concurrent.futures.wait(
+                model_futures,
+                return_when=concurrent.futures.FIRST_COMPLETED
+            )
+            for done in done_and_not_done.done:
+                results.extend( done.result() )
         return results

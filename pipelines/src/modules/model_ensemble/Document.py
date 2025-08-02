@@ -134,6 +134,15 @@ class Document:
     def get_page_count(self):
         return max(self.pages.keys())
     
+    def get_pages(self, key='text', page=None):
+        pages = None
+        if page == None:
+            pages = [' '.join(page) for page in self.pages]
+        else:
+            items = ' '.join( [sent[key] for sent in self.pages[page]] )
+            pages = items
+        return pages
+
     def get_sentences(self, key='text', page=None):
         sentences = []
         if page == None:

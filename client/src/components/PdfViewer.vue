@@ -64,9 +64,12 @@ export default {
         'userContent.selectedSnippet': {
             async handler(newSelectedSnippet, oldValue) {
                 console.log('hi from selectedSnippet!')
-                const docId = parseInt( JSON.parse(JSON.stringify(newSelectedSnippet)).id )
+                const snippet = JSON.parse(JSON.stringify(newSelectedSnippet))
+                const docId = parseInt( snippet.id )
+                const page = parseInt( snippet.tgtPage )
                 await this.updateRecord(docId)
                 await this.processLoadingTask()
+                this.currentPage = page
                 //const check = await this.displayHighlightedResultSnippet(newSelectedSnippet)
                 //console.log(`check displayHighlightedResultsItem: ${check}`)
             },

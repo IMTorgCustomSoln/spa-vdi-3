@@ -65,3 +65,5 @@ python_version = "3.9"
 
 [dev-packages]
 pytest-cov = "*"
+ipykernel = "*"
+jupyter = "*"

@@ -124,6 +124,7 @@ def score_model_results(labeled_data, pred_results, doc):
         check3 = item['label'] in model_topic_labels
         checks[target_page].extend([check1, check2, check3])
     flattened_checks = [item for sublist in checks.values() for item in sublist]
+    print(flattened_checks)
     assert all( flattened_checks ) == True
 
     #generate standard 'sentence' unit

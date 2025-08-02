@@ -49,7 +49,7 @@ from pathlib import Path
 class GroupbyAccountFilename(Groupby):
     """..."""
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
 
     def get_file_group_id(self, file):
         return file.filepath.stem.split('_')[0]
