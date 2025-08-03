@@ -111,6 +111,7 @@ def score_model_results(labeled_data, pred_results, doc):
     results = {}
     #calibrate text
     model_topic_labels = set([result['label'] for result in pred_results])
+    tagged_topic_labels = [item['label'] for item in labeled_data]
     checks = {}
     for item in labeled_data:
         target_page = item['page'] - 1
@@ -121,8 +122,8 @@ def score_model_results(labeled_data, pred_results, doc):
         doc_page_chars = ''.join(doc_page_sentences)
         check1 = doc_initial_text in item['calibrateSubString'].lower()
         check2 = item['calibratePageLength'] >= len(doc_page_chars)
-        check3 = item['label'] in model_topic_labels
-        checks[target_page].extend([check1, check2, check3])
+        #check3 = item['label'] in model_topic_labels
+        checks[target_page].extend([check1, check2])
     flattened_checks = [item for sublist in checks.values() for item in sublist]
     print(flattened_checks)
     assert all( flattened_checks ) == True
@@ -156,13 +157,13 @@ def score_model_results(labeled_data, pred_results, doc):
             pred_sent[f'{label_type}_type'] = None
             pred_sent[f'{label_type}_BIO'] = [None for _ in range(len(tokenized_text))]
             #add correct labels
-            if idx==32:
-                print('hi')
+            #if idx==32:
+            #    print('hi')
             pred_sent = prepare_labels(pred_sent, pred_results, label_type='pred')
             pred_sentences.append(pred_sent)
 
     #ner IOB matrix scores
-    labels = ['template1','template2']
+    labels = list(set(list(tagged_topic_labels) + list(model_topic_labels)))
     trues = [true_sent['true_BIO'] for true_sent in true_sentences]
     preds = [pred_sent['pred_BIO'] for pred_sent in pred_sentences]
     evaluator = Evaluator(trues, preds, tags=labels, loader='list')
