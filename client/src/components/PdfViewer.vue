@@ -5,9 +5,11 @@
     <div id="container" style="background-color: black;">
         <div class="page-navigation">
             <b-button-group size="sm">
+                <b-button :disabled="currentPage <= 1" @click="updatePage('start')">&#x21E4</b-button>
                 <b-button :disabled="currentPage <= 1" @click="updatePage('decr')">&larr;</b-button>
                 <span class="page-btn-grp">{{ currentPage }} / {{ totalPages }}</span>
                 <b-button :disabled="currentPage >= totalPages" @click="updatePage('incr')">&rarr;</b-button>
+                <b-button :disabled="currentPage >= totalPages" @click="updatePage('end')">&#x21E5</b-button>
                 <!--
                 <b-button @click="extractTextRadio">Select Text ({{ formatBoolean(this.extractText) }})</b-button>
                 <b-button @click="extractImageRadio" :disabled="true">Select Image ({{ formatBoolean(this.extractImage) }})</b-button>
@@ -46,6 +48,9 @@ export default {
             record: null,
             pdfPageProxy: null,
 
+            pageNumPending: null,      //cache waiting page number
+            pageRendering: false,   //check conflict
+
             width: null,
             height: null,
 
@@ -58,23 +63,34 @@ export default {
         await this.processLoadingTask();
     },
     watch: {
+        /*
         async currentPage(newValue) {
             await this.updatePage(newValue)
-        },
+        },*/
         'userContent.selectedSnippet': {
             async handler(newSelectedSnippet, oldValue) {
                 console.log('hi from selectedSnippet!')
                 const snippet = JSON.parse(JSON.stringify(newSelectedSnippet))
-                //const docId = parseInt( snippet.id )
-                const docId = parseInt(this.getCurrentRecord.id)
-                const page = parseInt( snippet.tgtPage )
-                if(docId != this.docId){
+                let page = 1
+                let docId = -1
+                if(snippet.snippet==''){
+                    docId = parseInt( snippet.id )
+                    //const docId = parseInt(this.getCurrentRecord.id)
+                    //const page = parseInt( snippet.tgtPage )
+                    //if(docId != this.docId){
                     await this.updateRecord(docId)
                     await this.processLoadingTask()
-                }
-                if(page != this.currentPage){
                     this.currentPage = page
+                }else{
+                //if(page != this.currentPage){
+                    docId = parseInt( this.userContentStore.selectedDocument )
+                    await this.updateRecord(docId)
+                    //await this.processLoadingTask()
+                    page = parseInt( snippet.tgtPage )
+                    await this.updatePage(page)
+                    //this.currentPage = page
                 }
+                //this.currentPage = page
                 //const check = await this.displayHighlightedResultSnippet(newSelectedSnippet)
                 //console.log(`check displayHighlightedResultsItem: ${check}`)
             },
@@ -119,13 +135,16 @@ export default {
             this.currentPage = 1
         },
         async processLoadingTask() {
-            this.updateRecord()
+            //this.updateRecord()
             const record = this.record
             if (!record) { return null }
             var dataObj = await record.getDataArray()
             //var pdfData = dataObj.record.dataArray
             var pdfData = dataObj.dataArray
 
+            if(this.pdfPageProxy){
+                this.pdfPageProxy.destroy()
+            }
             const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
             const pdf = await loadingTask.promise;
             this.pdfDocProxy = pdf
@@ -144,6 +163,10 @@ export default {
             let page = null
             if( Number.isInteger(page_or_direction) ){
                 page = page_or_direction
+                
+            }else if( page_or_direction == 'end' ){
+                page = this.totalPages
+            
             }else if( page_or_direction == 'incr' ){
                 if( this.currentPage == this.totalPages ){
                     console.log('ERROR: end of pages reached')
@@ -151,6 +174,7 @@ export default {
                 }else{
                     page = this.currentPage + 1
                 }
+
             }else if( page_or_direction == 'decr' ){
                 if( this.currentPage == 1 ){
                     console.log('ERROR: end of pages reached')
@@ -158,12 +182,30 @@ export default {
                 }else{
                     page = this.currentPage - 1
                 }
+
+            }else if( page_or_direction == 'start' ){
+                page = 1
             }
-            this.currentPage = page
+            
+
+            if(this.pdfPageProxy){
+                this.pdfPageProxy.destroy()
+            }
+
+            //this.currentPage = page
+
+            var dataObj = await this.record.getDataArray()
+            //var pdfData = dataObj.record.dataArray
+            var pdfData = dataObj.dataArray
+            const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
+            const pdf = await loadingTask.promise;
+            this.pdfDocProxy = pdf
             const pageProxy = await this.pdfDocProxy.getPage(page);
+            this.currentPage = page
+            this.totalPages = this.pdfDocProxy.numPages;
+
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
             const viewport = pageProxy.getViewport({ scale: 1 });
-
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
             this.renderCanvas(pageProxy, canvasLayer, viewport);

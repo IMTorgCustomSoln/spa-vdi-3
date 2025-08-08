@@ -23,7 +23,7 @@ export async function getFileRecord(filestore) {
         record.body_pages = {}*/
 
         createMetadata(pdf, record)
-        createOutline(pdf, record)
+        //createOutline(pdf, record)
 
         for (let i = 1; i <= record.page_nos; i++) {
           pdf.getPage(i).then(function (page) {

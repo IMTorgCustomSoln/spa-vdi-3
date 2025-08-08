@@ -112,7 +112,8 @@
                             Select a document from the table or `PRESS` to display document pages.
                         </div>
                         <div v-else id="search-results">
-                            <SnippetsScroll :snippets="getSearchSnippets" />
+                            <SnippetsScroll :snippets="getSearchSnippets" 
+                                @click="selectSnippetPage(this.userContentStore.getSelectedDocument, '')"/>
                         </div>
                     </div>
                 </div>
@@ -250,6 +251,7 @@ high because terms are found that are very similar to the exact terms._`
         ...mapStores(useUserContent, useAppDisplay),
         getSearchSnippets() {
             const selected = this.userContentStore.getSelectedDocument.toString()
+            this.userContentStore.selectedDocument = selected
             return this.items.filter(item => item.id == selected)[0].snippets
         },
         getSearchSnippetsLength() {
