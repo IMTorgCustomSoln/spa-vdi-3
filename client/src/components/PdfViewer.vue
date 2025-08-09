@@ -140,7 +140,7 @@ export default {
             if (!record) { return null }
             var dataObj = await record.getDataArray()
             //var pdfData = dataObj.record.dataArray
-            var pdfData = dataObj.dataArray
+            var pdfData = new Uint8Array(Object.values( dataObj.dataArray ))
 
             if(this.pdfPageProxy){
                 this.pdfPageProxy.destroy()
@@ -196,7 +196,8 @@ export default {
 
             var dataObj = await this.record.getDataArray()
             //var pdfData = dataObj.record.dataArray
-            var pdfData = dataObj.dataArray
+            //var pdfData = dataObj.dataArray
+            var pdfData = new Uint8Array(Object.values( dataObj.dataArray ))
             const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
             const pdf = await loadingTask.promise;
             this.pdfDocProxy = pdf
