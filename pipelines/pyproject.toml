@@ -1,21 +1,5 @@
 [tool.pytest.ini_options]
 testpaths = [
-  #"src/modules/model_ensemble/tests",
-  #"tests/test_modeling",
-  #"tests/test_shared",
-  #"tests",
-  #"src/modules/enterodoc/tests",
-  #"tests/test_wf_site_scrape",
+    "tests/test_wf_text_classify/test_workflow_text_classify.py",
 ]
-norecursedirs = [
-  ".vscode",
-  "config",
-  "logs",
-  "pretrained_models",
-  "dist",
-  "build",
-  "runs",
-  "workflows",
-
-  "tests/test_site_scrape",
-]
+pythonpath = ["."]

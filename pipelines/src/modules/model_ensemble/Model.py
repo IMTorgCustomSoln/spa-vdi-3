@@ -78,7 +78,7 @@ class Model:
     
     def _validate_key_terms(self, config):
         """..."""
-        wdir = config['TRAINING_DATA_DIR']['model_topic'][self.model_topic]
+        wdir = config['TRAINING_DATA_DIR'][self.model_topic][self.model_topic]
         path_pos_keywords = wdir / 'pos_kw.txt'  
         path_neg_keywords = wdir / 'neg_kw.txt'   
         if path_pos_keywords.is_file():

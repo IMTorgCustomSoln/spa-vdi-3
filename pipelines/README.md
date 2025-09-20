@@ -75,7 +75,24 @@ Some external modules are maintained within this repo to enable quick editing: `
   - ~~fix vdiworkspace export so it runs with client search: pre-run models~~
   - ~~move pretrained_models/ to models/~~ => ERRORS, can't add .env to vscode pytest
   - ~~move src/data/ to models_data/~~
-  - design so that multiple models can be selected, independently, on the frontend
+  - review interactive use to understand previous thoughts: 
+    + `tests/test_modeling/notebooks/workflow.ipynb`
+    + `tests/test_modeling/*`
+  - review how multiclass model was supposed to work: 
+    + `workflow_text_classify.py,ln.34 => doc_type`
+    + `model_ensemble/RM-prepare_models.py,ln.109 => multi_target_strategy="one-vs-rest"`
+  - figure-out workflow arguments, such as:
+```model_ensemble/tests/test_text_classifier.py,ln.28
+    'TRAINING_DATA_DIR':{
+        'model_topic': {
+            'template1': Path('./models_data/template1'),
+            'template2': Path('./models_data/template2'),
+            'complaints': Path('./models_data/complaints'),
+            'display': '...'
+```
+  - get `BinaryTextClassifier()` working for `workflow_text_classify.py`, then `workflow_asr.py`
+  - create `MuliClassTextModel()` so that `workflow_text_classify.py` will work for `doc_type` 
+  - (frontend) design so that multiple models can be selected, independently
   - but can it still be compatible with old vdiworkspace?
 * improve interactive mode with notebook.ipynb
   - enable lists, instead of Files to be used with Tasks

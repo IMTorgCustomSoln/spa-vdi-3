@@ -24,5 +24,12 @@
         "**/.DS_Store": true,
         "**/*.pyc": true,
         "**/__pycache__": true
-    }
+    },
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:pipenv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ]
 }

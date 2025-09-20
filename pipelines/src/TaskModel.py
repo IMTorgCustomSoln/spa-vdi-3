@@ -21,7 +21,7 @@ import copy
 import shutil
 
 
-'''
+
 def split_str_into_chunks(str_item, N):
     """Split string into list of equal length chunks."""
     chunks = None
@@ -160,7 +160,7 @@ class ApplyClassifyDocModels(Task):
 
 
 
-
+'''
 #from src.models.classification import classifier
 from src.models.classification import TextClassifier
 import time

@@ -28,9 +28,13 @@ config = {
     'INPUT_DIR': Path('./tests/test_wf_text_classify/data/'),
     'WORKING_DIR': Path('./tests/test_wf_text_classify/tmp/'),
     'TRAINING_DATA_DIR': {
-        'template': Path('./models_data/template1/'),
-        'doc_type': Path('./models_data/doc_type/'),
+        'template1': {
+            'template1': Path('./models_data/template1/'),
         },
+        'doc_type': {
+            'doc_type': Path('./models_data/doc_type/'),
+        }
+    },
     'TASKS':[
         {
             'class': ImportFromLocalFileTask,

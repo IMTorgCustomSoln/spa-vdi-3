@@ -1,0 +1,28 @@
+{
+    "records":[
+        {
+            "text": "I was sick.",
+            "label": "neg"
+        },
+        {
+            "text": "My husband lost his job.",
+            "label": "neg"
+        },
+        {
+            "text": "I got a raise at work.",
+            "label": "neg"
+        },
+        {
+            "text": "I lost my dog to cancer.",
+            "label": "neg"
+        },
+        {
+            "text": "I waited to talk to someone for a long time.",
+            "label": "pos"
+        },
+        {
+            "text": "I waited for weeks for my new checkbook.",
+            "label": "pos"
+        }
+    ]
+}

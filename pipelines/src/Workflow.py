@@ -8,6 +8,8 @@ __version__ = "0.1.0"
 __license__ = "AGPL-3.0"
 
 
+from src.modules import model_ensemble as me
+
 from src.Files import File, Files
 
 """TODO
@@ -20,6 +22,7 @@ from src.Report import (
 #from src.modules.model_ensemble import prepare_models.  TODO:now contained in Model
 from src.io import load
 #TODO: from tests.estimate_processing_time import ProcessTimeQrModel
+
 
 from config._constants import (
     logging_dir,
@@ -210,21 +213,49 @@ class WorkflowNew:
         """Prepare by loading train,test data and refine models"""
         self.config['LOGGER'].info("Begin prepare_models")
         checks = []
-        for model_topic in self.config['TRAINING_DATA_DIR']:
-            check_prepare_keywords = prepare_models.validate_key_terms(self.config, model_topic)
-            if not check_prepare_keywords: 
-                self.config['LOGGER'].info(f"keywords failed to prepare for model_topic: {model_topic}")
-                return False
-            check_prepare_model_data = prepare_models.validate_classification_data(self.config, model_topic)
-            if check_prepare_model_data:
-                check_prepare_model = prepare_models.finetune_classification_model(self.config, model_topic)
-                if not check_prepare_model: 
-                    self.config['LOGGER'].info(f"models failed to prepare for model_topic: {model_topic}")
+        for model_topic, foci in self.config['TRAINING_DATA_DIR'].items():
+            for focus_tag, data_path in foci.items():
+                """
+                check_prepare_keywords = prepare_models.validate_key_terms(self.config, model_topic)
+                if not check_prepare_keywords: 
+                    self.config['LOGGER'].info(f"keywords failed to prepare for model_topic: {model_topic}")
                     return False
-            else:
-                self.config['LOGGER'].info(f"no model data for model_topic: {model_topic}")
+                check_prepare_model_data = prepare_models.validate_classification_data(self.config, model_topic)
+                if check_prepare_model_data:
+                    check_prepare_model = prepare_models.finetune_classification_model(self.config, model_topic)
+                    if not check_prepare_model: 
+                        self.config['LOGGER'].info(f"models failed to prepare for model_topic: {model_topic}")
+                        return False
+                else:
+                    self.config['LOGGER'].info(f"no model data for model_topic: {model_topic}")
+                """
+                models_holder = []
+                try:
+                    model_name1 = focus_tag   #f'{str(focus_tag)}-binary_class_kw'
+                    model1 = me.BinaryClassKeyWordModel(
+                        model_name1, 
+                        data_path
+                        )
+                    models_holder.append(model1)
+                    model_name2 = focus_tag   #f'{str(model_topic)}-classification_model'
+                    model2 = me.ClassificationModel(
+                        model_name2, 
+                        data_path
+                        )
+                    models_holder.append(model2)
+                except:
+                    pass
+                coord = me.FirstHitCoord()
+                tc = me.TextClassifier(
+                    name=focus_tag, 
+                    config=self.config, 
+                    models=models_holder, 
+                    coordinator=coord
+                    )
+                check = tc.validate_models_input()
+                checks.append(check)
         self.config['LOGGER'].info("End prepare_models")
-        return True
+        return checks
 
     def run(self):
         """Run the workflow of tasks"""

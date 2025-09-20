@@ -1,0 +1,24 @@
+{
+    "records":[
+        {
+            "text": "I got the flu and felt very bad.  This affected my ability to work.",
+            "label": "neg"
+        },
+                {
+            "text": "I got a raise - my financial worries are over.",
+            "label": "neg"
+        },
+                {
+            "text": "This bank is awful.",
+            "label": "pos"
+        },
+                {
+            "text": "He company laid him off.  Now we can't pay our bills.",
+            "label": "neg"
+        },
+                {
+            "text": "I waited forever to talk to someone.",
+            "label": "pos"
+        }
+    ]
+}

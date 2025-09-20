@@ -18,7 +18,7 @@ def test_instantiation():
 
 def test_prepare_models():
     check1 = workflow_text_classify.prepare_models()
-    assert check1 == True
+    assert check1 == [{'template1-pos': True}, {}]
  
 
 def test_run():

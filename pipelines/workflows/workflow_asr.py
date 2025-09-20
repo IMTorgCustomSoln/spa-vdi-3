@@ -19,7 +19,7 @@ from src.TaskTransform import (
 )
 from src.TaskModel import (
     AsrTask,
-    #ApplyTextModelsTask,
+    ApplyTextModelsTask,
     #TextClassificationTask,
     #ExportAsrToVdiWorkspaceTask
 )
@@ -88,11 +88,11 @@ config = {
             'name': 'record',
             'extension_patterns': ['.json'],
          },
-        #{
-        #    'class': ApplyTextModelsTask,
-        #    'name': 'model',
-        #    'extension_patterns': ['.pickle'],
-        # },
+        {
+            'class': ApplyTextModelsTask,
+            'name': 'model',
+            'extension_patterns': ['.pickle'],
+         },
          {
              #'class': ExportAsrToVdiWorkspaceTask,
              'class': ExportToVdiWorkspaceTask,
