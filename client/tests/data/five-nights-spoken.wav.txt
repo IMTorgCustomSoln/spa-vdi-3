@@ -1,0 +1,3 @@
+(0,0, 1.8) - Do we want to do an intro or something?
+(1.8, 2.64) - Ash, exactly.
+(2.64, 4.28) - I need to try all together.

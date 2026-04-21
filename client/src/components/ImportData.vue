@@ -43,7 +43,7 @@
                         <label for="uploadInput" class="custom-file-upload">
                             <b-icon-cloud-arrow-up-fill class="h2 mb-0" variant="success" /> Upload
                         </label>
-                        <input id="uploadInput" type="file" accept=".pdf" @change="previewFiles" multiple />
+                        <input id="uploadInput" type="file" accept=".pdf, .txt" @change="previewFiles" multiple />
                         <br />
                         <ul class="no-li-dot">
                             <li><label for="fileCount">Files: &nbsp</label> <output id="fileCount">{{ preview.fileCount
@@ -554,11 +554,10 @@ async function uploadFiles(files) {
             file: file,
             ctx: this.progressBar
         }
-        let record = await getFileRecord(FileStore)
-
+        const record = await getFileRecord(FileStore)
+        
         // file indexing
         record.id = String(idx)
-
         var re = /(?:\.([^.]+))?$/
         let extension = re.exec(file.name)[1]
         record.filename_original = file.name.replace('.' + extension, '')

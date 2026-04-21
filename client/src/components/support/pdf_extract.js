@@ -1,4 +1,5 @@
 import { DocumentRecord } from "../../stores/data"
+import { jsPDF } from "jspdf"
 
 // Upload Input
 
@@ -8,7 +9,19 @@ export async function getFileRecord(filestore) {
     filestore.startTime = performance.now()
     addListeners(reader, filestore)
     reader.onload = (e) => {
-      let typedarray = new Uint8Array(e.target.result)
+      //type
+      let typedarray = null
+      if (filestore.file.type  == 'text/plain'){
+        const doc = new jsPDF()
+        const txtFileBuffer = e.target.result
+        const decoder = new TextDecoder("utf-8")
+        const txtFileContent = decoder.decode(txtFileBuffer)
+        doc.text(txtFileContent, 10, 10)
+        typedarray = doc.output('arraybuffer')
+      }
+      else if (filestore.file.type  == 'application/pdf'){
+        typedarray = new Uint8Array(e.target.result)
+      }
       const loadingTask = pdfjsLib.getDocument(typedarray)
       loadingTask.typedarray = typedarray
       loadingTask.promise.then(async pdf => {
