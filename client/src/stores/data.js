@@ -3,8 +3,10 @@ import { ref } from 'vue'
 
 import { getDateFromJsNumber, getFormattedFileSize, getFileReferenceNumber } from '@/components/support/utils.js'
 import * as utils from '@/components/support/utils.js'
-import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNamesAndKeyFields } from './constants.js'
+import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNameDocumentVector, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
+
+import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
 
 
 
@@ -159,6 +161,8 @@ export class DocumentRecord {
         this.body_chars[pg] = text.length 
       })
     }
+    // prepare embeddings
+    await this.setVectors()
     // prepare page numbers for search snippets
     //item.accumPageLines = item.length_lines_array.map((sum => value => sum += value)(0))    //.map((sum = 0, n => sum += n))  -> assignment to undeclared variable
     if (this.body_chars != null) {
@@ -190,6 +194,41 @@ export class DocumentRecord {
   async getDataArray() {
     const dataArray = await getItemFromStore(DatabaseName, DbVersion, StoreNameDocumentRecord, this.dataArrayKey)
     return dataArray
+  }
+  async createVetors(){
+    const vectorRecords = []
+    for (let [page, pageText] of Object.entries(this.body_pages) ) {
+      const sentences = pageText.split('.')
+      for (let [index, textLine] of sentences.entries()) {
+        if (textLine.length < 100 | textLine.length > 1000) {
+          continue
+        }
+        const docEmbedding = await getVectorFromText(textLine)
+        const vectorItem = {
+          'page': page,
+          'index': index,
+          'text': textLine,
+          'embedding': docEmbedding
+        }
+        console.log(vectorItem)
+        vectorRecords.push(vectorItem)
+      }
+    }
+    return vectorRecords
+  }
+  async setVectors(vectorRecords=null) {
+    if(!vectorRecords){
+      vectorRecords = await this.createVetors()
+    }
+    const vectorRecord = [{ dataVectorKey: this.dataArrayKey, vectorRecords: vectorRecords }]
+    const check = await updateItemsInStore(DatabaseName, DbVersion, StoreNameDocumentVector, vectorRecord)
+    this.dataVectorKey = this.dataArrayKey
+    return check
+  }
+  async getVector(){
+    console.log(this.dataArrayKey)
+    const dataVector = await getItemFromStore(DatabaseName, DbVersion, StoreNameDocumentVector, this.dataArrayKey)
+    return dataVector
   }
   async prepareForSave() {
     this.dataArray = await this.getDataArray()

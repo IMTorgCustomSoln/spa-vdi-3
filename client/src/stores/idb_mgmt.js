@@ -34,6 +34,7 @@ export class IdbConfig{
         return this.isSupported
     }
     async testConfig(IdbConfig){
+      if(true){
         const record = new DocumentRecord()
         record.id = 'test'
         const testData = [0,0,0,0,0]
@@ -42,41 +43,57 @@ export class IdbConfig{
         console.log(check1) 
 
         const result2 = await record.getDataArray()
-        const check2 = JSON.stringify(result2.dataArray) == JSON.stringify(testData) 
+        const check2 = JSON.stringify(result2) == JSON.stringify(testData) 
         console.log(check2 )
+      }
+      if(true){
+        const record = new DocumentRecord()
+        record.id = 'test'
+        record.dataArrayKey = 'test'
+        const vectorItem = {
+          'page': 0,
+          'index': 0,
+          'text': 'This is a test line.',
+          'embedding': [0, 0, 0, 0, 0]
+        }
+        const vectorRecords = [vectorItem]
+        const result3 = await record.setVectors(vectorRecords)
+        const check3 = result3 != ['test']
+        console.log(check3)
+      }
 
         return 'Database tests complete'
-}
-
-    async createAllStoresInDb(){
-        //const item = this.storeNamesAndKeyFields[0]
-        //const db = await this.createStoreInDb(this.dbName, this.dbVersion, item.storeName, item.keyField)
-        //TODO:this fails
-        const tasks = []
-        for(const item of this.storeNamesAndKeyFields){
-            //await this.createStoreInDb(this.dbName, this.dbVersion, item.storeName, item.keyField)
-            tasks.push( this.createStoreInDb(this.dbName, this.dbVersion, item.storeName, item.keyField) )
-        }
-        await Promise.all(tasks)
-        return true
-    }
-async createStoreInDb(dbName, dbVersion, storeName, storeKeyField){
-    //clear any previous db
-    await deleteDB(dbName, {
-      blocked() {
-        console.log(`error: can't delete ${dbName} because there are open connections`)
-      },
-    })
-    //create new db
-    const dbPromise = await openDB(dbName, dbVersion, {
-      upgrade (db) {
-        if (!db.objectStoreNames.contains(storeName)) {
-          db.createObjectStore(storeName, { keyPath: storeKeyField });
-          console.log(`database created: ${storeName}`)
-        }
       }
-    })
-  }
+    async createAllStoresInDb() {
+      //clear any previous db
+      await deleteDB(this.dbName, {
+        blocked() {
+          console.log(`error: can't delete ${this.dbName} because there are open connections`)
+        },
+      })
+      const checks = []
+      await this.createStoreInDb(this.dbName, this.dbVersion, this.storeNamesAndKeyFields, checks)
+      return checks
+    }
+    async createStoreInDb(dbName, dbVersion, storeNamesAndKeyFields, checks) {
+      //create new db
+      const dbPromise = await openDB(dbName, dbVersion, {
+        upgrade(db) {
+          for (const item of storeNamesAndKeyFields) {
+            db.createObjectStore(
+              item.storeName, 
+              { 
+                keyPath: item.KeyField,
+                autoIncrement: false 
+              }
+            );
+            console.log(`database created: ${item.storeName}`)
+            checks.push(true)
+          }
+          return checks
+        }
+      })
+    }
 }
 
 
@@ -104,7 +121,12 @@ export async function updateItemsInStore(dbName, dbVersion, storeName, arrayReco
   // Update multiple items in the store in a single transaction:
     const tasks = []
     for(const record of arrayRecords){
-        tasks.push( tx.store.put(record) )
+        //tasks.push( tx.store.put(record) )
+      if (storeName=='Document'){
+        tasks.push( tx.store.put(record.dataArray, record.dataArrayKey) )
+      }else if (storeName=='Vector'){
+        tasks.push(tx.store.put({ record }, record.dataVectorKey))
+      }
     }
     const check = await Promise.all(tasks)
     tx.done

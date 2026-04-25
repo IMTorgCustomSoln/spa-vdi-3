@@ -93,7 +93,7 @@
                         <em>
                             Note that at this time:
                             <ul>
-                                <li>only PDF files with selectable text (not images) can be used.</li>
+                                <li>only PDF files with selectable text (not images) or text files can be used.</li>
                                 <li>limit single upload batch to less than 20 files for processing performance. Multiple
                                     batches may be performed.</li>
                                 <li>subsequent uploads are only performed on files with different reference numbers. If
@@ -257,7 +257,7 @@ export default {
         this.$root.$on('bv::modal::show', async (bvEvent, modalId) => {
             if (modalId == "import-modal") {
                 this.componentBtn = false
-                await this.getFilesFromServer()
+                //await this.getFilesFromServer()
             }
         })
         /* //not necessary
@@ -555,7 +555,7 @@ async function uploadFiles(files) {
             ctx: this.progressBar
         }
         const record = await getFileRecord(FileStore)
-        
+
         // file indexing
         record.id = String(idx)
         var re = /(?:\.([^.]+))?$/

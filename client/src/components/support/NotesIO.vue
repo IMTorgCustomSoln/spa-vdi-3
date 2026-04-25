@@ -108,6 +108,7 @@ export default{
         }
     },
     async mounted(){
+        /*
         if(navigator.gpu && navigator.gpu.requestAdapter() && this.llm.run){
             console.log('loading llm...')
             await this.llm.configure()
@@ -117,7 +118,7 @@ export default{
             } else {
                 console.log('llm not available')
             }
-        }
+        }*/
     },
     methods:{
         exportToText(e){

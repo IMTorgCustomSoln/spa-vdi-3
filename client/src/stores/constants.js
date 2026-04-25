@@ -13,6 +13,8 @@ export const ExportLogsFileName  = `${__UPLOAD_LOGS_TEXT_NAME__}_v${__VERSION__}
 export const DatabaseName = `DocDb`
 export const DbVersion = 1
 export const StoreNameDocumentRecord = `Document`
+export const StoreNameDocumentVector = 'Vector'
 export const StoreNamesAndKeyFields = [
     {storeName: StoreNameDocumentRecord, keyField: 'dataArrayKey'},
+    {storeName: StoreNameDocumentVector, keyField: 'dataVectorKey'},
 ]
