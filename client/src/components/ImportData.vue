@@ -334,9 +334,9 @@ export default {
                     })
                 }
         },
-        processData() {
+        async processData() {
             // Process files by adding / modifying attributes
-            const processedFiles = processFiles(this.importedFiles)
+            const processedFiles = await processFiles(this.importedFiles)
             this.userContentStore.processedFiles.push(...processedFiles)
 
             //this.$emit('imported-records', this.processedFiles)
@@ -589,11 +589,11 @@ async function uploadFiles(files) {
 
 
 
-function processFiles(files) {
+async function processFiles(files) {
     // process files selected for upload and return an array of records
     const processedFiles = []
     for (const file of files) {
-        const check = file.setProcessedFileData()
+        const check = await file.setProcessedFileData()
         if (check) {
             processedFiles.push(file)
         }

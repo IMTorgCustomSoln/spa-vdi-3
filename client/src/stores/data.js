@@ -6,8 +6,16 @@ import * as utils from '@/components/support/utils.js'
 import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNameDocumentVector, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
+import { getVectorFromTextWithWorker } from '@/components/support/worker-scheduler.js'
 import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
+import { RecursiveCharacterTextSplitter } from "@/components/support/langchain_mimic.js";
 
+
+// Config
+const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 500,
+    chunkOverlap: 50,
+});
 
 
 // Managed Notes
@@ -198,11 +206,14 @@ export class DocumentRecord {
   async createVetors(){
     const vectorRecords = []
     for (let [page, pageText] of Object.entries(this.body_pages) ) {
-      const sentences = pageText.split('.')
+      //const sentences = pageText.split('.')//TODO:splitter here
+      const sentences  = await splitter.splitText(pageText)
       for (let [index, textLine] of sentences.entries()) {
+        /*
         if (textLine.length < 100 | textLine.length > 1000) {
           continue
-        }
+          }*/
+        //const docEmbedding = await getVectorFromTextWithWorker(textLine)
         const docEmbedding = await getVectorFromText(textLine)
         const vectorItem = {
           'page': page,

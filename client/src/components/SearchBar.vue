@@ -32,6 +32,8 @@
 <script>
 import { mapStores } from 'pinia'
 import { useUserContent } from '@/stores/UserContent'
+import { getVectorFromTextWithWorker } from '@/components/support/worker-scheduler.js'
+import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
 
 import Guide from '@/components/support/Guide.vue'
 //import {DocumentIndexData} from '@/components/support/data'
@@ -68,7 +70,7 @@ export default {
             queryOptions: [
                 { id: 0, value: 'Fuzzy', disablePrompt: false, state: false },
                 { id: 1, value: 'Exact', disablePrompt: false, state: false },
-                { id: 2, value: 'Concept', disablePrompt: true, state: true },
+                { id: 2, value: 'Concept', disablePrompt: false, state: false },
                 { id: 3, value: 'Models', disablePrompt: true, state: false }
             ],
             searchTableResults: {
@@ -271,8 +273,57 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
             this.$emit('search-table-results', this.searchTableResults)
 
         },
-        searchConcept() {
+        async searchConcept() {
+            console.log(this.query)
+            const results = []
+            const distances = await this.getDistancesFromVectorQuery(this.query)
+            console.log(distances)
+            /*
+            const dist_within_cutoff = distances.filter(item => item.dist <= this.cutoff)
+            results.push(...dist_within_cutoff)
+            //}
+           const uniqueResults = deduplicate(results, 'text')
+            this.clearResults()
+            console.log(uniqueResults)
+            if (this.category != 'user'){    //TODO:this was supposed to prevent from adding to results when selectedSnippet, but it should be done for all categories
+                this.userContentStore.results[this.category].push(...uniqueResults)
+            }
+            this.prepareAndDisplayResults(uniqueResults)
+            */
+        },
+        async getDistancesFromVectorQuery(){
+            const searchEmbedding = await getVectorFromText(this.query)
+            console.log(searchEmbedding)
+            let distances = []
+            try {
+                for (let record of this.$props.records) {
+                    const result = {
+                        ref: record.id,
+                        phrase: [],
+                        score: "0.0",
+                        count: 0,
+                        positions: []
+                    }
+                }
+            } catch (e){
+                console.log(e)
+            }
 
+
+            /*
+            for (let [idx, docRec] of Object.entries(this.userContentStore.processedFiles)) {
+                const vectorObj = await docRec.getVector()
+                console.log(vectorObj)
+                for (let item of vectorObj.record.vectorRecords) {
+                    //console.log(item.embedding)
+                    let dist = euclideanDistance(searchEmbedding, item.embedding)
+                    if (dist != undefined) {
+                        item.dist = parseFloat(dist.toFixed(3))
+                        distances.push(item)
+                    }
+                }
+            }*/
+            return distances
         },
         searchModel() {
             /*

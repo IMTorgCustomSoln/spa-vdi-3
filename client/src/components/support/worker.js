@@ -1,6 +1,6 @@
 //import { DEFAULT_MODEL_NAME, getVectorFromText } from './vector.js';
 //import * as vector  from './vector.js';
-import { FeatureExtractionPipeline, pipeline } from "@xenova/transformers";
+import { FeatureExtractionPipeline, pipeline } from "@huggingface/transformers";
 import { getFromMapOrCreate } from 'rxdb/plugins/core';
 
 
