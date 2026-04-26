@@ -274,56 +274,53 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
 
         },
         async searchConcept() {
+            const CUTOFF = 0.0//this.cutoff
             console.log(this.query)
             const results = []
-            const distances = await this.getDistancesFromVectorQuery(this.query)
-            console.log(distances)
-            /*
-            const dist_within_cutoff = distances.filter(item => item.dist <= this.cutoff)
-            results.push(...dist_within_cutoff)
-            //}
-           const uniqueResults = deduplicate(results, 'text')
-            this.clearResults()
-            console.log(uniqueResults)
-            if (this.category != 'user'){    //TODO:this was supposed to prevent from adding to results when selectedSnippet, but it should be done for all categories
-                this.userContentStore.results[this.category].push(...uniqueResults)
-            }
-            this.prepareAndDisplayResults(uniqueResults)
-            */
-        },
-        async getDistancesFromVectorQuery(){
+            
             const searchEmbedding = await getVectorFromText(this.query)
-            console.log(searchEmbedding)
-            let distances = []
+            const resultGroups = []
             try {
                 for (let record of this.$props.records) {
-                    const result = {
-                        ref: record.id,
-                        phrase: [],
-                        score: "0.0",
-                        count: 0,
-                        positions: []
+                    const chunks = await record.getVector()
+                    for (let vecRec of chunks.record.vectorRecords){
+                        let dist = euclideanDistance(searchEmbedding, vecRec.embedding)
+                        if (dist != undefined & dist > CUTOFF) {
+                            vecRec.dist = parseFloat(dist.toFixed(3))
+                            const indices = getIndicesOf(vecRec.text, record.clean_body, true)
+                            const result = {
+                                ref: record.id,
+                                phrase: [vecRec.text],
+                                score: String(vecRec.dist),
+                                count: 1,
+                                positions: [indices]
+                            }
+                            resultGroups.push(result)
+                        }
                     }
                 }
-            } catch (e){
-                console.log(e)
+            } catch (error){
+                this.searchDisplayResults = { ...this.searchDisplayResults, errorMsg: error }
+                this.resetAllItems()
+                return false
             }
+            //const uniqueResults = deduplicate(results, 'text')
 
+            const totalCount = resultGroups.length
+            const resultIds = removeDuplicatesUsingSet(resultGroups.filter(item => item.positions.length > 0).map(result => result.ref))
+            resultGroups.map(result => result.score = parseFloat(result.count / totalCount).toFixed(2))
 
-            /*
-            for (let [idx, docRec] of Object.entries(this.userContentStore.processedFiles)) {
-                const vectorObj = await docRec.getVector()
-                console.log(vectorObj)
-                for (let item of vectorObj.record.vectorRecords) {
-                    //console.log(item.embedding)
-                    let dist = euclideanDistance(searchEmbedding, item.embedding)
-                    if (dist != undefined) {
-                        item.dist = parseFloat(dist.toFixed(3))
-                        distances.push(item)
-                    }
-                }
-            }*/
-            return distances
+            //this.searchDisplayResults = { ...this.searchDisplayResults, searchTerms: phrases }
+            this.searchDisplayResults = { ...this.searchDisplayResults, totalDocuments: resultIds.length }
+            this.searchDisplayResults = { ...this.searchDisplayResults, count: totalCount }
+
+            this.searchTableResults = { ...this.searchTableResults, query: this.query }
+            //this.searchTableResults = { ...this.searchTableResults, searchTerms: phrases }
+            this.searchTableResults = { ...this.searchTableResults, resultIds: resultIds }
+            this.searchTableResults = { ...this.searchTableResults, resultGroups: resultGroups }
+
+            this.$emit('search-table-results', this.searchTableResults)
+
         },
         searchModel() {
             /*
