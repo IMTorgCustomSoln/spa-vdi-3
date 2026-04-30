@@ -34,6 +34,7 @@ import { mapStores } from 'pinia'
 import { useUserContent } from '@/stores/UserContent'
 import { getVectorFromTextWithWorker } from '@/components/support/worker-scheduler.js'
 import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
+import { cosineSimilarity } from "fast-cosine-similarity";
 
 import Guide from '@/components/support/Guide.vue'
 //import {DocumentIndexData} from '@/components/support/data'
@@ -274,7 +275,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
 
         },
         async searchConcept() {
-            const CUTOFF = 0.0//this.cutoff
+            const CUTOFF = 0.5//this.cutoff
             console.log(this.query)
             const results = []
             
@@ -283,21 +284,28 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
             try {
                 for (let record of this.$props.records) {
                     const chunks = await record.getVector()
+                    const distArray = []
+                    const phraseArray = []
+                    const indicesArray = []
                     for (let vecRec of chunks.record.vectorRecords){
-                        let dist = euclideanDistance(searchEmbedding, vecRec.embedding)
+                        let dist = cosineSimilarity(searchEmbedding, vecRec.embedding)
                         if (dist != undefined & dist > CUTOFF) {
                             vecRec.dist = parseFloat(dist.toFixed(3))
                             const indices = getIndicesOf(vecRec.text, record.clean_body, true)
-                            const result = {
-                                ref: record.id,
-                                phrase: [vecRec.text],
-                                score: String(vecRec.dist),
-                                count: 1,
-                                positions: [indices]
-                            }
-                            resultGroups.push(result)
+                            distArray.push(vecRec.dist)
+                            phraseArray.push(vecRec.text)
+                            indicesArray.push(...indices)
                         }
                     }
+                    const meanDist = distArray.reduce((acc, val) => acc + val, 0) / distArray.length
+                    const result = {
+                        ref: record.id,
+                        phrase: phraseArray,
+                        score: String(meanDist),
+                        count: distArray.length,
+                        positions: indicesArray
+                        }
+                    resultGroups.push(result)
                 }
             } catch (error){
                 this.searchDisplayResults = { ...this.searchDisplayResults, errorMsg: error }
@@ -308,7 +316,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
 
             const totalCount = resultGroups.length
             const resultIds = removeDuplicatesUsingSet(resultGroups.filter(item => item.positions.length > 0).map(result => result.ref))
-            resultGroups.map(result => result.score = parseFloat(result.count / totalCount).toFixed(2))
+            //resultGroups.map(result => result.score = parseFloat(result.count / totalCount).toFixed(2))
 
             //this.searchDisplayResults = { ...this.searchDisplayResults, searchTerms: phrases }
             this.searchDisplayResults = { ...this.searchDisplayResults, totalDocuments: resultIds.length }

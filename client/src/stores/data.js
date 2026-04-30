@@ -13,7 +13,7 @@ import { RecursiveCharacterTextSplitter } from "@/components/support/langchain_m
 
 // Config
 const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 500,
+    chunkSize: 250,
     chunkOverlap: 50,
 });
 

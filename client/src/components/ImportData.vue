@@ -93,7 +93,7 @@
                         <em>
                             Note that at this time:
                             <ul>
-                                <li>only PDF files with selectable text (not images) or text files can be used.</li>
+                                <li>only text files and PDF files (with selectable text - not images) can be used.</li>
                                 <li>limit single upload batch to less than 20 files for processing performance. Multiple
                                     batches may be performed.</li>
                                 <li>subsequent uploads are only performed on files with different reference numbers. If
