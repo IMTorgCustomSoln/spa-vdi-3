@@ -118,7 +118,7 @@ export class DocumentRecord {
     this._activeDetailsTab = 0
     this.accumPageLines = null
   }
-  async setProcessedFileData() {
+  async setProcessedFileData(textEmbed=false) {
     //const item = JSON.parse(JSON.stringify(file))
 
 
@@ -169,8 +169,10 @@ export class DocumentRecord {
         this.body_chars[pg] = text.length 
       })
     }
-    // prepare embeddings
-    await this.setVectors()
+    // prepare embeddings if applicable
+    if (textEmbed==true){
+      await this.setVectors()
+    }
     // prepare page numbers for search snippets
     //item.accumPageLines = item.length_lines_array.map((sum => value => sum += value)(0))    //.map((sum = 0, n => sum += n))  -> assignment to undeclared variable
     if (this.body_chars != null) {

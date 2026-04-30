@@ -45,6 +45,18 @@
                         </label>
                         <input id="uploadInput" type="file" accept=".pdf, .txt" @change="previewFiles" multiple />
                         <br />
+
+                        <b-form-checkbox
+                            id="checkbox-text-embed"
+                            v-model="textEmbed"
+                            name="checkbox-text-embed"
+                            >
+                              Embed text as vectors
+                        </b-form-checkbox>
+
+
+
+
                         <ul class="no-li-dot">
                             <li><label for="fileCount">Files: &nbsp</label> <output id="fileCount">{{ preview.fileCount
                                     }}</output></li>
@@ -213,6 +225,7 @@ export default {
             btnText: 'Import',
             activeTab: 0,
             componentBtn: true,
+            textEmbed: false,
             uploadBtn: true,
             processBtn: true,
             uploadWorkspaceBtn: true,
@@ -336,7 +349,7 @@ export default {
         },
         async processData() {
             // Process files by adding / modifying attributes
-            const processedFiles = await processFiles(this.importedFiles)
+            const processedFiles = await processFiles(this.importedFiles, this.textEmbed)
             this.userContentStore.processedFiles.push(...processedFiles)
 
             //this.$emit('imported-records', this.processedFiles)
@@ -434,7 +447,7 @@ export default {
                 const doc_rec = new DocumentRecord()
                 const check1 = await doc_rec.setAttrWithObj(doc)
                 if (doc_rec.accumPageChars == null) {
-                    const check2 = await doc_rec.setProcessedFileData()
+                    const check2 = await doc_rec.setProcessedFileData(this.textEmbed)
                 }
                 const check3 = await doc_rec.setDataArray()
                 doc_rec.dataArray = null
@@ -472,6 +485,7 @@ export default {
             this.processedFiles.length = 0
 
             this.componentBtn = false
+            this.textEmbed = false
             this.uploadBtn = true
             this.processBtn = true
             this.uploadWorkspaceBtn = true
@@ -589,11 +603,11 @@ async function uploadFiles(files) {
 
 
 
-async function processFiles(files) {
+async function processFiles(files, textEmbed) {
     // process files selected for upload and return an array of records
     const processedFiles = []
     for (const file of files) {
-        const check = await file.setProcessedFileData()
+        const check = await file.setProcessedFileData(textEmbed)
         if (check) {
             processedFiles.push(file)
         }
