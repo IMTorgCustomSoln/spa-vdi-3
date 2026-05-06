@@ -51,11 +51,14 @@
                             v-model="textEmbed"
                             name="checkbox-text-embed"
                             >
-                              Embed text as vectors
+                              Apply AI features
                         </b-form-checkbox>
-
-
-
+                        <div>
+                            <em>
+                                Note: AI features can add considerable time to processing files. 
+                            </em>
+                        </div>
+                    <br/>
 
                         <ul class="no-li-dot">
                             <li><label for="fileCount">Files: &nbsp</label> <output id="fileCount">{{ preview.fileCount
@@ -69,8 +72,9 @@
                     </div>
                 </form>
 
-                <!-- Progress Bar -->
                 <div>
+                <!-- Progress Bar -->
+                <!-- pdfJs progress-->
                     <b-progress class="progress" :max="progressBar.maxProgress" height="1rem" show-progress animated>
                         <b-progress-bar :value="progressBar.fileProgress" :variant="progressBar.variant">
                             <span>
@@ -80,7 +84,9 @@
                             </span>
                         </b-progress-bar>
                     </b-progress>
-                    <br />
+                <br/>
+                <!-- TODO: text embedding progress-->
+
 
                     <!-- Conditional Results Display -->
                     <div v-if="resultDisplay.display">

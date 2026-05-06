@@ -71,7 +71,7 @@ export default {
             queryOptions: [
                 { id: 0, value: 'Fuzzy', disablePrompt: false, state: false },
                 { id: 1, value: 'Exact', disablePrompt: false, state: false },
-                { id: 2, value: 'Concept', disablePrompt: false, state: false },
+                { id: 2, value: 'Concept', disablePrompt: false, state: false },    //TODO: disablePrompt:true  should be changed if ImportData.vue,this.textEmbed = true
                 { id: 3, value: 'Models', disablePrompt: true, state: false }
             ],
             searchTableResults: {

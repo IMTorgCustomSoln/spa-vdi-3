@@ -8,7 +8,8 @@ import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
 import { getVectorFromTextWithWorker } from '@/components/support/worker-scheduler.js'
 import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
-import { RecursiveCharacterTextSplitter } from "@/components/support/langchain_mimic.js";
+import { RecursiveCharacterTextSplitter } from "@/components/support/langchain_mimic.js"
+import { summarizeText } from '@/components/support/summarize.js'
 
 
 // Config
@@ -160,7 +161,6 @@ export class DocumentRecord {
       this.clean_body = clean_body
     }
     this.html_body = this.clean_body     //.replaceAll("\n\n", "<br>")
-    this.summary = this.clean_body.slice(0, 500)   //TODO:apply model to summarize text
     this.pp_toc = this.toc.map(section => `${section.title} (pg.${section.pageNumber})`)
 
     if (utils.isEmpty(this.body_chars)){
@@ -172,6 +172,16 @@ export class DocumentRecord {
     // prepare embeddings if applicable
     if (textEmbed==true){
       await this.setVectors()
+    }
+    if (textEmbed==true){
+      const MAX_LENGTH = 1000
+      const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
+      const text = this.clean_body.slice(0, sliceLength)
+      this.summary = await this.setSummary(text)
+    } else {
+      const MAX_LENGTH = 500
+      const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
+      this.summary = this.clean_body.slice(0, sliceLength)
     }
     // prepare page numbers for search snippets
     //item.accumPageLines = item.length_lines_array.map((sum => value => sum += value)(0))    //.map((sum = 0, n => sum += n))  -> assignment to undeclared variable
@@ -242,6 +252,10 @@ export class DocumentRecord {
     console.log(this.dataArrayKey)
     const dataVector = await getItemFromStore(DatabaseName, DbVersion, StoreNameDocumentVector, this.dataArrayKey)
     return dataVector
+  }
+  async setSummary(text){
+    const summary = await summarizeText(text)
+    return summary
   }
   async prepareForSave() {
     this.dataArray = await this.getDataArray()
