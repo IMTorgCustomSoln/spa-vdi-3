@@ -4,7 +4,7 @@
         <NavbarTop @input="viewInput" />
         <b-container fluid class="fluid-wide">
             <div v-if="userContentStore.documentsIndex.documents.length > 0">
-                <div v-show="appDisplayStore.views.viewSelection == 'search'">
+                <div v-show="['search', 'explore'].includes(appDisplayStore.views.viewSelection)">
                     <b-row>
                         <b-col>
                             <SearchBar :records="userContentStore.documentsIndex.documents"
@@ -17,6 +17,7 @@
                     <b-row>
                         <b-col cols="12">
                             <splitpanes class="default-theme" vertical style="height: 100%; width:100%;">
+                                <!-- Search -->
                                 <!--TODO: `height: calc(100vh - 130px)` works for 'Read' tab but not 'Search'-->
                                 <pane :size="this.appDisplayStore.views.attrs.table.size">
                                     <Table :records="userContentStore.documentsIndex.documents"
@@ -26,7 +27,9 @@
                                         {{ createTable }}
                                     </Table>
                                 </pane>
+
                                 <pane :size="this.appDisplayStore.views.attrs.pdfViewer.size">
+                                    <!-- Read -->
                                     <div
                                         v-if="appDisplayStore.views.viewSelection == 'read' && userContentStore.documentsIndex.documents.length > 0">
 
@@ -39,6 +42,19 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Explore -->
+                                    <div
+                                        v-if="appDisplayStore.views.viewSelection == 'explore' && userContentStore.documentsIndex.documents.length > 0">
+
+                                        <div class="explore">
+                                            <div>
+                                                <ExploreResponse />
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </pane>
                             </splitpanes>
                         </b-col>
@@ -59,6 +75,7 @@ import SearchBar from '@/components/SearchBar.vue'
 import Table from '@/components/Table.vue'
 import PdfViewer from '@/components/PdfViewer.vue'
 import PdfPlaceholder from '@/components/PdfPlaceholder.vue'
+import ExploreResponse from '@/components/ExploreResponse.vue'
 
 
 import { mapStores } from 'pinia'

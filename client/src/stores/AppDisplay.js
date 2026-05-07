@@ -16,7 +16,7 @@ export const useAppDisplay = defineStore('appDisplay', {
                 viewOptions: [
                     { text: 'Search', value: 'search' },
                     { text: 'Read', value: 'read' },
-                    { text: 'Explore', value: 'explore', disabled: true }
+                    { text: 'Explore', value: 'explore', disabled: false }  //TODO:change if AI enabled
                 ],
                 attrs: { //initialized
                     table: {

@@ -72,7 +72,8 @@ export default {
                 { id: 0, value: 'Fuzzy', disablePrompt: false, state: false },
                 { id: 1, value: 'Exact', disablePrompt: false, state: false },
                 { id: 2, value: 'Concept', disablePrompt: false, state: false },    //TODO: disablePrompt:true  should be changed if ImportData.vue,this.textEmbed = true
-                { id: 3, value: 'Models', disablePrompt: true, state: false }
+                { id: 3, value: 'Models', disablePrompt: true, state: false },
+                { id: 4, value: 'Chat', disablePrompt: false, state: false },        //TODO: only add to list when ExploreResponse.vue is present
             ],
             searchTableResults: {
                 type: null,
@@ -448,6 +449,11 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
                 //} else if (this.userContentStore.documentsIndex.indices.lunrIndex) {
             } else if (this.searchQuery.type.value == 'Fuzzy' && this.userContentStore.documentsIndex.indices.lunrIndex) {
                 this.searchFuzzy()
+
+            } else if (this.searchQuery.type.value == 'Chat') {
+                //finds docs and chunks that will be used to populate the chat
+                this.searchConcept()
+                //TODO: call chat logic
             } else {
                 return false
             }
