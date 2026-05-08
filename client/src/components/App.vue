@@ -77,6 +77,7 @@ import PdfViewer from '@/components/PdfViewer.vue'
 import PdfPlaceholder from '@/components/PdfPlaceholder.vue'
 import ExploreResponse from '@/components/ExploreResponse.vue'
 
+import { initializeModels } from '../utils/initialize-models'
 
 import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
@@ -113,6 +114,12 @@ export default {
                 resultGroups: []
             },
             pdfViewerAvailable: true     // => appDisplayStore.pdfViewerAvailable
+        }
+    },
+    async mounted(){
+        const result = await initializeModels()
+        if (result){
+            console.log('models initialized')
         }
     },
     computed: {

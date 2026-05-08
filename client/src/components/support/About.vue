@@ -6,18 +6,24 @@
          variant="primary"
          class=""
          >
-         About
+        <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
      </b-button>
  
      <!-- modal -->
      <b-modal id='about-modal' ok-only>
-         <template #modal-title>
-             About Visual Document Index (VDI)
-         </template>
-         <br>
-
-         <div>
-             <p>
+        <template #modal-title>
+             Settings
+        </template>
+        <div>
+          <b-tabs content-class="mt-3">
+            <b-tab title="AI" active>
+                <p>
+                    * Add progress bar of models downloaded
+                    * Add final status of models
+                </p>
+            </b-tab>
+            <b-tab title="About">
+                <p>
              The Visual Document Index (VDI) browser application is designed to solve two problems:
              <ul>
                 <li>flexibly search large amounts of text across multiple documents</li>
@@ -27,9 +33,13 @@
              the <code>Add More Files</code> modal for details.  
              
              These caveats will be addressed as the project progresses.
-             </p>
-         </div>
- 
+                </p>
+
+            </b-tab>
+            <b-tab title="Disabled" disabled><p>I'm a disabled tab!</p></b-tab>
+          </b-tabs>
+        </div>
+
      </b-modal>
  </template>
 

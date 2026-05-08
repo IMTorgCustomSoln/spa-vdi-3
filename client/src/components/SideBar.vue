@@ -67,7 +67,7 @@
 <script>
 //import {NoteRecord, TopicRecord} from './support/data.js'
 //import { ManagedNotesData } from '@/components/support/data.js'
-import { camelize } from '@/components/support/utils.js'
+import { camelize } from '@/utils/utils.js'
 
 import Draggable from '@/components/support/Draggable.vue'
 import NotesIO from '@/components/support/NotesIO.vue'

@@ -127,7 +127,7 @@
 
 
 <script>
-import { getDateFromJsNumber, getFormattedFileSize } from '@/components/support/utils.js'
+import { getDateFromJsNumber, getFormattedFileSize } from '@/utils/utils.js'
 import Guide from '@/components/support/Guide.vue'
 import SnippetsScroll from '@/components/support/SnippetsInfinite.vue'
 

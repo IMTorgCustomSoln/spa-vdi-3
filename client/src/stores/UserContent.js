@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 
 import { TopicRecord, NoteRecord } from "./data"
-import { camelize } from '@/components/support/utils.js'
+import { camelize } from '@/utils/utils.js'
 
 
 export const useUserContent = defineStore('userContent', {

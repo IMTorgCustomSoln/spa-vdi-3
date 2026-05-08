@@ -1,15 +1,15 @@
 
 import { ref } from 'vue'
 
-import { getDateFromJsNumber, getFormattedFileSize, getFileReferenceNumber } from '@/components/support/utils.js'
-import * as utils from '@/components/support/utils.js'
+import { getDateFromJsNumber, getFormattedFileSize, getFileReferenceNumber } from '@/utils/utils.js'
+import * as utils from '@/utils/utils.js'
 import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNameDocumentVector, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
-import { getVectorFromTextWithWorker } from '@/components/support/worker-scheduler.js'
-import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
-import { RecursiveCharacterTextSplitter } from "@/components/support/langchain_mimic.js"
-import { summarizeText } from '@/components/support/summarize.js'
+import { getVectorFromTextWithWorker } from '@/utils/worker-scheduler.js'
+import { getVectorFromText, euclideanDistance } from '@/utils/vector.js'
+import { RecursiveCharacterTextSplitter } from "@/utils/langchain_mimic.js"
+import { summarizeText } from '@/utils/summarize.js'
 
 
 // Config

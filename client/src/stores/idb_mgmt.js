@@ -1,7 +1,7 @@
 
 import { openDB, deleteDB, wrap, unwrap } from 'idb'
 
-import { getFormattedFileSize } from '@/components/support/utils.js'
+import { getFormattedFileSize } from '@/utils/utils.js'
 import { DocumentRecord } from './data.js'
 
 

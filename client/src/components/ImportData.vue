@@ -208,9 +208,9 @@ import { ExportLogsFileName } from '@/stores/constants.js'
 //import { DocumentIndexData, ManagedNotesData } from '@/stores/data.js'
 import { DocumentRecord } from '@//stores/data.js'
 
-import { getFileRecord } from '@/components/support/pdf_extract.js'
-import { isEmpty, getEstimatedProcessTime, getFormattedMilliseconds } from '@/components/support/utils.js'
-import { getDateFromJsNumber, getFormattedFileSize, getFileReferenceNumber } from '@/components/support/utils.js'
+import { getFileRecord } from '@/utils/pdf_extract.js'
+import { isEmpty, getEstimatedProcessTime, getFormattedMilliseconds } from '@/utils/utils.js'
+import { getDateFromJsNumber, getFormattedFileSize, getFileReferenceNumber } from '@/utils/utils.js'
 
 import { toRaw } from 'vue'
 import { mapStores } from 'pinia'

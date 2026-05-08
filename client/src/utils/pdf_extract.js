@@ -1,4 +1,4 @@
-import { DocumentRecord } from "../../stores/data"
+import { DocumentRecord } from "@/stores/data"
 import { jsPDF } from "jspdf"
 
 // Upload Input

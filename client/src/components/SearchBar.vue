@@ -32,13 +32,13 @@
 <script>
 import { mapStores } from 'pinia'
 import { useUserContent } from '@/stores/UserContent'
-import { getVectorFromTextWithWorker } from '@/components/support/worker-scheduler.js'
-import { getVectorFromText, euclideanDistance } from '@/components/support/vector.js'
+import { getVectorFromTextWithWorker } from '@/utils/worker-scheduler.js'
+import { getVectorFromText, euclideanDistance } from '@/utils/vector.js'
 import { cosineSimilarity } from "fast-cosine-similarity";
 
 import Guide from '@/components/support/Guide.vue'
 //import {DocumentIndexData} from '@/components/support/data'
-import { getUniqueOrderedByCount } from '@/components/support/utils.js'
+import { getUniqueOrderedByCount } from '@/utils/utils.js'
 
 export default {
     name: 'SearchBar',
