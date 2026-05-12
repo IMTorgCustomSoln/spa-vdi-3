@@ -3,7 +3,7 @@ export class WorkerPool{
 
     constructor(workerPath, poolSize){
         this.poolSize = poolSize || navigator.hardwareConcurrency || 4;
-        this.timeout = 10000;
+        this.timeout = 100000;
         this.maxRetries = 2;
         this.scriptPath = new URL(workerPath, import.meta.url)
 
@@ -21,7 +21,7 @@ export class WorkerPool{
     }
     createWorker(){
         const worker = new Worker(this.scriptPath, { type: 'module' })
-        worker.onmessage = (e) => this.handleResponse(worker, e.data)
+        worker.onmessage = (e) => this.handleResponse(worker, e)
         worker.onerror = () => this.handleDeath(worker)
         this.workers.push(worker)
         console.log(this.scriptPath)
@@ -44,8 +44,10 @@ export class WorkerPool{
 
         task.timer = setTimeout(() => this.handleDeath(worker, 'Timeout'))
 
-        const transfer = data => (data instanceof ArrayBuffer) ? [data] : data
-        worker.postMessage({data: task.data.text}, transfer)
+        //const transfer = data => (data instanceof ArrayBuffer) ? [data] : data
+        //const transferables = (task.data instanceof ArrayBuffer) ? [task.data] : []
+        //worker.postMessage({data: task.data}, transferables)
+        worker.postMessage(task.data)
     }
     handleResponse(worker, { success, result, error}){
         const task = worker.currentTask

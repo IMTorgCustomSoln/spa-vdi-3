@@ -219,10 +219,10 @@ export class DocumentRecord {
     const threads = navigator.hardwareConcurrency - 1
     const workerPath = './text-embed-worker.js'
     const workerPool = new WorkerPool(workerPath, 3)
-    const tasks = []
     const vectorRecords = []
     for (let [page, pageText] of Object.entries(this.body_pages) ) {
       const sentences  = await splitter.splitText(pageText)
+      const tasks = []
       for (let [index, textLine] of sentences.entries()) {
         const vectorItem = {
           'page': page,

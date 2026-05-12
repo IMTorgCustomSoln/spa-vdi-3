@@ -22,30 +22,44 @@ export const modelNames = [
 export const DEFAULT_MODEL_NAME = modelNames[0];
 
 const pipePromises = new Map();
-env.allowLocalModels = false;
-let extractor = null
-async function getExtractor() {
+
+export let extractor = null;
+export async function getExtractor() {
     if (!extractor) {
-        // Load the feature extraction pipeline
+        env.allowLocalModels = false;
+        env.useBrowserCache = false;
         extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
     }
     return extractor;
-}
+};
 
 self.onmessage = async (e) => {
+  if('text' in e.data){
     try {
-        const { data } = e.data; // e.data.data is the text from WorkerPool.run()
+        //const { data } = e.data; // e.data.data is the text from WorkerPool.run()
+        const text = e.data.text
 
-        const pipe = await getExtractor();
+        //const pipe = await getExtractor();
+        env.allowLocalModels = false;
+        env.useBrowserCache = false;
+        extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+
         
         // Run inference
-        const output = await pipe(data, { pooling: 'mean', normalize: true });
+        const output = await pipe(text, { pooling: 'mean', normalize: true });
 
         // Send back the result (output.data is a Float32Array)
         self.postMessage({
             success: true,
-            result: output.data // Sending Float32Array
-        });
+            result: {
+              page: data.page, 
+              index: data.index,
+              text: data.text,
+              embedding: output.data
+            },
+            error: null
+        })
+        //}, [output.data.buffer]);
     } catch (error) {
         self.postMessage({
             success: false,
@@ -53,6 +67,7 @@ self.onmessage = async (e) => {
         });
     }
 };
+}
 
 /*
 self.onmessage = async (e) => {

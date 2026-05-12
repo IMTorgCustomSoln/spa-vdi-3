@@ -1,5 +1,6 @@
 
 import { FeatureExtractionPipeline, pipeline, env } from "@huggingface/transformers";
+//import { extractor, getExtractor } from "@/utils/text-embed-worker.js"
 
 
 
@@ -19,6 +20,7 @@ export async function initializeModels(){
             })
     */
     const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
+    //extractor = getExtractor()
     const testText = 'This is a test text.'
     const embedding_result = await extractor(testText, {pooling: "mean", normalize: true})
     //const summary_result = await summarizer(testText, {max_new_tokens:100})
