@@ -225,6 +225,17 @@ export default {
         //COMPONENT_V_MODEL: false
     },
     emits: ['imported-records', 'imported-workspace'],
+    watch: {
+        textEmbed: {
+            handler: function (newVal, oldVal){
+                console.log('AI Configured: ', newVal)
+                this.appDisplayStore.aiConfigs.textEmbed = this.textEmbed
+                this.appDisplayStore.aiConfigs.queryChat.disablePrompt = !this.appDisplayStore.aiConfigs.queryChat.disablePrompt
+                this.appDisplayStore.aiConfigs.queryChat.state = !this.appDisplayStore.aiConfigs.queryChat.state
+                this.appDisplayStore.views.viewOptions[2].disabled = !this.appDisplayStore.views.viewOptions[2].disabled
+            }
+        }
+    },
     data() {
         return {
             uploadIcon: ["success", "secondary"],   //TODO task:change to blue after docs selected
@@ -305,7 +316,7 @@ export default {
                 this.uploadServerBtn = true
             }
             return getFormattedFileSize(sum)
-        }
+        },
     },
     methods: {
         async getFilesFromServer() {
@@ -491,7 +502,7 @@ export default {
             this.processedFiles.length = 0
 
             this.componentBtn = false
-            this.textEmbed = false
+            //this.textEmbed = false  => does not change once set
             this.uploadBtn = true
             this.processBtn = true
             this.uploadWorkspaceBtn = true

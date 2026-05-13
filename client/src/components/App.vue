@@ -49,7 +49,9 @@
 
                                         <div class="explore">
                                             <div>
-                                                <ExploreResponse />
+                                                <ExploreResponse  :records="userContentStore.documentsIndex.documents"
+                                                    :search="searchTableResults">
+                                                </ExploreResponse>
                                             </div>
                                         </div>
                                     </div>
@@ -119,7 +121,7 @@ export default {
     async mounted(){
         const result = await initializeModels()
         if (result){
-            console.log('models initialized')
+            console.log('AI models initialized (if needed)')
         }
     },
     computed: {

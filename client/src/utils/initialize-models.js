@@ -3,6 +3,7 @@ import { FeatureExtractionPipeline, pipeline, env } from "@huggingface/transform
 //import { extractor, getExtractor } from "@/utils/text-embed-worker.js"
 
 
+const model_id = 'Xenova/all-MiniLM-L6-v2'
 
 export async function initializeModels(){
     //TODO:add env var as args
@@ -19,7 +20,7 @@ export async function initializeModels(){
                 dtype: 'fp32', 
             })
     */
-    const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
+    const extractor = await pipeline('feature-extraction', model_id)
     //extractor = getExtractor()
     const testText = 'This is a test text.'
     const embedding_result = await extractor(testText, {pooling: "mean", normalize: true})

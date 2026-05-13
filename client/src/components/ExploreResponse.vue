@@ -17,23 +17,27 @@ import { useUserContent } from '@/stores/UserContent'
 
 export default{
     name:"ExploreResponse",
+    props:{
+        records: Array,
+        search: Object,
+        tableFields: Array,
+        expansionBtn: Boolean
+    },
     watch: {
-        /*TODO, note: event source is Table Snippets
-        'userContentStore.selectedSnippet': {
-            handler: async function (newVal, oldVal) {
-                let pg = 0
-                let tgtText = ''
-                if(newVal.snippet!=''){
-                    const txtPg = parseInt(newVal.snippet.split('<b>pg.')[1].split('|')[0])
-                    pg = txtPg <= 1 ? txtPg : txtPg - 1
-                    tgtText = newVal.snippet.split('<b style="background-color: yellow">')[1].split('</b>')[0]
+        records: {
+            handler: function (newVal, oldVal){
+                if(Array.isArray(this.$props.records) && this.$props.records.length > 0){
+                    console.log('hi')
                 }
-                //const app = await this.getApp
-                await this.loadDoc()
-                //this.search(tgtText)
-                //app.page = pg
-            }
-        }*/
+            }, deep: false
+        },
+        search: {
+            handler: function (newVal1, oldVal){
+                if(typeof(this.$props.search) == 'object'){
+                    //this.filterTable()
+                }
+            }, deep: false
+        },
     },
     data(){
         return {
@@ -45,7 +49,8 @@ export default{
         getDocument() {
             const docId = this.userContentStore.getSelectedDocument
             return this.userContentStore.documentsIndex.documents.filter(item => item.id==docId)[0]         //TODO:must use the Table array that is sorted on Score o/w incorrect
-        }
+        },
+        //getResponseText(){},
     },
     methods:{}
 }

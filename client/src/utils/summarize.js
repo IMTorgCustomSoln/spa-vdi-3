@@ -23,12 +23,14 @@ export const DEFAULT_MODEL_NAME = '';
 
 
 const pipePromises = new Map();
+const model_id = 'onnx-community/SmolLM2-135M-Instruct'
 
 export async function summarizeText(text){
     const hasWebGpu = !!navigator.gpu
     const summarizer = await pipeline(
         'summarization',
-        'Xenova/distilbart-cnn-6-6',
+        model_id,
+        //'Xenova/distilbart-cnn-6-6',
         {
             device: hasWebGpu ? 'webgpu' : 'wasm',
             dtype: 'fp32', 

@@ -39,6 +39,7 @@ import { cosineSimilarity } from "fast-cosine-similarity";
 import Guide from '@/components/support/Guide.vue'
 //import {DocumentIndexData} from '@/components/support/data'
 import { getUniqueOrderedByCount } from '@/utils/utils.js'
+import { useAppDisplay } from '@/stores/AppDisplay';
 
 export default {
     name: 'SearchBar',
@@ -71,9 +72,9 @@ export default {
             queryOptions: [
                 { id: 0, value: 'Fuzzy', disablePrompt: false, state: false },
                 { id: 1, value: 'Exact', disablePrompt: false, state: false },
-                { id: 2, value: 'Concept', disablePrompt: false, state: false },    //TODO: disablePrompt:true  should be changed if ImportData.vue,this.textEmbed = true
+                { id: 2, value: 'Concept', disablePrompt: true, state: false },    //TODO: disablePrompt:true  should be changed if ImportData.vue,this.textEmbed = true
                 { id: 3, value: 'Models', disablePrompt: true, state: false },
-                { id: 4, value: 'Chat', disablePrompt: false, state: false },        //TODO: only add to list when ExploreResponse.vue is present
+                { id: 4, value: 'Chat', disablePrompt: true, state: false},        //TODO: only add to list when ExploreResponse.vue is present
             ],
             searchTableResults: {
                 type: null,
@@ -122,9 +123,15 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
     mounted() {
         //this.createIndex()
         this.userContentStore.createIndex(this.$props.records)
+        for(let item of this.queryOptions){
+            if(['Concept','Chat'].includes(item.value)){
+                item.disablePrompt = this.appDisplayStore.aiConfigs.queryChat.disablePrompt
+                item.state = this.appDisplayStore.aiConfigs.queryChat.state
+            }
+        }
     },
     computed: {
-        ...mapStores(useUserContent),
+        ...mapStores(useUserContent, useAppDisplay),
         searchResultsCount() {
             return this.query != '' ? `Search returned ${this.searchDisplayResults.count} hits, in ${this.searchDisplayResults.totalDocuments} documents \nTerms used: ${this.searchDisplayResults.searchTerms}` : ''
         },

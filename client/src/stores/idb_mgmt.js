@@ -34,17 +34,18 @@ export class IdbConfig{
         return this.isSupported
     }
     async testConfig(IdbConfig){
+      console.log('Commence IndexDb checks:')
       if(true){
         const record = new DocumentRecord()
         record.id = 'test'
         const testData = [0,0,0,0,0]
         const result1 = await record.setDataArray(testData)
         const check1 = isNaN(result1[0])==false 
-        console.log(check1) 
+        console.log(`  * check-1 pass: ${check1}`) 
 
         const result2 = await record.getDataArray()
         const check2 = JSON.stringify(result2) == JSON.stringify(testData) 
-        console.log(check2 )
+        console.log(`  * check-2 pass: ${check2}`)
       }
       if(true){
         const record = new DocumentRecord()
@@ -59,7 +60,7 @@ export class IdbConfig{
         const vectorRecords = [vectorItem]
         const result3 = await record.setVectors(vectorRecords)
         const check3 = result3 != ['test']
-        console.log(check3)
+        console.log(`  * check-3 pass: ${check3}`)
       }
 
         return 'Database tests complete'

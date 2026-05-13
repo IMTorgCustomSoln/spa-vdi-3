@@ -177,7 +177,7 @@ export class DocumentRecord {
       const MAX_LENGTH = 1000
       const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
       const text = this.clean_body.slice(0, sliceLength)
-      this.summary = await this.setSummary(text)
+      this.summary = null //await this.setSummary(text)
     } else {
       const MAX_LENGTH = 500
       const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
@@ -214,7 +214,7 @@ export class DocumentRecord {
   async getDataArray() {
     const dataArray = await getItemFromStore(DatabaseName, DbVersion, StoreNameDocumentRecord, this.dataArrayKey)
     return dataArray
-  }
+  }/*
   async createVetors(){
     const threads = navigator.hardwareConcurrency - 1
     const workerPath = './text-embed-worker.js'
@@ -237,6 +237,23 @@ export class DocumentRecord {
     }
     vectorRecords.sort((a, b) => {return a.page.localeCompare(b.page) || a.index.localeCompare(b.index); });
     workerPool.terminate()
+    return vectorRecords
+  }*/
+  async createVetors(){
+    const vectorRecords = []
+    for (let [page, pageText] of Object.entries(this.body_pages) ) {
+      const sentences  = await splitter.splitText(pageText)
+      for (let [index, textLine] of sentences.entries()) {
+        const docEmbedding = await getVectorFromText(textLine)
+        const vectorItem = {
+          'page': page,
+          'index': index,
+          'text': textLine,
+          'embedding': docEmbedding
+        }
+        vectorRecords.push(vectorItem)
+      }
+    }
     return vectorRecords
   }
   async setVectors(vectorRecords=null) {

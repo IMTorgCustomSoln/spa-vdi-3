@@ -11,12 +11,19 @@ export const useAppDisplay = defineStore('appDisplay', {
                 documentGroup: 'documentgroups/'
             },
 
+            aiConfigs:{
+                textEmbed: false,
+                queryChat:{
+                    disablePrompt: true,
+                    state: true
+                }
+            },
             views: {
                 viewSelection: 'search',
                 viewOptions: [
                     { text: 'Search', value: 'search' },
                     { text: 'Read', value: 'read' },
-                    { text: 'Explore', value: 'explore', disabled: false }  //TODO:change if AI enabled
+                    { text: 'Explore', value: 'explore', disabled: true }
                 ],
                 attrs: { //initialized
                     table: {
