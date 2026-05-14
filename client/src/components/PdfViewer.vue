@@ -38,6 +38,7 @@ import { toRaw } from 'vue'
 import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
 import { useUserContent } from '@/stores/UserContent'
+import 'pdfjs-dist/web/pdf_viewer.mjs'
 
 export default {
     name: 'PdfViewer',
@@ -182,7 +183,7 @@ export default {
             //const viewport = pageProxy.getViewport({ scale: 1 });
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
 
-            if (!canvasLayer || !annotationLayer){
+            if (!canvasLayer || !textLayer || !annotationLayer){
                 console.error('PDF layer refs not properly bound')
                 return null
             }
@@ -195,6 +196,7 @@ export default {
             this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${scale}`)
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
+            this.renderText(pageProxy, textLayer, viewport);
             return await this.renderCanvas(pageProxy, canvasLayer, viewport);
         },
         async updatePage(page_or_direction) {
@@ -244,8 +246,8 @@ export default {
             this.currentPage = page
             this.totalPages = this.pdfDocProxy.numPages;
 
-            const { canvasLayer, annotationLayer } = this.$refs;
-            if (!canvasLayer || !annotationLayer){
+            const { canvasLayer, textLayer, annotationLayer } = this.$refs;
+            if (!canvasLayer || !textLayer || !annotationLayer){
                 console.error('PDF layer refs not properly bound')
                 return false
             }
@@ -257,6 +259,7 @@ export default {
 
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
+            this.renderText(pageProxy, textLayer, viewport);
             await this.renderCanvas(pageProxy, canvasLayer, viewport);
             //TODO: await this.displayAllHighlightedResults()
             return true
