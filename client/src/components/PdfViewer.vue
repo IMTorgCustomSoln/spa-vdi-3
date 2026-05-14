@@ -47,6 +47,7 @@ export default {
             totalPages: null,
             record: null,
             pdfPageProxy: null,
+            pdfDocProxy: null,
 
             pageNumPending: null,      //cache waiting page number
             pageRendering: false,   //check conflict
@@ -73,7 +74,7 @@ export default {
                 const snippet = JSON.parse(JSON.stringify(newSelectedSnippet))
                 let page = 1
                 let docId = -1
-                if(snippet.snippet==''){
+                if(snippet.snippet===''){
                     docId = parseInt( snippet.id )
                     //const docId = parseInt(this.getCurrentRecord.id)
                     //const page = parseInt( snippet.tgtPage )
@@ -155,9 +156,13 @@ export default {
             const viewport = pageProxy.getViewport({ scale: 1 });
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
 
+            if (!canvasLayer || !annotationLayer){
+                console.error('PDF layer refs not properly bound')
+                return null
+            }
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
-            return this.renderCanvas(pageProxy, canvasLayer, viewport);
+            return await this.renderCanvas(pageProxy, canvasLayer, viewport);
         },
         async updatePage(page_or_direction) {
             let page = null
@@ -169,7 +174,7 @@ export default {
             
             }else if( page_or_direction == 'incr' ){
                 if( this.currentPage == this.totalPages ){
-                    console.log('ERROR: end of pages reached')
+                    console.error('ERROR: end of pages reached')
                     return false
                 }else{
                     page = this.currentPage + 1
@@ -207,10 +212,14 @@ export default {
             this.totalPages = this.pdfDocProxy.numPages;
 
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
+            if (!canvasLayer || !annotationLayer){
+                console.error('PDF layer refs not properly bound')
+                return false
+            }
             const viewport = pageProxy.getViewport({ scale: 1 });
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
-            this.renderCanvas(pageProxy, canvasLayer, viewport);
+            await this.renderCanvas(pageProxy, canvasLayer, viewport);
             //TODO: await this.displayAllHighlightedResults()
             return true
         },
