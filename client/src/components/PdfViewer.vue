@@ -22,7 +22,8 @@
         height: `${height}px`,
         width: `${width}px`,
         border: '1px solid #dfdfdf',
-        margin: '0 auto'
+        margin: '0 auto',
+        maxHeight: `calc(100vh - 100px)`
     }">
         <div class="pdf__canvas-layer">
             <canvas ref="canvasLayer" />
@@ -54,6 +55,9 @@ export default {
 
             width: null,
             height: null,
+            scale: 1,
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
 
             extractText: true,
             userContent: useUserContent()
@@ -61,7 +65,11 @@ export default {
     },
     async mounted() {
         //this.renderDisplay()
+        window.addEventListener('resize', this.handleResize)
         await this.processLoadingTask();
+    },
+    beforeUnmount(){
+        window.removeEventListener('resize', this.handleResize)
     },
     watch: {
         /*
@@ -111,6 +119,24 @@ export default {
         getCurrentRecord(){ return this.record }
     },
     methods: {
+        handleResize(){
+            this.viewportWidth = window.innerWidth
+            this.viewportHeight = window.innerHeight
+        },
+        calculateScale(){
+            if(!this.pdfDocProxy) return 1
+            const page = this.pdfDocProxy.getPage(this.currentPage)
+            const navHeight = 80
+            const maxHeight = this.viewportHeight - navHeight
+            const maxWidth = this.viewportWidth
+
+            page.then(pageProxy => {
+                const viewport = pageProxy.getViewport({ scale: 1})
+                const scaleWidth = maxWidth / viewport.width
+                const scaleHeight = maxHeight / viewport.height
+                this.scale = Math.min(scaleWidth, scaleHeight, 2)
+            })
+        },
         // utils
         populateDocument(docId){
             if ( !Number.isInteger(docId) ){
@@ -152,14 +178,21 @@ export default {
             this.totalPages = this.pdfDocProxy.numPages;
 
             const pageProxy = await toRaw(this.pdfDocProxy).getPage(this.currentPage)
-            this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${1}`)
-            const viewport = pageProxy.getViewport({ scale: 1 });
+            //this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${1}`)
+            //const viewport = pageProxy.getViewport({ scale: 1 });
             const { canvasLayer, textLayer, annotationLayer } = this.$refs;
 
             if (!canvasLayer || !annotationLayer){
                 console.error('PDF layer refs not properly bound')
                 return null
             }
+
+            const navHeight = 80
+            const maxHeight = this.viewportHeight - navHeight
+            const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
+            const viewport = pageProxy.getViewport({ scale })
+
+            this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${scale}`)
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
             return await this.renderCanvas(pageProxy, canvasLayer, viewport);
@@ -211,12 +244,17 @@ export default {
             this.currentPage = page
             this.totalPages = this.pdfDocProxy.numPages;
 
-            const { canvasLayer, textLayer, annotationLayer } = this.$refs;
+            const { canvasLayer, annotationLayer } = this.$refs;
             if (!canvasLayer || !annotationLayer){
                 console.error('PDF layer refs not properly bound')
                 return false
             }
+
+            const navHeight = 80
+            const maxHeight = this.viewportHeight - navHeight
+            const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
             const viewport = pageProxy.getViewport({ scale: 1 });
+
             //this.renderText(pageProxy, textLayer, viewport);
             this.renderAnnotations(pageProxy, annotationLayer, viewport);
             await this.renderCanvas(pageProxy, canvasLayer, viewport);
@@ -350,6 +388,10 @@ button,
 annotationLayer must be on top | index: 6 */
 .pdf__layers {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
 
     .pdf__canvas-layer {
         position: absolute;
