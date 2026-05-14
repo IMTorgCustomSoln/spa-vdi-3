@@ -1,4 +1,5 @@
 import * as model from "@/../tests/py/results.json"
+import { env } from '@huggingface/transformers';
 
 
 
@@ -13,6 +14,24 @@ export function isEmpty(obj) {
 
   return true;
 }
+
+async function isModelCached(model_id){
+  const cacheName = env.backends.cache.name || 'transformers-cache';
+  try {
+    //open browser's cache storage
+    const cache = await caches.open(cacheName);
+    //get all urls currently saved in this bucket
+    const requests = await cache.keys();
+    //check if any chached url contains your specific model ID
+    //models are stored as: huggingface.co...
+    const isCached = requests.some(request => request.url.includes(model_id));
+    return isCached;
+  } catch (error) {
+    console.error("Faled to read cache:", error);
+    return false;
+  }
+}
+
 
 
 // ProcessData

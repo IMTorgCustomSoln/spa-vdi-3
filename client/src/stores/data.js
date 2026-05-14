@@ -266,7 +266,7 @@ export class DocumentRecord {
     return check
   }
   async getVector(){
-    console.log(this.dataArrayKey)
+    console.log(`Data array key: ${this.dataArrayKey}`)
     const dataVector = await getItemFromStore(DatabaseName, DbVersion, StoreNameDocumentVector, this.dataArrayKey)
     return dataVector
   }

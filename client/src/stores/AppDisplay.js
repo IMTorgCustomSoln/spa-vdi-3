@@ -16,7 +16,8 @@ export const useAppDisplay = defineStore('appDisplay', {
                 queryChat:{
                     disablePrompt: true,
                     state: true
-                }
+                },
+                chatSubmitBtn: false
             },
             views: {
                 viewSelection: 'search',

@@ -20,8 +20,7 @@ export default{
     props:{
         records: Array,
         search: Object,
-        tableFields: Array,
-        expansionBtn: Boolean
+        chatSubmit: Boolean
     },
     watch: {
         records: {
@@ -38,6 +37,12 @@ export default{
                 }
             }, deep: false
         },
+        chatSubmit:{
+            handler: function (newVal, oldVal){
+                console.log(`new chatSubmit value: ${newVal}`)
+            },
+            deep: false
+        },
     },
     data(){
         return {
@@ -50,8 +55,29 @@ export default{
             const docId = this.userContentStore.getSelectedDocument
             return this.userContentStore.documentsIndex.documents.filter(item => item.id==docId)[0]         //TODO:must use the Table array that is sorted on Score o/w incorrect
         },
-        //getResponseText(){},
     },
-    methods:{}
+    methods:{
+        getResponseText(){
+            const worker = new Worker('@/utils/chat-worker.js', {type: 'module'});
+            let conversationHistory = [
+                { role: 'system', content: 'You are a concise local AI assistant.'}
+            ];
+            conversationHistory.push({ role: 'user', content: userText});
+            worker.postMessage({
+                messages: conversationHistory
+            });
+            console.log('AI is thinking...');
+            worker.onmessage = (e) => {
+                const {status, content }= e.data;
+                if (status === 'complete'){
+                    console.log("Assistant:", content);
+                    conversationHistory.push({ role: "assistant", content: content});
+                }
+            };
+            worker.onerror = function(error){
+                console.error('Worker error:', error.message)
+            };
+        }
+    }
 }
 </script>

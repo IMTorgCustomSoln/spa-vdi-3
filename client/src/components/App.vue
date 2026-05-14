@@ -50,7 +50,8 @@
                                         <div class="explore">
                                             <div>
                                                 <ExploreResponse  :records="userContentStore.documentsIndex.documents"
-                                                    :search="searchTableResults">
+                                                    :search="searchTableResults"
+                                                    :chatSubmit="appDisplayStore.aiConfig.chatSubmit">
                                                 </ExploreResponse>
                                             </div>
                                         </div>
