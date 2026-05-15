@@ -476,7 +476,7 @@ if (textLayerContainer) {
                     const text = span.textContent
                     if (searchRegex.test(text)) {
                         const highlightedHTML = text.replace(searchRegex, match =>
-                            `<mark class="pdf-hgighligh">${match}</mark>`
+                            `<mark class="pdf-hgighlight">${match}</mark>`
                         )
                         span.innerHTML = highlightedHTML
                     }
@@ -500,7 +500,7 @@ if (textLayerContainer) {
             const highlights = this.$refs.textLayer.querySelectorAll('mark.pdf-highlight')
             const normalizedSelectedText = this.selectedSnippetText.trim().toLowerCase()
             highlights.forEach(mark => {
-                const markText = mark.textcontent.trim().toLowerCase()
+                const markText = mark.textContent.trim().toLowerCase()
                 if (markText === normalizedSelectedText) {
                     mark.classList.add('selected')
                 }
