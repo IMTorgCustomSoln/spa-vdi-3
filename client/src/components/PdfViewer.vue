@@ -679,7 +679,7 @@ annotationLayer must be on top | index: 6 */
         max-width: 100%;
         position: absolute;
         inset: 0;
-        z-index: 4;
+        z-index: 1;
     }
 
     .pdf__text-layer {
@@ -701,6 +701,18 @@ annotationLayer must be on top | index: 6 */
           pointer-events: auto;        /* CRITICAL: Instructs the browser to listen for text marking */
           user-select: text !important; /* Forces system text cursor behavior */
           -webkit-user-select: text !important;
+        }
+
+        /* CRITICAL HIGHLIGHT FIX: Explicitly color the background selection canvas */
+        :deep(.textLayer *::selection) {
+          background-color: rgba(0, 0, 255, 0.25) !important; /* Semi-transparent blue highlight */
+          color: transparent !important;                      /* Keeps text invisible to prevent rendering artifact blur */
+        }       
+
+        /* Support fallback rendering engines across older webkit configurations */
+        :deep(.textLayer *::-moz-selection) {
+          background-color: rgba(0, 0, 255, 0.25) !important;
+          color: transparent !important;
         }
 
         :deep(.textLayer span) {
