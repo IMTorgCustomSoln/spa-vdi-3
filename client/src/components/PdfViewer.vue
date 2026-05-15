@@ -416,6 +416,40 @@ if (textLayerContainer) {
         },
 
         // layers
+
+async renderTextLayer(pdfPageProxy, viewport) {
+  const textLayerContainer = this.$refs.textLayer;
+  if (!textLayerContainer) return;
+
+  textLayerContainer.innerHTML = "";
+  textLayerContainer.style.width = `${viewport.width}px`;
+  textLayerContainer.style.height = `${viewport.height}px`;
+  textLayerContainer.style.setProperty('--scale-factor', viewport.scale);
+
+  try {
+    const textContent = await pdfPageProxy.getTextContent();
+    
+    // Read your active search query string from your store or state context
+    const query = this.searchPhrase ? this.searchPhrase.trim() : '';
+
+    const textLayer = new pdfjsLib.TextLayer({
+      textContentSource: textContent,
+      container: textLayerContainer,
+      viewport: viewport,
+    });
+
+    await textLayer.render();
+
+    // Run your selection/marking framework safely AFTER the clean layout builds
+    if (query && this.searchResults && this.searchResults.length > 0) {
+      await this.displayAllHighlightedResults(this.searchResults);
+    }
+  } catch (error) {
+    console.error("PdfViewer.vue: Error rendering text layer:", error);
+  }
+},
+
+
         async renderText(pdfPageProxy, textLayerContainer, viewport) {
             try {
                 textLayerContainer.replaceChildren()
@@ -455,37 +489,41 @@ if (textLayerContainer) {
             const annotations = await pageProxy.getAnnotations({ intent: "display" });
             return annotations;
         },
-        async displayAllHighlightedResults(searchResults) {
-            if (!searchResults || !searchResults.phrase || searchResults.phrase.length === 0) {
-                this.clearHighlights()
-                return
-            }
-            if (!this.record || !this.$refs.textLayer) {
-                return
-            }
-            const currentPageText = this.record.body_pages[this.currentPage]
-            if (!currentPageText) {
-                return
-            }
-            this.clearHighlights()
-            const textLayer = this.$refs.textLayer
-            const spans = textLayer.querySelectorAll('span')
-            searchResults.phrase.forEach(phraseToFind => {
-                const searchRegex = new RegExp(phraseToFind.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
-                spans.forEach(span => {
-                    const text = span.textContent
-                    if (searchRegex.test(text)) {
-                        const highlightedHTML = text.replace(searchRegex, match =>
-                            `<mark class="pdf-hgighlight">${match}</mark>`
-                        )
-                        span.innerHTML = highlightedHTML
-                    }
-                })
-            })
-            if (this.selectedSnippetText) {
-                this.markSelectedSnippet()
-            }
-        },
+async displayAllHighlightedResults(searchResults) {
+  if (!this.$refs.textLayer) return;
+  
+  const spans = this.$refs.textLayer.querySelectorAll('span');
+  if (!spans || spans.length === 0) return;
+
+  const query = this.searchPhrase ? this.searchPhrase.trim().toLowerCase() : '';
+  if (!query) return;
+
+  spans.forEach(span => {
+    const originalText = span.textContent;
+    const lowerText = originalText.toLowerCase();
+
+    if (lowerText.includes(query)) {
+      // Find the starting position of your matched phrase
+      const index = lowerText.indexOf(query);
+      
+      // Split the text into clean node fragments to preserve absolute layout spacing
+      const beforeNode = document.createTextNode(originalText.substring(0, index));
+      const matchNode = document.createElement('mark');
+      matchNode.className = 'pdf-highlight';
+      matchNode.textContent = originalText.substring(index, index + query.length);
+      const afterNode = document.createTextNode(originalText.substring(index + query.length));
+
+      // Clear the span and insert nodes sequentially
+      span.textContent = '';
+      span.appendChild(beforeNode);
+      span.appendChild(matchNode);
+      span.appendChild(afterNode);
+    }
+  });
+
+  // Automatically execute the selected fragment focal frame jump
+  this.markSelectedSnippet();
+},
         clearHighlights() {
             if (!this.$refs.textLayer) return
             const highlights = this.$refs.textLayer.querySelectorAll('mark.pdf-highlight')
@@ -744,6 +782,8 @@ annotationLayer must be on top | index: 6 */
 
     :deep(.pdf-highlight) {
         background-color: rgba(255, 255, 0, 0.5);
+        border-bottom: 2px solid orange;                     /* Clear underline helper definition */
+        display: inline;
         color: black;
         font-weight: bold;
         padding: 0;
@@ -751,7 +791,8 @@ annotationLayer must be on top | index: 6 */
     }
 
     :deep(.pdf-highlight.selected) {
-        background-color: orange;
+        background-color: orange !important;
+        border-bottom: 2px solid darkorange;
     }
 
     .pdf__annotation-layer {
