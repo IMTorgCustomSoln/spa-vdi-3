@@ -28,8 +28,8 @@
         <div class="pdf__canvas-layer">
             <canvas ref="canvasLayer" />
         </div>
-        <div ref="textLayer" class="pdf__text-layer"></div>
-        <div ref="annotationLayer" class="pdf__annotation-layer"></div>
+        <div ref="textLayer" class="pdf__text-layer textLayer"></div>
+        <div ref="annotationLayer" class="pdf__annotation-layer annotationLayer"></div>
     </div>
 </template>
 
@@ -39,6 +39,7 @@ import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
 import { useUserContent } from '@/stores/UserContent'
 //import 'pdfjs-dist/web/pdf_viewer.mjs'
+import 'pdfjs-dist/web/pdf_viewer.css' 
 
 export default {
     name: 'PdfViewer',
@@ -76,9 +77,11 @@ export default {
     beforeUnmount(){
         window.removeEventListener('resize', this.handleResize)
         this.clearHighlights()
+        this.pdfDocProxy = toRaw(this.pdfDocProxy)
         if(this.pdfDocProxy){
             this.pdfDocProxy.destroy();
         }
+        this.pdfPageProxy = toRaw(this.pdfPageProxy)
         if(this.pdfPageProxy){
             this.pdfPageProxy.destroy();
         }
@@ -230,7 +233,7 @@ export default {
                 }
                 const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
                 const pdf = await loadingTask.promise;
-                this.pdfDocProxy = pdf
+                this.pdfDocProxy = toRaw(pdf)
                 this.totalPages = this.pdfDocProxy.numPages;
 
                 const pageProxy = await toRaw(this.pdfDocProxy).getPage(this.currentPage)
@@ -319,8 +322,8 @@ export default {
                 */
                 const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
                 const pdf = await loadingTask.promise;
-                this.pdfDocProxy = pdf
-                const pageProxy = await this.pdfDocProxy.getPage(page);
+                this.pdfDocProxy = toRaw(pdf)
+                const pageProxy = await toRaw(this.pdfDocProxy).getPage(page);
                 this.currentPage = page
                 this.totalPages = this.pdfDocProxy.numPages;
                 const { canvasLayer, textLayer, annotationLayer } = this.$refs;
@@ -470,14 +473,22 @@ export default {
                 annotationLayerContainer.replaceChildren();
                 annotationLayerContainer.width = this.width;
                 annotationLayerContainer.height = this.height;
-                const annotations = await this.getAnnotations(pdfPageProxy);
+
+                // 1. Instantiate and define minimal structure to prevent null errors
+                const linkService = new pdfjsViewer.SimpleLinkService();
+                linkService.setDocument(toRaw(this.pdfDocProxy));
+                // 2. Add fallback for hash calculations if needed
+                linkService.getDestinationHash = (dest) => JSON.stringify(dest);
+
+                const rawPageProxy = toRaw(pdfPageProxy);
+                const annotations = await this.getAnnotations(rawPageProxy);
                 const clonedViewport = viewport.clone({ dontFlip: true });
                 const annotationLayer = new pdfjsLib.AnnotationLayer({
                     div: annotationLayerContainer,
                     accessibilityManager: undefined,
                     annotationCanvasMap: undefined,
                     annotationEditorUIManager: undefined,
-                    page: pdfPageProxy,
+                    page: rawPageProxy,
                     viewport: clonedViewport,
                     /* new pdfjs-dist@4.10.38 */
                     structTreeLayer: null
@@ -485,11 +496,11 @@ export default {
                 await annotationLayer.render({
                     div: annotationLayerContainer,
                     viewport: clonedViewport,
-                    page: pdfPageProxy,
+                    page: rawPageProxy,
                     annotations,
                     imageResourcesPath: undefined,
                     renderForms: false,
-                    linkService: new pdfjsViewer.SimpleLinkService(),
+                    linkService: linkService,
                     downloadManager: null,
                     annotationStorage: undefined,
                     enableScripting: false,
@@ -585,7 +596,7 @@ annotationLayer must be on top | index: 6 */
     .pdf__text-layer {
         inset: 0;
         position: absolute;
-        opacity: 1;
+        opacity: 0.1;
         line-height: 1;
         z-index: 5;
 
@@ -593,7 +604,7 @@ annotationLayer must be on top | index: 6 */
             color: transparent;
         }
 
-        span {
+        :deep(span) {
             color: transparent;
             cursor: text;
             position: absolute;
