@@ -1,6 +1,6 @@
 <template>
     <div style="background-color: black; color: white; text-align: center;">
-        <b>{{ getCurrentRecord ? getCurrentRecord.title : '<no document displayed>' }}</b>
+        <b>{{ record ? record.title : '<no document displayed>' }}</b>
     </div>
     <div id="container" style="background-color: black;">
         <div class="page-navigation">
@@ -38,7 +38,7 @@ import { toRaw } from 'vue'
 import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
 import { useUserContent } from '@/stores/UserContent'
-import 'pdfjs-dist/web/pdf_viewer.mjs'
+//import 'pdfjs-dist/web/pdf_viewer.mjs'
 
 export default {
     name: 'PdfViewer',
@@ -50,8 +50,7 @@ export default {
             record: null,
             pdfPageProxy: null,
             pdfDocProxy: null,
-
-            pageNumPending: null,      //cache waiting page number
+            //pageNumPending: null,      //cache waiting page number
             pageRendering: false,   //check conflict
 
             width: null,
@@ -59,18 +58,33 @@ export default {
             scale: 1,
             viewportWidth: window.innerWidth,
             viewportHeight: window.innerHeight,
+            navHeight: 80,
 
-            extractText: true,
-            userContent: useUserContent()
+            userContent: useUserContent(),
+            selectedSnippetProcessing: false,
+            annotationClickHandler: null,
+            selectedSnippetText: null,
+            //extractText: true,
         }
     },
     async mounted() {
         //this.renderDisplay()
         window.addEventListener('resize', this.handleResize)
+        await this.updateRecord(this.docId);
         await this.processLoadingTask();
     },
     beforeUnmount(){
         window.removeEventListener('resize', this.handleResize)
+        this.clearHighlights()
+        if(this.pdfDocProxy){
+            this.pdfDocProxy.destroy();
+        }
+        if(this.pdfPageProxy){
+            this.pdfPageProxy.destroy();
+        }
+        if(this.annotationClickHandler && this.$refs.annotationLayer){
+            this.$refs.annotationLayer.removeEventListener("click", this.annotationClickHandler);
+        }
     },
     watch: {
         /*
@@ -79,52 +93,76 @@ export default {
         },*/
         'userContent.selectedSnippet': {
             async handler(newSelectedSnippet, oldValue) {
-                console.log('hi from selectedSnippet!')
-                const snippet = JSON.parse(JSON.stringify(newSelectedSnippet))
-                let page = 1
-                let docId = -1
-                if(snippet.snippet===''){
-                    docId = parseInt( snippet.id )
-                    //const docId = parseInt(this.getCurrentRecord.id)
-                    //const page = parseInt( snippet.tgtPage )
-                    //if(docId != this.docId){
-                    await this.updateRecord(docId)
-                    await this.processLoadingTask()
-                    this.currentPage = page
-                }else{
-                //if(page != this.currentPage){
-                    docId = parseInt( this.userContentStore.selectedDocument )
-                    await this.updateRecord(docId)
-                    //await this.processLoadingTask()
-                    page = parseInt( snippet.tgtPage )
-                    await this.updatePage(page)
+                if(this.selectedSnippetProcessing) return;
+                this.selectedSnippetProcessing = true;
+                try{
+                    console.log('hi from selectedSnippet!')
+                    const snippet = JSON.parse(JSON.stringify(newSelectedSnippet))
+                    let page = 1
+                    let docId = -1
+                    if(snippet.snippet===''){
+                        docId = parseInt( snippet.id )
+                        this.selectedSnippetText = null
+                        //const docId = parseInt(this.getCurrentRecord.id)
+                        //const page = parseInt( snippet.tgtPage )
+                        //if(docId != this.docId){
+                        await this.updateRecord(docId)
+                        await this.processLoadingTask()
+                        //this.currentPage = page
+                    }else{
+                    //if(page != this.currentPage){
+                        docId = parseInt( this.userContentStore.selectedDocument )
+                        this.selectedSnippetText = snippet.tgtText
+                        await this.updateRecord(docId)
+                        //await this.processLoadingTask()
+                        page = parseInt( snippet.tgtPage )
+                        await this.updatePage(page)
+                        //this.currentPage = page
+                    }
                     //this.currentPage = page
+                    //const check = await this.displayHighlightedResultSnippet(newSelectedSnippet)
+                    //console.log(`check displayHighlightedResultsItem: ${check}`)
+                } finally {
+                    this.selectedSnippetProcessing = false;
                 }
-                //this.currentPage = page
-                //const check = await this.displayHighlightedResultSnippet(newSelectedSnippet)
-                //console.log(`check displayHighlightedResultsItem: ${check}`)
             },
             deep: true
-        },
+        },/*
         'userContent.results': {
             async handler(newResults, oldValue) {
                 console.log('hi from results!')
                 await this.displayAllHighlightedResults(newResults)
             },
             deep: true
-        },
+        },*/
+        currentDocumentSearchResults(newResults, oldValue){
+            if(newResults){
+                this.displayAllHighlightedResults(newResults)
+            }
+        }
     },
     computed: {
         ...mapStores(useUserContent),
         //changeInStateSelectedSnippet() { return useUserContent.getSelectedSnippet }
-        getCurrentRecord(){ return this.record }
+        //getCurrentRecord(){ return this.record }
+        currentDocumentSearchResults(){
+            const docId = this.docId.toString()
+            const resultGroups = this.userContentStore.searchTableResults?.resultGroups || []
+            return resultGroups.find(group => group.ref === docId) || null
+        }
     },
     methods: {
-        handleResize(){
+        async handleResize(){
             this.viewportWidth = window.innerWidth
             this.viewportHeight = window.innerHeight
+            if (this.pdfDocProxy && this.currentPage){
+                await this.updatePage(this.currentPage);
+            }
         },
-        calculateScale(){
+        calculateViewportScale(pageProxy){
+            const maxHeight = this.viewportHeight - this.navHeight
+            return Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
+            /*
             if(!this.pdfDocProxy) return 1
             const page = this.pdfDocProxy.getPage(this.currentPage)
             const navHeight = 80
@@ -137,6 +175,7 @@ export default {
                 const scaleHeight = maxHeight / viewport.height
                 this.scale = Math.min(scaleWidth, scaleHeight, 2)
             })
+            */
         },
         // utils
         populateDocument(docId){
@@ -163,168 +202,305 @@ export default {
             this.currentPage = 1
         },
         async processLoadingTask() {
-            //this.updateRecord()
-            const record = this.record
-            if (!record) { return null }
-            var dataObj = await record.getDataArray()
-            //var pdfData = dataObj.record.dataArray
-            var pdfData = new Uint8Array(Object.values( dataObj))  //.dataArray ))
-
-            if(this.pdfPageProxy){
-                this.pdfPageProxy.destroy()
+            if (this.pageRendering){
+                console.warn('Page rendering already in progress');
+                return null;
             }
-            const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
-            const pdf = await loadingTask.promise;
-            this.pdfDocProxy = pdf
-            this.totalPages = this.pdfDocProxy.numPages;
-
-            const pageProxy = await toRaw(this.pdfDocProxy).getPage(this.currentPage)
-            //this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${1}`)
-            //const viewport = pageProxy.getViewport({ scale: 1 });
-            const { canvasLayer, textLayer, annotationLayer } = this.$refs;
-
-            if (!canvasLayer || !textLayer || !annotationLayer){
-                console.error('PDF layer refs not properly bound')
-                return null
+            this.pageRendering = true;
+            try{
+                return await this._performLoadingTask();
+            } finally {
+                this.pageRendering = false;
             }
+        },
+        async _performLoadingTask(){
+            try {
+                //this.updateRecord()
+                const record = this.record
+                if (!record) { 
+                    console.error('no record available to load')
+                    return null 
+                }
+                var dataObj = await record.getDataArray()
+                //var pdfData = dataObj.record.dataArray
+                var pdfData = new Uint8Array(Object.values( dataObj))  //.dataArray ))
 
-            const navHeight = 80
-            const maxHeight = this.viewportHeight - navHeight
-            const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
-            const viewport = pageProxy.getViewport({ scale })
+                if(this.pdfPageProxy){
+                    this.pdfPageProxy.destroy()
+                }
+                const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
+                const pdf = await loadingTask.promise;
+                this.pdfDocProxy = pdf
+                this.totalPages = this.pdfDocProxy.numPages;
 
-            this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${scale}`)
-            //this.renderText(pageProxy, textLayer, viewport);
-            this.renderAnnotations(pageProxy, annotationLayer, viewport);
-            this.renderText(pageProxy, textLayer, viewport);
-            return await this.renderCanvas(pageProxy, canvasLayer, viewport);
+                const pageProxy = await toRaw(this.pdfDocProxy).getPage(this.currentPage)
+                //this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${1}`)
+                //const viewport = pageProxy.getViewport({ scale: 1 });
+                const { canvasLayer, textLayer, annotationLayer } = this.$refs;
+
+                if (!canvasLayer || !textLayer || !annotationLayer){
+                    console.error('PDF layer refs not properly bound')
+                    return null
+                }
+                //const navHeight = 80
+                //const maxHeight = this.viewportHeight - navHeight
+                //const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
+                const scale = this.calculateViewportScale(pageProxy)
+                const viewport = pageProxy.getViewport({ scale })
+
+                this.$refs.pdfLayersWrapper.style.setProperty("--total-scale-factor", `${scale}`)
+                //this.renderText(pageProxy, textLayer, viewport);
+                await this.renderAnnotations(pageProxy, annotationLayer, viewport);
+                await this.renderText(pageProxy, textLayer, viewport);
+                const results = await this.renderCanvas(pageProxy, canvasLayer, viewport);
+                if (this.currentDocumentSearchResults){
+                    await this.displayAllHighlightedResults(this.currentDocumentSearchResults)
+                }
+                return results;
+            } catch (error) {
+                console.error('Error loading PDF:', error)
+                return null;
+            }
         },
         async updatePage(page_or_direction) {
-            let page = null
-            if( Number.isInteger(page_or_direction) ){
-                page = page_or_direction
-                
-            }else if( page_or_direction == 'end' ){
-                page = this.totalPages
-            
-            }else if( page_or_direction == 'incr' ){
-                if( this.currentPage == this.totalPages ){
-                    console.error('ERROR: end of pages reached')
-                    return false
-                }else{
-                    page = this.currentPage + 1
-                }
-
-            }else if( page_or_direction == 'decr' ){
-                if( this.currentPage == 1 ){
-                    console.log('ERROR: end of pages reached')
-                    return false
-                }else{
-                    page = this.currentPage - 1
-                }
-
-            }else if( page_or_direction == 'start' ){
-                page = 1
+            if (this.pageRendering){
+                console.warn('Page rendering already in progress');
+                return false;
             }
-            
-
-            if(this.pdfPageProxy){
-                this.pdfPageProxy.destroy()
+            this.pageRendering = true;
+            try {
+                return await this._performPageUpdate(page_or_direction);
+            } finally {
+                this.pageRendering = false;
             }
-
-            //this.currentPage = page
-
-            var dataObj = await this.record.getDataArray()
-            //var pdfData = dataObj.record.dataArray
-            //var pdfData = dataObj.dataArray
-            //var pdfData = new Uint8Array(Object.values( dataObj.dataArray ))
-            var pdfData = new Uint8Array(Object.values( dataObj ))
-            const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
-            const pdf = await loadingTask.promise;
-            this.pdfDocProxy = pdf
-            const pageProxy = await this.pdfDocProxy.getPage(page);
-            this.currentPage = page
-            this.totalPages = this.pdfDocProxy.numPages;
-
-            const { canvasLayer, textLayer, annotationLayer } = this.$refs;
-            if (!canvasLayer || !textLayer || !annotationLayer){
-                console.error('PDF layer refs not properly bound')
-                return false
-            }
-
-            const navHeight = 80
-            const maxHeight = this.viewportHeight - navHeight
-            const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
-            const viewport = pageProxy.getViewport({ scale: 1 });
-
-            //this.renderText(pageProxy, textLayer, viewport);
-            this.renderAnnotations(pageProxy, annotationLayer, viewport);
-            this.renderText(pageProxy, textLayer, viewport);
-            await this.renderCanvas(pageProxy, canvasLayer, viewport);
-            //TODO: await this.displayAllHighlightedResults()
-            return true
         },
+        async _performPageUpdate(page_or_direction){
+            try{
+                let page = null
+                if( Number.isInteger(page_or_direction) ){
+                    page = page_or_direction
 
+                }else if( page_or_direction == 'end' ){
+                    page = this.totalPages
+                
+                }else if( page_or_direction == 'incr' ){
+                    if( this.currentPage == this.totalPages ){
+                        console.warn('End of pages reached')
+                        return false
+                    }else{
+                        page = this.currentPage + 1
+                    }
+                }else if( page_or_direction == 'decr' ){
+                    if( this.currentPage == 1 ){
+                        console.warn('Beginning of pages reached')
+                        return false
+                    }else{
+                        page = this.currentPage - 1
+                    }
+                }else if( page_or_direction == 'start' ){
+                    page = 1
+                }
+                if(this.pdfPageProxy){
+                    this.pdfPageProxy.destroy()
+                }
+                const dataObj = await this.record.getDataArray();
+                const pdfData = new Uint8Array(Object.values(dataObj))
+                /*
+                //this.currentPage = page
+                var dataObj = await this.record.getDataArray()
+                //var pdfData = dataObj.record.dataArray
+                //var pdfData = dataObj.dataArray
+                //var pdfData = new Uint8Array(Object.values( dataObj.dataArray ))
+                var pdfData = new Uint8Array(Object.values( dataObj ))
+                */
+                const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
+                const pdf = await loadingTask.promise;
+                this.pdfDocProxy = pdf
+                const pageProxy = await this.pdfDocProxy.getPage(page);
+                this.currentPage = page
+                this.totalPages = this.pdfDocProxy.numPages;
+                const { canvasLayer, textLayer, annotationLayer } = this.$refs;
+                if (!canvasLayer || !textLayer || !annotationLayer){
+                    console.error('PDF layer refs not properly bound')
+                    return false
+                }
+                //const navHeight = 80
+                //const maxHeight = this.viewportHeight - navHeight
+                //const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
+                const scale = this.calculateViewportScale(pageProxy)
+                const viewport = pageProxy.getViewport({ scale: 1 });
+                //this.renderText(pageProxy, textLayer, viewport);
+                await this.renderAnnotations(pageProxy, annotationLayer, viewport);
+                await this.renderText(pageProxy, textLayer, viewport);
+                await this.renderCanvas(pageProxy, canvasLayer, viewport);
+                //TODO: await this.displayAllHighlightedResults()
+                if(this.currentDocumentSearchResults){
+                    await this.displayAllHighlightedResults(this.currentDocumentSearchResults)
+                }
+                return true
+            } catch (error){
+                console.error('Error updating page:', error)
+            }
+        },
 
         // layers
         async renderText(pdfPageProxy, textLayerContainer, viewport) {
-            textLayerContainer.replaceChildren()
-            const content = await pdfPageProxy.getTextContent()
-            const renderTask = new pdfjsLib.TextLayer({
-                container: textLayerContainer,
-                textContentSource: content,
-                viewport: viewport.clone({ dontFlip: true })
-            });
-            await renderTask.render();
-
+            try{
+                textLayerContainer.replaceChildren()
+                const content = await pdfPageProxy.getTextContent()
+                const renderTask = new pdfjsLib.TextLayer({
+                    container: textLayerContainer,
+                    textContentSource: content,
+                    viewport: viewport.clone({ dontFlip: true })
+                });
+                await renderTask.render();
+            } catch (error){
+                console.error('Error rendering text layer:', error)
+            }
         },
         async renderCanvas(pdfPageProxy, canvasLayer, viewport) {
+            try{
             const { width, height, rotation } = viewport;
             this.width = width;
             this.height = height;
             canvasLayer.width = width;
             canvasLayer.height = height;
             const context = canvasLayer.getContext("2d");
+            if (!content){
+                console.error('Failed to get 2D context from canvas')
+                return null
+            }
             const renderContext = {
                 canvasContext: context,
                 viewport: viewport
             };
-            return pdfPageProxy.render(renderContext);
+            return await pdfPageProxy.render(renderContext);
+            } catch (error){
+                console.error('Error rendering canvas:', error)
+            }
         },
         async getAnnotations(pageProxy) {
             const annotations = await pageProxy.getAnnotations({ intent: "display" });
             return annotations;
         },
+        async displayAllHighlightedResults(searchResults){
+            if (!searchResults || !searchResults.phrase || searchResults.phrase.length === 0){
+                this.clearHighlights()
+                return
+            }
+            if (!this.record || !this.$refs.textLayer){
+                return
+            }
+            const currentPageText = this.record.body_pages[this.currentPage]
+            if (!currentPageText){
+                return
+            }
+            this.clearHighlights()
+            const textLayer = this.$refs.textLayer
+            const spans = textLayer.querySelectorAll('span')
+            searchResults.phrase.forEach(phraseToFind => {
+                const searchRegex = new RegExp(phraseToFind.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+                spans.forEach(span => {
+                    const text = span.textContent 
+                    if (searchRegex.test(text)){
+                        const highlightedHTML = text.replace(searchRegex, match =>
+                            `<mark class="pdf-hgighligh">${match}</mark>`
+                        )
+                        span.innerHTML = highlightedHTML
+                    }
+                })
+            })
+            if (this.selectedSnippetText){
+                this.markSelectedSnippet()
+            }
+        },
+        clearHighlights(){
+            if (!this.$refs.textLayer) return
+            const highlights = this.$refs.textLayer.querySelectorAll('mark.pdf-highlight')
+            highlights.forEach(mark => {
+                const parent = mark.parentNode
+                parent.textContent = parent.textContent
+            })
+
+        },
+        markSelectedSnippet() {
+            if (!this.$refs.textLayer || !this.selectedSnippetText) return
+            const highlights = this.$refs.textLayer.querySelectorAll('mark.pdf-highlight')
+            const normalizedSelectedText = this.selectedSnippetText.trim().toLowerCase()
+            highlights.forEach(mark => {
+                const markText = mark.textcontent.trim().toLowerCase()
+                if (markText === normalizedSelectedText) {
+                    mark.classList.add('selected')
+                }
+            })
+        },
+        createAnnotationClickHandler(annotations){
+            return async (event) => {
+                try {
+                    let annotationTarget = event.target.parentNode;
+                    if (!annotationTarget) {
+                        return;
+                    }
+                    const id = annotationTarget.dataset.annotationId;
+                    if (!id){
+                        return;
+                    }
+                    const annotationLinkId = annotations.find((ele) => ele.id == id);
+                    if (!annotationLinkId){
+                        return;
+                    }
+                    if (!this.pdfDocProxy){
+                        console.error('PDF document not loaded')
+                    }
+                    const pageIndex = await this.pdfDocProxy.getPageIndex(
+                        annotationLinkId.dest[0]
+                    );
+                    await this.updatePage(pageIndex + 1);
+                } catch (error){
+                    console.error('Error handling annotation click:', error)
+                }
+            };
+        },
         async renderAnnotations(pdfPageProxy, annotationLayerContainer, viewport) {
-            annotationLayerContainer.replaceChildren();
-            annotationLayerContainer.width = this.width;
-            annotationLayerContainer.height = this.height;
-            const annotations = await this.getAnnotations(pdfPageProxy);
-            const clonedViewport = viewport.clone({ dontFlip: true });
-            const annotationLayer = new pdfjsLib.AnnotationLayer({
-                div: annotationLayerContainer,
-                accessibilityManager: undefined,
-                annotationCanvasMap: undefined,
-                annotationEditorUIManager: undefined,
-                page: pdfPageProxy,
-                viewport: clonedViewport,
-                /* new pdfjs-dist@4.10.38 */
-                structTreeLayer: null
-            });
-            await annotationLayer.render({
-                div: annotationLayerContainer,
-                viewport: clonedViewport,
-                page: pdfPageProxy,
-                annotations,
-                imageResourcesPath: undefined,
-                renderForms: false,
-                linkService: new pdfjsViewer.SimpleLinkService(),
-                downloadManager: null,
-                annotationStorage: undefined,
-                enableScripting: false,
-                hasJSActions: undefined,
-                fieldObjects: undefined
-            });
+            try {
+                annotationLayerContainer.replaceChildren();
+                annotationLayerContainer.width = this.width;
+                annotationLayerContainer.height = this.height;
+                const annotations = await this.getAnnotations(pdfPageProxy);
+                const clonedViewport = viewport.clone({ dontFlip: true });
+                const annotationLayer = new pdfjsLib.AnnotationLayer({
+                    div: annotationLayerContainer,
+                    accessibilityManager: undefined,
+                    annotationCanvasMap: undefined,
+                    annotationEditorUIManager: undefined,
+                    page: pdfPageProxy,
+                    viewport: clonedViewport,
+                    /* new pdfjs-dist@4.10.38 */
+                    structTreeLayer: null
+                });
+                await annotationLayer.render({
+                    div: annotationLayerContainer,
+                    viewport: clonedViewport,
+                    page: pdfPageProxy,
+                    annotations,
+                    imageResourcesPath: undefined,
+                    renderForms: false,
+                    linkService: new pdfjsViewer.SimpleLinkService(),
+                    downloadManager: null,
+                    annotationStorage: undefined,
+                    enableScripting: false,
+                    hasJSActions: undefined,
+                    fieldObjects: undefined
+                });
+                if (this.annotationClickHandler){
+                    annotationLayerContainer.removeEventListener("click", this.annotationClickHandler);
+                }
+                this.annotationClickHandler = this.createAnnotationClickHandler(annotations);
+                annotationLayerContainer.addEventListener("click", this.annotationClickHandler);
+            } catch (error) {
+                console.error('Error rendering annotation layer:', error)
+            }
+            /*
             annotationLayerContainer.addEventListener("click", async (event) => {
                 let annotationTarget = event.target.parentNode;
                 if (!annotationTarget) {
@@ -342,7 +518,7 @@ export default {
                     annotationLinkId.dest[0]
                 );
                 this.currentPage = pageIndex + 1;
-            });
+            });*/
         },
     }
 }
@@ -399,6 +575,7 @@ annotationLayer must be on top | index: 6 */
     .pdf__canvas-layer {
         position: absolute;
         inset: 0;
+        z-index: 4;
     }
 
     .pdf__text-layer {
@@ -424,6 +601,18 @@ annotationLayer must be on top | index: 6 */
                 color: yellow;
             }
         }
+    }
+
+    :deep(.pdf-highlight){
+        background-color: rgba(255, 255, 0, 0.5);
+        color: black;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+    }
+
+    :deep(.pdf-highlight.selected){
+        background-color: orange;
     }
 
     .pdf__annotation-layer {
