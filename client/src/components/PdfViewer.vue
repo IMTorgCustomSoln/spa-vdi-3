@@ -474,11 +474,31 @@ export default {
                 annotationLayerContainer.width = this.width;
                 annotationLayerContainer.height = this.height;
 
-                // 1. Instantiate and define minimal structure to prevent null errors
+                // 1. Instantiate the base link service
                 const linkService = new pdfjsViewer.SimpleLinkService();
                 linkService.setDocument(toRaw(this.pdfDocProxy));
-                // 2. Add fallback for hash calculations if needed
-                linkService.getDestinationHash = (dest) => JSON.stringify(dest);
+
+                // 2. Clear out underlying property definitions to bypass hash lookup failures
+                linkService.baseUrl = null;
+                linkService.externalLinkTarget = 0;
+                linkService.externalLinkRel = null;
+
+                // 3. Inject explicit routing fallbacks directly onto the instance mapping hooks
+                linkService.getDestinationHash = (dest) => "#";
+                linkService.getAnchorUrl = (hash) => "#";
+
+                // Optional: If you want internal hyperlinks to actually change pages within your Vue component
+                linkService.goToDestination = async (dest) => {
+                  try {
+                    const explicitDest = Array.isArray(dest) ? dest : await toRaw(this.pdfDocProxy).getDestination(dest);
+                    if (explicitDest && explicitDest[0]) {
+                      const pageIndex = await toRaw(this.pdfDocProxy).getPageIndex(explicitDest[0]);
+                      await this.updatePage(pageIndex + 1);
+                    }
+                  } catch (error) {
+                    console.error("Error executing internal link redirection:", error);
+                  }
+                };
 
                 const rawPageProxy = toRaw(pdfPageProxy);
                 const annotations = await this.getAnnotations(rawPageProxy);
