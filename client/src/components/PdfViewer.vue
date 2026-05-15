@@ -128,6 +128,35 @@ export default {
         async currentPage(newValue) {
             await this.updatePage(newValue)
         },*/
+
+        // 1. Listen reactively for whenever search matching arrays modify
+        'userContentStore.searchResults': {
+          handler(newResults) {
+            // Only trigger paint sequence if active data entries exist
+            if (newResults && newResults.length > 0) {
+              // Re-fire the text annotation and string segment highlighting loops
+              this.displayAllHighlightedResults(newResults);
+            }
+          },
+          deep: true // Forces Vue to track deeply nested inner array changes
+        },
+
+        // 2. Clear markings instantly if the search parameters clear out completely
+        'userContentStore.searchPhrase': {
+          handler(newPhrase) {
+            if (!newPhrase || newPhrase.trim() === '') {
+              // Force a clean text layer rebuild to discard highlight mark tags
+              if (this.pdfPageProxy && this.viewport) {
+                this.renderTextLayer(this.pdfPageProxy, this.viewport);
+              }
+            }
+          }
+        },
+
+
+
+
+
         'userContent.selectedSnippet': {
             async handler(newSelectedSnippet, oldValue) {
                 if (this.selectedSnippetProcessing) return;
@@ -154,6 +183,7 @@ export default {
                         //await this.processLoadingTask()
                         page = parseInt(snippet.tgtPage)
                         await this.updatePage(page)
+                        await this.highlightSpecificTextSnippet(this.selectedSnippetText)
                         //this.currentPage = page
                     }
                     //this.currentPage = page
@@ -163,7 +193,8 @@ export default {
                     this.selectedSnippetProcessing = false;
                 }
             },
-            deep: true
+            deep: true,
+            immediate: true
         },/*
         'userContent.results': {
             async handler(newResults, oldValue) {
@@ -436,19 +467,22 @@ async renderTextLayer(pdfPageProxy, viewport) {
       viewport: viewport,
     });
 
-    // 1. AWAIT the complete engine layout paint cycle
+    // 1. Wait for the core engine initialization task to finish
     await textLayer.render();
 
-    // 2. CRITICAL: Wait for Vue and the browser to register the physical elements in the HTML tree
-    this.$nextTick(async () => {
-      if (query && this.searchResults && this.searchResults.length > 0) {
-        await this.displayAllHighlightedResults(this.searchResults);
-      }
+    // 2. CRITICAL: Force execution to yield to the browser's paint loop
+    requestAnimationFrame(() => {
+      this.$nextTick(async () => {
+        if (query && this.searchResults && this.searchResults.length > 0) {
+          await this.displayAllHighlightedResults(this.searchResults);
+        }
+      });
     });
   } catch (error) {
     console.error("PdfViewer.vue: Error rendering text layer:", error);
   }
-},
+}
+,
 
 
         async renderText(pdfPageProxy, textLayerContainer, viewport) {
@@ -490,18 +524,70 @@ async renderTextLayer(pdfPageProxy, viewport) {
             const annotations = await pageProxy.getAnnotations({ intent: "display" });
             return annotations;
         },
+  async highlightSpecificTextSnippet(textToFind) {
+    if (!this.$refs.textLayer || !textToFind) return;
+
+    // 1. Clear out previous orange target flags back to standard highlights
+    const oldActiveMarks = this.$refs.textLayer.querySelectorAll('.pdf-highlight-selected');
+    oldActiveMarks.forEach(mark => {
+      mark.className = 'pdf-highlight';
+    });
+
+    // 2. Select text elements within the container layout
+    const spans = this.$refs.textLayer.querySelectorAll('span');
+    if (spans.length === 0) return;
+
+    const cleanQuery = textToFind.trim().toLowerCase();
+    let focusedElement = null;
+
+    spans.forEach(span => {
+      const originalText = span.textContent;
+      const lowerText = originalText.toLowerCase();
+
+      if (lowerText.includes(cleanQuery)) {
+        const index = lowerText.indexOf(cleanQuery);
+
+        // 3. Slice the node content to insert the highlight tags safely
+        const beforeNode = document.createTextNode(originalText.substring(0, index));
+        
+        const matchNode = document.createElement('mark');
+        // Apply both identifiers to link background styles and focus targets cleanly
+        matchNode.className = 'pdf-highlight pdf-highlight-selected';
+        matchNode.textContent = originalText.substring(index, index + cleanQuery.length);
+        
+        const afterNode = document.createTextNode(originalText.substring(index + cleanQuery.length));
+
+        // 4. Wipe inner text nodes and substitute tracking tags
+        span.textContent = '';
+        span.appendChild(beforeNode);
+        span.appendChild(matchNode);
+        span.appendChild(afterNode);
+
+        if (!focusedElement) {
+          focusedElement = matchNode;
+        }
+      }
+    });
+
+    // 5. Smoothly center the browser viewport layout window directly onto the chosen snippet
+    if (focusedElement) {
+      focusedElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+},
 async displayAllHighlightedResults(searchResults) {
   if (!this.$refs.textLayer) return;
   
-  // PDF.js v4 sometimes isolates raw content inside custom elements or blocks
+  // Try finding standard spans first, then fall back to dynamic wrapper children
   let spans = this.$refs.textLayer.querySelectorAll('span');
   if (!spans || spans.length === 0) {
-    // Fallback: Grab all text containers if specific span tags are missing
-    spans = this.$refs.textLayer.querySelectorAll('div > div, [role="presentation"]');
+    spans = this.$refs.textLayer.querySelectorAll('.textLayer > div, [role="presentation"]');
   }
 
-  // Debug Logger: Verify if elements are actually found in the DOM
-  console.log(`Found ${spans.length} selectable text nodes for highlighting processing.`);
+  // Verification Log: Ensure your console logs a positive number here!
+  console.log(`[PdfViewer] Target text nodes found for highlighting: ${spans.length}`);
   if (spans.length === 0) return;
 
   const query = this.searchPhrase ? this.searchPhrase.trim().toLowerCase() : '';
@@ -516,7 +602,13 @@ async displayAllHighlightedResults(searchResults) {
       
       const beforeNode = document.createTextNode(originalText.substring(0, index));
       const matchNode = document.createElement('mark');
+      
+      // Use absolute classes to prevent scoped attribute stripping
       matchNode.className = 'pdf-highlight';
+      matchNode.style.backgroundColor = 'rgba(255, 255, 0, 0.85)';
+      matchNode.style.color = 'black';
+      matchNode.style.display = 'inline';
+      
       matchNode.textContent = originalText.substring(index, index + query.length);
       const afterNode = document.createTextNode(originalText.substring(index + query.length));
 
@@ -527,6 +619,7 @@ async displayAllHighlightedResults(searchResults) {
     }
   });
 
+  // Center or highlight active focused item indices
   this.markSelectedSnippet();
 },
         clearHighlights() {
@@ -665,6 +758,29 @@ async displayAllHighlightedResults(searchResults) {
 
 
 <style scoped>
+
+
+:deep(.pdf-highlight) {
+  background-color: rgba(255, 255, 0, 0.8) !important; /* Raised opacity to 0.8 for vivid visibility */
+  border-bottom: 2px solid orange !important;
+  display: inline !important;
+  color: black !important;
+  font-weight: bold !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 5 !important;
+}
+
+:deep(.pdf-highlight.selected) {
+  background-color: rgb(255, 140, 0) !important; /* Vivid dark orange for the active target focus */
+  border-bottom: 2px solid darkorange !important;
+}
+
+
+
+
+
+
 .page-btn-grp {
     color: white;
     padding-left: 20px;
@@ -727,21 +843,7 @@ annotationLayer must be on top | index: 6 */
         background: transparent !important;
     }
 
-:deep(.pdf-highlight) {
-  background-color: rgba(255, 255, 0, 0.8) !important; /* Raised opacity to 0.8 for vivid visibility */
-  border-bottom: 2px solid orange !important;
-  display: inline !important;
-  color: black !important;
-  font-weight: bold !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  z-index: 5 !important;
-}
 
-:deep(.pdf-highlight.selected) {
-  background-color: rgb(255, 140, 0) !important; /* Vivid dark orange for the active target focus */
-  border-bottom: 2px solid darkorange !important;
-}
 
     .pdf__text-layer {
         inset: 0;

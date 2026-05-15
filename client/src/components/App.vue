@@ -135,7 +135,16 @@ export default {
             this.searchTableResults = { ...this.searchTableResults, resultIds: results.resultIds }
             this.searchTableResults = { ...this.searchTableResults, resultGroups: results.resultGroups }
         },
+        toggleChatSidebar() {
+            this.isSidebarOpen = !this.isSidebarOpen;
 
+            // CRITICAL: Force the browser to evaluate layout sizes 
+            // This instantly kicks off your `handleResize` function inside PdfViewer.vue
+            this.$nextTick(() => {
+              window.dispatchEvent(new Event('resize'));
+            });
+        }
+        
     }
 }
 
@@ -160,5 +169,19 @@ export default {
 .viewer {
     margin-left: 5px;
     margin-right: 5px;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--sidebar-width, 400px); /* Strict boundary locking */
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.pdf-viewer-panel {
+  min-width: 0; /* CRITICAL Vue 3 layout fix: allows child canvas wrappers to shrink safely */
+  overflow: auto;
+  position: relative;
 }
 </style>
