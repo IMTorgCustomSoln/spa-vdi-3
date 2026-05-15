@@ -720,6 +720,22 @@ annotationLayer must be on top | index: 6 */
         z-index: 1;
     }
 
+:deep(.pdf-highlight) {
+  background-color: rgba(255, 255, 0, 0.8) !important; /* Raised opacity to 0.8 for vivid visibility */
+  border-bottom: 2px solid orange !important;
+  display: inline !important;
+  color: black !important;
+  font-weight: bold !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 5 !important;
+}
+
+:deep(.pdf-highlight.selected) {
+  background-color: rgb(255, 140, 0) !important; /* Vivid dark orange for the active target focus */
+  border-bottom: 2px solid darkorange !important;
+}
+
     .pdf__text-layer {
         inset: 0;
         position: absolute;
@@ -766,33 +782,6 @@ annotationLayer must be on top | index: 6 */
             color: transparent;
         }
 
-        :deep(span) {
-            color: transparent;
-            cursor: text;
-            position: absolute;
-            transform-origin: 0% 0%;
-            white-space: pre;
-
-            &::selection {
-                background-color: black;
-                color: yellow;
-            }
-        }
-    }
-
-    :deep(.pdf-highlight) {
-        background-color: rgba(255, 255, 0, 0.5);
-        border-bottom: 2px solid orange;                     /* Clear underline helper definition */
-        display: inline;
-        color: black;
-        font-weight: bold;
-        padding: 0;
-        margin: 0;
-    }
-
-    :deep(.pdf-highlight.selected) {
-        background-color: orange !important;
-        border-bottom: 2px solid darkorange;
     }
 
     .pdf__annotation-layer {
