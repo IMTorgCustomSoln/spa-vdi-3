@@ -303,6 +303,10 @@ export default {
                 if(this.pdfPageProxy){
                     this.pdfPageProxy.destroy()
                 }
+                if (!this.record){
+                    console.error('No record available')
+                    return false
+                }
                 const dataObj = await this.record.getDataArray();
                 const pdfData = new Uint8Array(Object.values(dataObj))
                 /*
@@ -328,7 +332,7 @@ export default {
                 //const maxHeight = this.viewportHeight - navHeight
                 //const scale = Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
                 const scale = this.calculateViewportScale(pageProxy)
-                const viewport = pageProxy.getViewport({ scale: 1 });
+                const viewport = pageProxy.getViewport({ scale });
                 //this.renderText(pageProxy, textLayer, viewport);
                 await this.renderAnnotations(pageProxy, annotationLayer, viewport);
                 await this.renderText(pageProxy, textLayer, viewport);
@@ -366,7 +370,7 @@ export default {
             canvasLayer.width = width;
             canvasLayer.height = height;
             const context = canvasLayer.getContext("2d");
-            if (!content){
+            if (!context){
                 console.error('Failed to get 2D context from canvas')
                 return null
             }
