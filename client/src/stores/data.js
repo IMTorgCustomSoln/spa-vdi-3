@@ -6,7 +6,7 @@ import * as utils from '@/utils/utils.js'
 import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNameDocumentVector, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
-import { getVectorFromText } from '@/utils/text-embed-worker.js'
+import { getVectorFromText } from '@/utils/text-embed-function.js'
 import { WorkerPool } from '@/utils/worker-pool.js'
 import { RecursiveCharacterTextSplitter } from "@/utils/langchain_mimic.js"
 import { summarizeText } from '@/utils/summarize.js'

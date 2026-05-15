@@ -8,7 +8,8 @@
                     <b-row>
                         <b-col>
                             <SearchBar :records="userContentStore.documentsIndex.documents"
-                                v-on:search-table-results="searchTable">
+                                v-on:search-table-results="searchTable"
+                                v-on:chat-submit="handleChatSubmit">
                             </SearchBar>
                         </b-col>
                     </b-row>
@@ -51,7 +52,8 @@
                                             <div>
                                                 <ExploreResponse  :records="userContentStore.documentsIndex.documents"
                                                     :search="searchTableResults"
-                                                    :chatSubmit="appDisplayStore.aiConfigs.chatSubmitBtn">
+                                                    :chatSubmit="appDisplayStore.aiConfigs.chatSubmitBtn"
+                                                    :query="searchTableResults.query">
                                                 </ExploreResponse>
                                             </div>
                                         </div>
@@ -135,6 +137,9 @@ export default {
             this.searchTableResults = { ...this.searchTableResults, resultIds: results.resultIds }
             this.searchTableResults = { ...this.searchTableResults, resultGroups: results.resultGroups }
         },
+        handleChatSubmit(){
+            this.appDisplayStore.aiConfigs.chatSubmitBtn = !this.appDisplayStore.aiConfigs.chatSubmitBtn
+        }
 
     }
 }

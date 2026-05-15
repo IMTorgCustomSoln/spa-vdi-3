@@ -1,6 +1,5 @@
-//import { FeatureExtractionPipeline, pipeline, env } from "@huggingface/transformers";
-import { getFromMapOrCreate } from 'rxdb/plugins/core';
-import { getVectorFromText } from './text-embed-function';
+import { FeatureExtractionPipeline, pipeline, env } from "@huggingface/transformers";
+
 
 
 /**
@@ -33,55 +32,6 @@ export async function getExtractor() {
     return extractor;
 };
 
-self.onmessage = async (e) => {
-  if('text' in e.data){
-    try {
-        //const { data } = e.data; // e.data.data is the text from WorkerPool.run()
-        const text = e.data.text
-
-        //const pipe = await getExtractor();
-        env.allowLocalModels = false;
-        env.useBrowserCache = false;
-        //extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-        // Run inference
-        const output = getVectorFromText(text)
-
-        // Send back the result (output.data is a Float32Array)
-        self.postMessage({
-            success: true,
-            result: {
-              page: data.page, 
-              index: data.index,
-              text: data.text,
-              embedding: output.data
-            },
-            error: null
-        })
-        //}, [output.data.buffer]);
-    } catch (error) {
-        self.postMessage({
-            success: false,
-            error: error.message
-        });
-    }
-};
-}
-
-/*
-self.onmessage = async (e) => {
-  if(e.data.data){
-    try{
-      const result = await getVectorFromText(e.data.data, DEFAULT_MODEL_NAME);
-      const transferables = result instanceof ArrayBuffer ? [result] : []
-      self.postMessage({success: true, result}, transferables);
-    } catch (error){
-      self.postMessage({success: false, error: error.message})
-    }
-  }
-};
-*/
-
-/*
 export async function getVectorFromText(text, modelName){
   env.allowLocalModels = false
   env.useBrowserCache = false
@@ -90,7 +40,7 @@ export async function getVectorFromText(text, modelName){
   const embedding = Array.from(output.data)
   return embedding
 }
-
+/*
 export async function getVectorFromText(text, modelName) {
   const pipe = await getFromMapOrCreate(
     pipePromises,

@@ -6,8 +6,8 @@
             <Guide v-bind="guides.search" />
             <b-input-group>
                 <template #prepend>
-                    <b-dropdown :text="queryOptions[selectedIdx].value" v-model="selectedIdx" variant="outline-primary">
-                        <b-dropdown-item v-for="option in queryOptions" :key="option.id" @click="changeItem(option)"
+                    <b-dropdown :text="currentSelectedOption.value" v-model="selectedIdx" variant="outline-primary">
+                        <b-dropdown-item v-for="option in filteredQueryOptions" :key="option.id" @click="changeItem(option)"
                             :disabled="option.state">
                             {{ option.value }}
                         </b-dropdown-item>
@@ -15,10 +15,10 @@
                 </template>
 
                 <b-form-input type="search" class="form-control" id="search-field" v-model="query" @input="searchQuery"
-                    :disabled="queryOptions[selectedIdx].disablePrompt" placeholder="type search text here..." />
-                <div v-if="queryOptions[selectedIdx].value=='Chat'">
-                    <b-button @click="!this.appDisplayStore.aiConfigs.chatSubmitBtn"
-                        :class="{ 'btn-success': !this.appDisplayStore.aiConfigs.chatSubmitBtn}"
+                    :disabled="currentSelectedOption.disablePrompt" placeholder="type search text here..." />
+                <div v-if="currentSelectedOption.value=='Chat'">
+                    <b-button @click="handleChatSubmit"
+                        variant="primary"
                         >Submit
                     </b-button>
                 </div>
@@ -39,7 +39,8 @@
 import { mapStores } from 'pinia'
 import { useUserContent } from '@/stores/UserContent'
 import { getVectorFromTextWithWorker } from '@/utils/worker-scheduler.js'
-import { getVectorFromText, euclideanDistance } from '@/utils/vector.js'
+import { getVectorFromText } from '@/utils/text-embed-function'
+import { euclideanDistance } from '@/utils/vector.js'
 import { cosineSimilarity } from "fast-cosine-similarity";
 
 import Guide from '@/components/support/Guide.vue'
@@ -64,9 +65,21 @@ export default {
                 }
             },
             deep: true
+        },
+        'appDisplayStore.views.viewSelection': {
+            handler: function(newView, oldView) {
+                //when switching to Explore, set Chat option
+                if (newView === 'explore'){
+                    this.selectedIdx = 4
+                }
+                else if (oldView === 'explore'){
+                    this.selectedIdx = 0
+                    this.resetAllItems()
+                }
+            }
         }
     },
-    emits: ['search-table-results'],
+    emits: ['search-table-results', 'chat-submit'],
     components: {
         Guide
     },
@@ -135,12 +148,30 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
                 item.state = this.appDisplayStore.aiConfigs.queryChat.state
             }
         }
+        //set view based on initial view
+        if (this.appDisplayStore.views.viewSelection === 'explore'){
+            this.selectedIdx = 4
+        } else {
+            this.selectedIdx = 0
+        }
     },
     computed: {
         ...mapStores(useUserContent, useAppDisplay),
         searchResultsCount() {
             return this.query != '' ? `Search returned ${this.searchDisplayResults.count} hits, in ${this.searchDisplayResults.totalDocuments} documents \nTerms used: ${this.searchDisplayResults.searchTerms}` : ''
         },
+        filteredQueryOptions(){
+            if (this.appDisplayStore.views.viewSelection === 'explore') {
+                return this.queryOptions.filter(opt => opt.value === 'Chat')
+            } else {
+                return this.queryOptions.filter(opt => opt.value !== 'Chat')
+            }
+        },
+        currentSelectedOption(){
+            const filtered = this.filteredQueryOptions
+            const current = filtered.find(opt => opt.id === this.selectedIdx)
+            return current ? current : filtered[0]
+        }
     },
     methods: {
         changeItem(option) {
@@ -486,6 +517,9 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
             this.searchDisplayResults = { ...this.searchDisplayResults, searchTerms: '' }
             this.searchDisplayResults = { ...this.searchDisplayResults, displayLimit: 0 }
         },
+        handleChatSubmit(){
+            this.$emit('chat-submit')
+        }
     },
 }
 
