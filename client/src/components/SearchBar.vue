@@ -17,7 +17,7 @@
                 <b-form-input type="search" class="form-control" id="search-field" v-model="query" @input="searchQuery"
                     :disabled="queryOptions[selectedIdx].disablePrompt" placeholder="type search text here..." />
                 <div v-if="queryOptions[selectedIdx].value=='Chat'">
-                    <b-button @click="this.appDisplayStore.aiConfigs.chatSubmitBtn"
+                    <b-button @click="!this.appDisplayStore.aiConfigs.chatSubmitBtn"
                         :class="{ 'btn-success': !this.appDisplayStore.aiConfigs.chatSubmitBtn}"
                         >Submit
                     </b-button>

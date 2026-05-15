@@ -51,7 +51,7 @@
                                             <div>
                                                 <ExploreResponse  :records="userContentStore.documentsIndex.documents"
                                                     :search="searchTableResults"
-                                                    :chatSubmit="appDisplayStore.aiConfig.chatSubmit">
+                                                    :chatSubmit="appDisplayStore.aiConfigs.chatSubmitBtn">
                                                 </ExploreResponse>
                                             </div>
                                         </div>
