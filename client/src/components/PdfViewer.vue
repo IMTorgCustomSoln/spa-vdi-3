@@ -39,39 +39,39 @@ import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
 import { useUserContent } from '@/stores/UserContent'
 //import 'pdfjs-dist/web/pdf_viewer.mjs'
-import 'pdfjs-dist/web/pdf_viewer.css' 
+import 'pdfjs-dist/web/pdf_viewer.css'
 
 
 // Add this helper object globally ABOVE your 'export default' block
 const createRawLinkService = (componentInstance) => {
-  return {
-    baseUrl: null,
-    externalLinkTarget: 0,
-    externalLinkRel: null,
-    externalLinkEnabled: true,
-    getDestinationHash: (dest) => "#",
-    getAnchorUrl: (hash) => "#",
-    addLinkAttributes: (link, url, newWindow = false) => {
-      if (link && url) {
-        link.href = url;
-        if (newWindow) link.target = "_blank";
-      }
-    },
-    setDocument: (doc) => {},
-    goToDestination: async (dest) => {
-      try {
-        const explicitDest = Array.isArray(dest) 
-          ? dest 
-          : await componentInstance.pdfDocProxy.getDestination(dest);
-        if (explicitDest) {
-          const pageIndex = await componentInstance.pdfDocProxy.getPageIndex(explicitDest);
-          await componentInstance.updatePage(pageIndex + 1);
+    return {
+        baseUrl: null,
+        externalLinkTarget: 0,
+        externalLinkRel: null,
+        externalLinkEnabled: true,
+        getDestinationHash: (dest) => "#",
+        getAnchorUrl: (hash) => "#",
+        addLinkAttributes: (link, url, newWindow = false) => {
+            if (link && url) {
+                link.href = url;
+                if (newWindow) link.target = "_blank";
+            }
+        },
+        setDocument: (doc) => { },
+        goToDestination: async (dest) => {
+            try {
+                const explicitDest = Array.isArray(dest)
+                    ? dest
+                    : await componentInstance.pdfDocProxy.getDestination(dest);
+                if (explicitDest) {
+                    const pageIndex = await componentInstance.pdfDocProxy.getPageIndex(explicitDest);
+                    await componentInstance.updatePage(pageIndex + 1);
+                }
+            } catch (e) {
+                console.error("Link navigation failed:", e);
+            }
         }
-      } catch (e) {
-        console.error("Link navigation failed:", e);
-      }
-    }
-  };
+    };
 };
 
 
@@ -110,16 +110,16 @@ export default {
         await this.updateRecord(this.docId);
         await this.processLoadingTask();
     },
-    beforeUnmount(){
+    beforeUnmount() {
         window.removeEventListener('resize', this.handleResize)
         this.clearHighlights()
-        if(this.pdfDocProxy){
+        if (this.pdfDocProxy) {
             toRaw(this.pdfDocProxy).destroy();
         }
-        if(this.pdfPageProxy){
+        if (this.pdfPageProxy) {
             toRaw(this.pdfPageProxy).destroy();
         }
-        if(this.annotationClickHandler && this.$refs.annotationLayer){
+        if (this.annotationClickHandler && this.$refs.annotationLayer) {
             this.$refs.annotationLayer.removeEventListener("click", this.annotationClickHandler);
         }
     },
@@ -130,15 +130,15 @@ export default {
         },*/
         'userContent.selectedSnippet': {
             async handler(newSelectedSnippet, oldValue) {
-                if(this.selectedSnippetProcessing) return;
+                if (this.selectedSnippetProcessing) return;
                 this.selectedSnippetProcessing = true;
-                try{
+                try {
                     console.log('hi from selectedSnippet!')
                     const snippet = JSON.parse(JSON.stringify(newSelectedSnippet))
                     let page = 1
                     let docId = -1
-                    if(snippet.snippet===''){
-                        docId = parseInt( snippet.id )
+                    if (snippet.snippet === '') {
+                        docId = parseInt(snippet.id)
                         this.selectedSnippetText = null
                         //const docId = parseInt(this.getCurrentRecord.id)
                         //const page = parseInt( snippet.tgtPage )
@@ -146,13 +146,13 @@ export default {
                         await this.updateRecord(docId)
                         await this.processLoadingTask()
                         //this.currentPage = page
-                    }else{
-                    //if(page != this.currentPage){
-                        docId = parseInt( this.userContentStore.selectedDocument )
+                    } else {
+                        //if(page != this.currentPage){
+                        docId = parseInt(this.userContentStore.selectedDocument)
                         this.selectedSnippetText = snippet.tgtText
                         await this.updateRecord(docId)
                         //await this.processLoadingTask()
-                        page = parseInt( snippet.tgtPage )
+                        page = parseInt(snippet.tgtPage)
                         await this.updatePage(page)
                         //this.currentPage = page
                     }
@@ -172,8 +172,8 @@ export default {
             },
             deep: true
         },*/
-        currentDocumentSearchResults(newResults, oldValue){
-            if(newResults){
+        currentDocumentSearchResults(newResults, oldValue) {
+            if (newResults) {
                 this.displayAllHighlightedResults(newResults)
             }
         }
@@ -182,21 +182,21 @@ export default {
         ...mapStores(useUserContent),
         //changeInStateSelectedSnippet() { return useUserContent.getSelectedSnippet }
         //getCurrentRecord(){ return this.record }
-        currentDocumentSearchResults(){
+        currentDocumentSearchResults() {
             const docId = this.docId.toString()
             const resultGroups = this.userContentStore.searchTableResults?.resultGroups || []
             return resultGroups.find(group => group.ref === docId) || null
         }
     },
     methods: {
-        async handleResize(){
+        async handleResize() {
             this.viewportWidth = window.innerWidth
             this.viewportHeight = window.innerHeight
-            if (this.pdfDocProxy && this.currentPage){
+            if (this.pdfDocProxy && this.currentPage) {
                 await this.updatePage(this.currentPage);
             }
         },
-        calculateViewportScale(pageProxy){
+        calculateViewportScale(pageProxy) {
             const maxHeight = this.viewportHeight - this.navHeight
             return Math.min(this.viewportWidth / pageProxy.view[2], maxHeight / pageProxy.view[3])
             /*
@@ -215,22 +215,22 @@ export default {
             */
         },
         // utils
-        populateDocument(docId){
-            if ( !Number.isInteger(docId) ){
-                if ( !Number.isInteger(this.docId) ){
+        populateDocument(docId) {
+            if (!Number.isInteger(docId)) {
+                if (!Number.isInteger(this.docId)) {
                     docId = 1
-                }else{
+                } else {
                     docId = this.docId
                 }
             }
-            return this.userContentStore.documentsIndex.documents.filter(item => parseInt(item.id) == docId)[0] 
+            return this.userContentStore.documentsIndex.documents.filter(item => parseInt(item.id) == docId)[0]
         },
         // page
         async updateRecord(docId) {
             //const records = this.userContentStore.processedFiles
-            if( !Number.isInteger(docId) ){
+            if (!Number.isInteger(docId)) {
                 docId = this.docId
-            }else{
+            } else {
                 this.docId = docId
             }
             const doc = this.populateDocument(docId)
@@ -239,30 +239,30 @@ export default {
             this.currentPage = 1
         },
         async processLoadingTask() {
-            if (this.pageRendering){
+            if (this.pageRendering) {
                 console.warn('Page rendering already in progress');
                 return null;
             }
             this.pageRendering = true;
-            try{
+            try {
                 return await this._performLoadingTask();
             } finally {
                 this.pageRendering = false;
             }
         },
-        async _performLoadingTask(){
+        async _performLoadingTask() {
             try {
                 //this.updateRecord()
                 const record = this.record
-                if (!record) { 
+                if (!record) {
                     console.error('no record available to load')
-                    return null 
+                    return null
                 }
                 var dataObj = await record.getDataArray()
                 //var pdfData = dataObj.record.dataArray
-                var pdfData = new Uint8Array(Object.values( dataObj))  //.dataArray ))
+                var pdfData = new Uint8Array(Object.values(dataObj))  //.dataArray ))
 
-                if(this.pdfPageProxy){
+                if (this.pdfPageProxy) {
                     this.pdfPageProxy.destroy()
                 }
                 const loadingTask = await pdfjsLib.getDocument({ data: pdfData, });
@@ -275,7 +275,7 @@ export default {
                 //const viewport = pageProxy.getViewport({ scale: 1 });
                 const { canvasLayer, textLayer, annotationLayer } = this.$refs;
 
-                if (!canvasLayer || !textLayer || !annotationLayer){
+                if (!canvasLayer || !textLayer || !annotationLayer) {
                     console.error('PDF layer refs not properly bound')
                     return null
                 }
@@ -290,7 +290,7 @@ export default {
                 await this.renderAnnotations(pageProxy, annotationLayer, viewport);
                 await this.renderText(pageProxy, textLayer, viewport);
                 const results = await this.renderCanvas(pageProxy, canvasLayer, viewport);
-                if (this.currentDocumentSearchResults){
+                if (this.currentDocumentSearchResults) {
                     await this.displayAllHighlightedResults(this.currentDocumentSearchResults)
                 }
                 return results;
@@ -300,7 +300,7 @@ export default {
             }
         },
         async updatePage(page_or_direction) {
-            if (this.pageRendering){
+            if (this.pageRendering) {
                 console.warn('Page rendering already in progress');
                 return false;
             }
@@ -311,36 +311,36 @@ export default {
                 this.pageRendering = false;
             }
         },
-        async _performPageUpdate(page_or_direction){
-            try{
+        async _performPageUpdate(page_or_direction) {
+            try {
                 let page = null
-                if( Number.isInteger(page_or_direction) ){
+                if (Number.isInteger(page_or_direction)) {
                     page = page_or_direction
 
-                }else if( page_or_direction == 'end' ){
+                } else if (page_or_direction == 'end') {
                     page = this.totalPages
-                
-                }else if( page_or_direction == 'incr' ){
-                    if( this.currentPage == this.totalPages ){
+
+                } else if (page_or_direction == 'incr') {
+                    if (this.currentPage == this.totalPages) {
                         console.warn('End of pages reached')
                         return false
-                    }else{
+                    } else {
                         page = this.currentPage + 1
                     }
-                }else if( page_or_direction == 'decr' ){
-                    if( this.currentPage == 1 ){
+                } else if (page_or_direction == 'decr') {
+                    if (this.currentPage == 1) {
                         console.warn('Beginning of pages reached')
                         return false
-                    }else{
+                    } else {
                         page = this.currentPage - 1
                     }
-                }else if( page_or_direction == 'start' ){
+                } else if (page_or_direction == 'start') {
                     page = 1
                 }
-                if(this.pdfPageProxy){
+                if (this.pdfPageProxy) {
                     this.pdfPageProxy.destroy()
                 }
-                if (!this.record){
+                if (!this.record) {
                     console.error('No record available')
                     return false
                 }
@@ -361,7 +361,7 @@ export default {
                 this.currentPage = page
                 this.totalPages = this.pdfDocProxy.numPages;
                 const { canvasLayer, textLayer, annotationLayer } = this.$refs;
-                if (!canvasLayer || !textLayer || !annotationLayer){
+                if (!canvasLayer || !textLayer || !annotationLayer) {
                     console.error('PDF layer refs not properly bound')
                     return false
                 }
@@ -374,19 +374,50 @@ export default {
                 await this.renderAnnotations(pageProxy, annotationLayer, viewport);
                 await this.renderText(pageProxy, textLayer, viewport);
                 await this.renderCanvas(pageProxy, canvasLayer, viewport);
+
+
+const textLayerContainer = this.$refs.textLayer;
+if (textLayerContainer) {
+  textLayerContainer.innerHTML = "";
+  
+  // Explicitly assign width and height wrappers matching pixel specs
+  textLayerContainer.style.width = `${viewport.width}px`;
+  textLayerContainer.style.height = `${viewport.height}px`;
+
+  // CRITICAL FIX: Pass the exact numeric scaling coefficient to the CSS layout engine
+  textLayerContainer.style.setProperty('--scale-factor', viewport.scale);
+
+  const textContent = await pdfPageProxy.getTextContent();
+
+  const textLayer = new pdfjsLib.TextLayer({
+    textContentSource: textContent,
+    container: textLayerContainer,
+    viewport: viewport,
+  });
+
+  await textLayer.render();
+}
+
+
+
+
+
+
+
+
                 //TODO: await this.displayAllHighlightedResults()
-                if(this.currentDocumentSearchResults){
+                if (this.currentDocumentSearchResults) {
                     await this.displayAllHighlightedResults(this.currentDocumentSearchResults)
                 }
                 return true
-            } catch (error){
+            } catch (error) {
                 console.error('Error updating page:', error)
             }
         },
 
         // layers
         async renderText(pdfPageProxy, textLayerContainer, viewport) {
-            try{
+            try {
                 textLayerContainer.replaceChildren()
                 const content = await pdfPageProxy.getTextContent()
                 const renderTask = new pdfjsLib.TextLayer({
@@ -395,28 +426,28 @@ export default {
                     viewport: viewport.clone({ dontFlip: true })
                 });
                 await renderTask.render();
-            } catch (error){
+            } catch (error) {
                 console.error('Error rendering text layer:', error)
             }
         },
         async renderCanvas(pdfPageProxy, canvasLayer, viewport) {
-            try{
-            const { width, height, rotation } = viewport;
-            this.width = width;
-            this.height = height;
-            canvasLayer.width = width;
-            canvasLayer.height = height;
-            const context = canvasLayer.getContext("2d");
-            if (!context){
-                console.error('Failed to get 2D context from canvas')
-                return null
-            }
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
-            return await pdfPageProxy.render(renderContext);
-            } catch (error){
+            try {
+                const { width, height, rotation } = viewport;
+                this.width = width;
+                this.height = height;
+                canvasLayer.width = width;
+                canvasLayer.height = height;
+                const context = canvasLayer.getContext("2d");
+                if (!context) {
+                    console.error('Failed to get 2D context from canvas')
+                    return null
+                }
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                return await pdfPageProxy.render(renderContext);
+            } catch (error) {
                 console.error('Error rendering canvas:', error)
             }
         },
@@ -424,16 +455,16 @@ export default {
             const annotations = await pageProxy.getAnnotations({ intent: "display" });
             return annotations;
         },
-        async displayAllHighlightedResults(searchResults){
-            if (!searchResults || !searchResults.phrase || searchResults.phrase.length === 0){
+        async displayAllHighlightedResults(searchResults) {
+            if (!searchResults || !searchResults.phrase || searchResults.phrase.length === 0) {
                 this.clearHighlights()
                 return
             }
-            if (!this.record || !this.$refs.textLayer){
+            if (!this.record || !this.$refs.textLayer) {
                 return
             }
             const currentPageText = this.record.body_pages[this.currentPage]
-            if (!currentPageText){
+            if (!currentPageText) {
                 return
             }
             this.clearHighlights()
@@ -442,8 +473,8 @@ export default {
             searchResults.phrase.forEach(phraseToFind => {
                 const searchRegex = new RegExp(phraseToFind.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
                 spans.forEach(span => {
-                    const text = span.textContent 
-                    if (searchRegex.test(text)){
+                    const text = span.textContent
+                    if (searchRegex.test(text)) {
                         const highlightedHTML = text.replace(searchRegex, match =>
                             `<mark class="pdf-hgighligh">${match}</mark>`
                         )
@@ -451,11 +482,11 @@ export default {
                     }
                 })
             })
-            if (this.selectedSnippetText){
+            if (this.selectedSnippetText) {
                 this.markSelectedSnippet()
             }
         },
-        clearHighlights(){
+        clearHighlights() {
             if (!this.$refs.textLayer) return
             const highlights = this.$refs.textLayer.querySelectorAll('mark.pdf-highlight')
             highlights.forEach(mark => {
@@ -475,7 +506,7 @@ export default {
                 }
             })
         },
-        createAnnotationClickHandler(annotations){
+        createAnnotationClickHandler(annotations) {
             return async (event) => {
                 try {
                     let annotationTarget = event.target.parentNode;
@@ -483,120 +514,106 @@ export default {
                         return;
                     }
                     const id = annotationTarget.dataset.annotationId;
-                    if (!id){
+                    if (!id) {
                         return;
                     }
                     const annotationLinkId = annotations.find((ele) => ele.id == id);
-                    if (!annotationLinkId){
+                    if (!annotationLinkId) {
                         return;
                     }
-                    if (!this.pdfDocProxy){
+                    if (!this.pdfDocProxy) {
                         console.error('PDF document not loaded')
                     }
                     const pageIndex = await this.pdfDocProxy.getPageIndex(
                         annotationLinkId.dest[0]
                     );
                     await this.updatePage(pageIndex + 1);
-                } catch (error){
+                } catch (error) {
                     console.error('Error handling annotation click:', error)
                 }
             };
         },
         async renderAnnotations(pdfPageProxy, annotationLayerContainer, viewport) {
             try {
-                /*
-                annotationLayerContainer.replaceChildren();
-                annotationLayerContainer.width = this.width;
-                annotationLayerContainer.height = this.height;
+                // The below can only be solved by updating to the newest version of pdfjslib
+                // Clear container
+                // 1. Clear any existing child DOM nodes cleanly
+                annotationLayerContainer.innerHTML = "";
 
-                const rawPageProxy = toRaw(pdfPageProxy);
-                const annotations = await this.getAnnotations(rawPageProxy);
-                const clonedViewport = viewport.clone({ dontFlip: true });
+                const rawDoc = toRaw(this.pdfDocProxy);
+                const rawPage = toRaw(pdfPageProxy);
+                const annotations = await rawPage.getAnnotations();
 
+                // Create a functional handler wrapper to retain target extraction data
+                const linkService = {
+                    // 1. Maintain mandatory configuration properties for the parser engine
+                    baseUrl: null,
+                    externalLinkTarget: 2, // 2 maps internally to '_blank' targeting rules
+                    externalLinkRel: 'noopener noreferrer',
+                    externalLinkEnabled: true,
+
+                    // 2. Map actual link attributes rather than dropping them
+                    addLinkAttributes: (link, url, newWindow = true) => {
+                        if (link && url) {
+                            link.href = url;
+                            link.rel = 'noopener noreferrer';
+                            if (newWindow || linkService.externalLinkTarget === 2) {
+                                link.target = "_blank";
+                            }
+                        }
+                    },
+
+                    // 3. Keep track of tracking hashes dynamically 
+                    getDestinationHash: (dest) => {
+                        if (typeof dest === 'string') return `#${dest}`;
+                        return `#${JSON.stringify(dest)}`;
+                    },
+
+                    getAnchorUrl: (hash) => hash || "#",
+
+                    // 4. Resolve internal jump targets dynamically via the document context
+                    goToDestination: async (dest) => {
+                        try {
+                            let explicitDest = dest;
+                            if (typeof dest === 'string') {
+                                explicitDest = await rawDoc.getDestination(dest);
+                            }
+
+                            if (explicitDest) {
+                                // Look up the explicit page index mapping via the document pointer
+                                const pageIndex = await rawDoc.getPageIndex(explicitDest[0]);
+                                // Jump your Vue component to the calculated destination page
+                                if (typeof this.updatePage === 'function') {
+                                    await this.updatePage(pageIndex + 1);
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Internal link navigation failed:", e);
+                        }
+                    }
+                };
+
+                // Build the annotation layer using the functional adapter wrapper
                 const annotationLayer = new pdfjsLib.AnnotationLayer({
+                    viewport: viewport.clone({ dontFlip: true }),
                     div: annotationLayerContainer,
-                    accessibilityManager: undefined,
-                    annotationCanvasMap: undefined,
-                    annotationEditorUIManager: undefined,
-                    page: rawPageProxy,
-                    viewport: clonedViewport,
-                    /* new pdfjs-dist@4.10.38 
-                    structTreeLayer: null
-                });
-                await annotationLayer.render({
-                    div: annotationLayerContainer,
-                    viewport: clonedViewport,
-                    page: rawPageProxy,
-                    annotations,
-                    imageResourcesPath: undefined,
-                    renderForms: false,
+                    annotations: annotations,
+                    page: rawPage,
                     linkService: linkService,
-                    downloadManager: null,
-                    annotationStorage: undefined,
-                    enableScripting: false,
-                    hasJSActions: undefined,
-                    fieldObjects: undefined
+                    imageResourcesPath: '/images/'
                 });
-                */
-               // The below can only be solved by updating to the newest version of pdfjslib
-                 // Clear container
-  annotationLayerContainer.innerHTML = "";
-
-  // Get raw page proxy
-  const rawPage = toRaw(pdfPageProxy);
-  const annotations = await rawPage.getAnnotations();
-
-  // Generate our clean link service instance tracking context
-  const rawLinkService = createRawLinkService(this);
-
-  // Instantiate the layer wrapper
-  const annotationLayer = new pdfjsLib.AnnotationLayer({
-    viewport: viewport.clone({ dontFlip: true }),
-    div: annotationLayerContainer,
-    annotations: annotations,
-    page: rawPage,
-    linkService: rawLinkService, // <-- Clean reference mapping bypasses Vite proxy tracking
-    imageResourcesPath: '/images/'
-  });
-
-    await annotationLayer.render({
-      viewport: viewport.clone({ dontFlip: true }),
-      div: annotationLayerContainer,
-      annotations: annotations,
-      page: rawPage,
-      linkService: rawLinkService, // <-- Double down inline parameters context for safety
-      imageResourcesPath: '/images/'
-    });
 
 
-
-                if (this.annotationClickHandler){
-                    annotationLayerContainer.removeEventListener("click", this.annotationClickHandler);
-                }
-                this.annotationClickHandler = this.createAnnotationClickHandler(annotations);
-                annotationLayerContainer.addEventListener("click", this.annotationClickHandler);
+                await annotationLayer.render({
+                    viewport: viewport.clone({ dontFlip: true }),
+                    div: annotationLayerContainer,
+                    annotations: annotations,
+                    page: rawPage,
+                    linkService: linkService,
+                });
             } catch (error) {
                 console.error('Error rendering annotation layer:', error)
             }
-            /*
-            annotationLayerContainer.addEventListener("click", async (event) => {
-                let annotationTarget = event.target.parentNode;
-                if (!annotationTarget) {
-                    return;
-                }
-                const id = annotationTarget.dataset.annotationId;
-                if (!id) {
-                    return;
-                }
-                const annotationLinkId = annotations.find((ele) => ele.id === id);
-                if (!annotationLinkId) {
-                    return;
-                }
-                const pageIndex = await this.pdfDocProxy.getPageIndex(
-                    annotationLinkId.dest[0]
-                );
-                this.currentPage = pageIndex + 1;
-            });*/
         },
     }
 }
@@ -650,7 +667,16 @@ annotationLayer must be on top | index: 6 */
     justify-content: center;
     overflow: auto;
 
+    .pdf__page-wrapper {
+      position: relative; /* Isolates absolutely positioned child layers */
+      display: inline-block; /* CRITICAL: Prevents margin collapse and horizontal layout shifting */
+      vertical-align: top;
+      overflow: hidden;
+    }
+
     .pdf__canvas-layer {
+        display: block;
+        max-width: 100%;
         position: absolute;
         inset: 0;
         z-index: 4;
@@ -659,9 +685,25 @@ annotationLayer must be on top | index: 6 */
     .pdf__text-layer {
         inset: 0;
         position: absolute;
-        opacity: 0.5;
+        opacity: 1;
         line-height: 1;
-        z-index: 5;
+        transform-origin: 0% 0%; /* Guarantees scaling math anchors to the top-left edge corner */
+        z-index: 2;
+        pointer-events: auto; /* Required to allow highlight mouse dragging */
+
+        /* Ensure child text segments do not block rendering flow */
+        :deep(.textLayer) {
+          opacity: 0.2; /* Allows underlying graphics to show through text selections */
+          mix-blend-mode: multiply;
+        }
+
+        :deep(.textLayer span) {
+          color: transparent;
+          position: absolute;
+          white-space: pre;
+          cursor: text;
+          transform-origin: 0% 0%; /* Prevents individual font glyph shifting when selected */
+        }
 
         br::selection {
             color: transparent;
@@ -681,7 +723,7 @@ annotationLayer must be on top | index: 6 */
         }
     }
 
-    :deep(.pdf-highlight){
+    :deep(.pdf-highlight) {
         background-color: rgba(255, 255, 0, 0.5);
         color: black;
         font-weight: bold;
@@ -689,7 +731,7 @@ annotationLayer must be on top | index: 6 */
         margin: 0;
     }
 
-    :deep(.pdf-highlight.selected){
+    :deep(.pdf-highlight.selected) {
         background-color: orange;
     }
 
