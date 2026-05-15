@@ -41,6 +41,42 @@ import { useUserContent } from '@/stores/UserContent'
 //import 'pdfjs-dist/web/pdf_viewer.mjs'
 import 'pdfjs-dist/web/pdf_viewer.css' 
 
+
+// Add this helper object globally ABOVE your 'export default' block
+const createRawLinkService = (componentInstance) => {
+  return {
+    baseUrl: null,
+    externalLinkTarget: 0,
+    externalLinkRel: null,
+    externalLinkEnabled: true,
+    getDestinationHash: (dest) => "#",
+    getAnchorUrl: (hash) => "#",
+    addLinkAttributes: (link, url, newWindow = false) => {
+      if (link && url) {
+        link.href = url;
+        if (newWindow) link.target = "_blank";
+      }
+    },
+    setDocument: (doc) => {},
+    goToDestination: async (dest) => {
+      try {
+        const explicitDest = Array.isArray(dest) 
+          ? dest 
+          : await componentInstance.pdfDocProxy.getDestination(dest);
+        if (explicitDest) {
+          const pageIndex = await componentInstance.pdfDocProxy.getPageIndex(explicitDest);
+          await componentInstance.updatePage(pageIndex + 1);
+        }
+      } catch (e) {
+        console.error("Link navigation failed:", e);
+      }
+    }
+  };
+};
+
+
+
+
 export default {
     name: 'PdfViewer',
     data() {
@@ -77,13 +113,11 @@ export default {
     beforeUnmount(){
         window.removeEventListener('resize', this.handleResize)
         this.clearHighlights()
-        this.pdfDocProxy = toRaw(this.pdfDocProxy)
         if(this.pdfDocProxy){
-            this.pdfDocProxy.destroy();
+            toRaw(this.pdfDocProxy).destroy();
         }
-        this.pdfPageProxy = toRaw(this.pdfPageProxy)
         if(this.pdfPageProxy){
-            this.pdfPageProxy.destroy();
+            toRaw(this.pdfPageProxy).destroy();
         }
         if(this.annotationClickHandler && this.$refs.annotationLayer){
             this.$refs.annotationLayer.removeEventListener("click", this.annotationClickHandler);
@@ -470,39 +504,15 @@ export default {
         },
         async renderAnnotations(pdfPageProxy, annotationLayerContainer, viewport) {
             try {
+                /*
                 annotationLayerContainer.replaceChildren();
                 annotationLayerContainer.width = this.width;
                 annotationLayerContainer.height = this.height;
 
-                // 1. Instantiate the base link service
-                const linkService = new pdfjsViewer.SimpleLinkService();
-                linkService.setDocument(toRaw(this.pdfDocProxy));
-
-                // 2. Clear out underlying property definitions to bypass hash lookup failures
-                linkService.baseUrl = null;
-                linkService.externalLinkTarget = 0;
-                linkService.externalLinkRel = null;
-
-                // 3. Inject explicit routing fallbacks directly onto the instance mapping hooks
-                linkService.getDestinationHash = (dest) => "#";
-                linkService.getAnchorUrl = (hash) => "#";
-
-                // Optional: If you want internal hyperlinks to actually change pages within your Vue component
-                linkService.goToDestination = async (dest) => {
-                  try {
-                    const explicitDest = Array.isArray(dest) ? dest : await toRaw(this.pdfDocProxy).getDestination(dest);
-                    if (explicitDest && explicitDest[0]) {
-                      const pageIndex = await toRaw(this.pdfDocProxy).getPageIndex(explicitDest[0]);
-                      await this.updatePage(pageIndex + 1);
-                    }
-                  } catch (error) {
-                    console.error("Error executing internal link redirection:", error);
-                  }
-                };
-
                 const rawPageProxy = toRaw(pdfPageProxy);
                 const annotations = await this.getAnnotations(rawPageProxy);
                 const clonedViewport = viewport.clone({ dontFlip: true });
+
                 const annotationLayer = new pdfjsLib.AnnotationLayer({
                     div: annotationLayerContainer,
                     accessibilityManager: undefined,
@@ -510,7 +520,7 @@ export default {
                     annotationEditorUIManager: undefined,
                     page: rawPageProxy,
                     viewport: clonedViewport,
-                    /* new pdfjs-dist@4.10.38 */
+                    /* new pdfjs-dist@4.10.38 
                     structTreeLayer: null
                 });
                 await annotationLayer.render({
@@ -527,6 +537,39 @@ export default {
                     hasJSActions: undefined,
                     fieldObjects: undefined
                 });
+                */
+               // The below can only be solved by updating to the newest version of pdfjslib
+                 // Clear container
+  annotationLayerContainer.innerHTML = "";
+
+  // Get raw page proxy
+  const rawPage = toRaw(pdfPageProxy);
+  const annotations = await rawPage.getAnnotations();
+
+  // Generate our clean link service instance tracking context
+  const rawLinkService = createRawLinkService(this);
+
+  // Instantiate the layer wrapper
+  const annotationLayer = new pdfjsLib.AnnotationLayer({
+    viewport: viewport.clone({ dontFlip: true }),
+    div: annotationLayerContainer,
+    annotations: annotations,
+    page: rawPage,
+    linkService: rawLinkService, // <-- Clean reference mapping bypasses Vite proxy tracking
+    imageResourcesPath: '/images/'
+  });
+
+    await annotationLayer.render({
+      viewport: viewport.clone({ dontFlip: true }),
+      div: annotationLayerContainer,
+      annotations: annotations,
+      page: rawPage,
+      linkService: rawLinkService, // <-- Double down inline parameters context for safety
+      imageResourcesPath: '/images/'
+    });
+
+
+
                 if (this.annotationClickHandler){
                     annotationLayerContainer.removeEventListener("click", this.annotationClickHandler);
                 }
@@ -616,7 +659,7 @@ annotationLayer must be on top | index: 6 */
     .pdf__text-layer {
         inset: 0;
         position: absolute;
-        opacity: 0.1;
+        opacity: 0.5;
         line-height: 1;
         z-index: 5;
 
