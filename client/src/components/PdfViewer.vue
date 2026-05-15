@@ -428,8 +428,6 @@ async renderTextLayer(pdfPageProxy, viewport) {
 
   try {
     const textContent = await pdfPageProxy.getTextContent();
-    
-    // Read your active search query string from your store or state context
     const query = this.searchPhrase ? this.searchPhrase.trim() : '';
 
     const textLayer = new pdfjsLib.TextLayer({
@@ -438,12 +436,15 @@ async renderTextLayer(pdfPageProxy, viewport) {
       viewport: viewport,
     });
 
+    // 1. AWAIT the complete engine layout paint cycle
     await textLayer.render();
 
-    // Run your selection/marking framework safely AFTER the clean layout builds
-    if (query && this.searchResults && this.searchResults.length > 0) {
-      await this.displayAllHighlightedResults(this.searchResults);
-    }
+    // 2. CRITICAL: Wait for Vue and the browser to register the physical elements in the HTML tree
+    this.$nextTick(async () => {
+      if (query && this.searchResults && this.searchResults.length > 0) {
+        await this.displayAllHighlightedResults(this.searchResults);
+      }
+    });
   } catch (error) {
     console.error("PdfViewer.vue: Error rendering text layer:", error);
   }
@@ -492,8 +493,16 @@ async renderTextLayer(pdfPageProxy, viewport) {
 async displayAllHighlightedResults(searchResults) {
   if (!this.$refs.textLayer) return;
   
-  const spans = this.$refs.textLayer.querySelectorAll('span');
-  if (!spans || spans.length === 0) return;
+  // PDF.js v4 sometimes isolates raw content inside custom elements or blocks
+  let spans = this.$refs.textLayer.querySelectorAll('span');
+  if (!spans || spans.length === 0) {
+    // Fallback: Grab all text containers if specific span tags are missing
+    spans = this.$refs.textLayer.querySelectorAll('div > div, [role="presentation"]');
+  }
+
+  // Debug Logger: Verify if elements are actually found in the DOM
+  console.log(`Found ${spans.length} selectable text nodes for highlighting processing.`);
+  if (spans.length === 0) return;
 
   const query = this.searchPhrase ? this.searchPhrase.trim().toLowerCase() : '';
   if (!query) return;
@@ -503,17 +512,14 @@ async displayAllHighlightedResults(searchResults) {
     const lowerText = originalText.toLowerCase();
 
     if (lowerText.includes(query)) {
-      // Find the starting position of your matched phrase
       const index = lowerText.indexOf(query);
       
-      // Split the text into clean node fragments to preserve absolute layout spacing
       const beforeNode = document.createTextNode(originalText.substring(0, index));
       const matchNode = document.createElement('mark');
       matchNode.className = 'pdf-highlight';
       matchNode.textContent = originalText.substring(index, index + query.length);
       const afterNode = document.createTextNode(originalText.substring(index + query.length));
 
-      // Clear the span and insert nodes sequentially
       span.textContent = '';
       span.appendChild(beforeNode);
       span.appendChild(matchNode);
@@ -521,7 +527,6 @@ async displayAllHighlightedResults(searchResults) {
     }
   });
 
-  // Automatically execute the selected fragment focal frame jump
   this.markSelectedSnippet();
 },
         clearHighlights() {
@@ -718,6 +723,8 @@ annotationLayer must be on top | index: 6 */
         position: absolute;
         inset: 0;
         z-index: 1;
+        background-color: transparent !important;
+        background: transparent !important;
     }
 
 :deep(.pdf-highlight) {
