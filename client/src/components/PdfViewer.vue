@@ -387,7 +387,7 @@ if (textLayerContainer) {
   // CRITICAL FIX: Pass the exact numeric scaling coefficient to the CSS layout engine
   textLayerContainer.style.setProperty('--scale-factor', viewport.scale);
 
-  const textContent = await pdfPageProxy.getTextContent();
+  const textContent = await pageProxy.getTextContent();
 
   const textLayer = new pdfjsLib.TextLayer({
     textContentSource: textContent,
@@ -693,16 +693,23 @@ annotationLayer must be on top | index: 6 */
 
         /* Ensure child text segments do not block rendering flow */
         :deep(.textLayer) {
-          opacity: 0.2; /* Allows underlying graphics to show through text selections */
-          mix-blend-mode: multiply;
+          position: absolute;
+          text-align: initial;
+          inset: 0;
+          overflow: hidden;
+          line-height: 1;
+          pointer-events: auto;        /* CRITICAL: Instructs the browser to listen for text marking */
+          user-select: text !important; /* Forces system text cursor behavior */
+          -webkit-user-select: text !important;
         }
 
         :deep(.textLayer span) {
           color: transparent;
           position: absolute;
           white-space: pre;
-          cursor: text;
+          cursor: text !important;     /* Forces the text I-beam selection cursor */
           transform-origin: 0% 0%; /* Prevents individual font glyph shifting when selected */
+          pointer-events: auto;        /* Enables targeting of individual letter glyphs */
         }
 
         br::selection {
@@ -739,7 +746,14 @@ annotationLayer must be on top | index: 6 */
         inset: 0;
         position: absolute;
         pointer-events: none;
-        z-index: 6 !important;
+        z-index: 3 !important;
+        pointer-events: none;        /* CRITICAL: Clicks pass directly through empty zones to the text layer */
+
+        /* Re-enable click actions ONLY for the actual clickable hyperlink tags */
+        :deep(.annotationLayer .linkAnnotation a) {
+          pointer-events: auto !important;
+          cursor: pointer;
+        }
 
         section {
             position: absolute;
