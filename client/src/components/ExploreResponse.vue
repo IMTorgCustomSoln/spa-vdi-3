@@ -24,6 +24,9 @@ import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
 import { useUserContent } from '@/stores/UserContent'
 
+import { getChatResponse } from '@/utils/chat-function'
+
+
 export default{
     name:"ExploreResponse",
     props:{
@@ -38,15 +41,19 @@ export default{
                 if(Array.isArray(this.$props.records) && this.$props.records.length > 0){
                     console.log('Records updated')
                 }
-            }, deep: false
+            }, 
+            deep: false,
+
         },
         search: {
-            handler: function (newVal1, oldVal){
+            handler: function (newVal, oldVal){
                 if(typeof(this.$props.search) == 'object'){
                     //this.filterTable()
                     console.log('Search results updated:', this.$props.search)
                 }
-            }, deep: false
+            }, 
+            deep: false
+            //immediate: true
         },
         chatSubmit:{
             handler: function (newVal, oldVal){
@@ -55,7 +62,8 @@ export default{
                 this.getResponseText()
                 }
             },
-            deep: false
+            deep: true,
+            immediate: true
         },
     },
     data(){
@@ -109,9 +117,8 @@ export default{
                     this.isProcessing = false
                 }
             }
-
             this.worker.postMessage({
-                message: this.conversationHistory
+                message: toRaw(this.conversationHistory)
             })
             console.log('AI is thinking...')
         },

@@ -320,7 +320,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
 
         },
         async searchConcept() {
-            const CUTOFF = 0.5//this.cutoff
+            const CUTOFF = 0.05//this.cutoff
             console.log(this.query)
             const results = []
             

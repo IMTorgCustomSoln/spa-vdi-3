@@ -46,7 +46,7 @@
 
                                     <!-- Explore -->
                                     <div
-                                        v-if="appDisplayStore.views.viewSelection == 'explore' && userContentStore.documentsIndex.documents.length > 0">
+                                        v-else-if="appDisplayStore.views.viewSelection == 'explore' && userContentStore.documentsIndex.documents.length > 0">
 
                                         <div class="explore">
                                             <div>
@@ -54,6 +54,7 @@
                                                     :search="searchTableResults"
                                                     :chatSubmit="appDisplayStore.aiConfigs.chatSubmitBtn"
                                                     :query="searchTableResults.query">
+                                                    >
                                                 </ExploreResponse>
                                             </div>
                                         </div>
@@ -97,8 +98,8 @@ export default {
         Table,
         PdfViewer,
         PdfPlaceholder,
-
-        Splitpanes, Pane
+        Splitpanes, Pane,
+        ExploreResponse
     },
     data() {
         return {

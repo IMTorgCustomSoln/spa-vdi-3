@@ -15,7 +15,7 @@ export function isEmpty(obj) {
   return true;
 }
 
-async function isModelCached(model_id){
+export async function isModelCached(model_id){
   const cacheName = env.backends.cache.name || 'transformers-cache';
   try {
     //open browser's cache storage

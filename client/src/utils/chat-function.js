@@ -1,7 +1,6 @@
 import { pipeline, AutoTokenizer, env } from "@huggingface/transformers";
-import { isModelCached } from "./utils";
+import { isModelCached } from "@/utils/utils";
 
-const model_id = 'onnx-community/SmolLM2-135M-Instruct'
 let generator = null;
 let tokenizer = null;
 
@@ -15,16 +14,18 @@ let messages = [
 ];
 */
 
-async function getChatResponse(messages, model_id){
+export async function getChatResponse(messages){
 
-    let checkCached = isModelCached(model_id)
+    const model_id = 'Xenova/LaMini-GPT-124M'//'onnx-community/SmolLM2-135M-Instruct'
+    //let checkCached = isModelCached(model_id)
 
     if(!generator){
         env.allowLocalModels = false;
         env.useBrowserCache = false;
         generator = await pipeline('text-generation', model_id, {
             device: 'webgpu',
-            dtype: 'fp16',
+            quantized: true,
+            dtype: 'q4'//'fp16',
         });
         tokenizer = await AutoTokenizer.from_pretrained(model_id);
     }
