@@ -8,7 +8,8 @@
                     <b-row>
                         <b-col>
                             <SearchBar :records="userContentStore.documentsIndex.documents"
-                                v-on:search-table-results="searchTable">
+                                v-on:search-table-results="searchTable"
+                                v-on:chat-submit="handleChatSubmit">
                             </SearchBar>
                         </b-col>
                     </b-row>
@@ -45,13 +46,15 @@
 
                                     <!-- Explore -->
                                     <div
-                                        v-if="appDisplayStore.views.viewSelection == 'explore' && userContentStore.documentsIndex.documents.length > 0">
+                                        v-else-if="appDisplayStore.views.viewSelection == 'explore' && userContentStore.documentsIndex.documents.length > 0">
 
                                         <div class="explore">
                                             <div>
                                                 <ExploreResponse  :records="userContentStore.documentsIndex.documents"
                                                     :search="searchTableResults"
-                                                    :chatSubmit="appDisplayStore.aiConfig.chatSubmit">
+                                                    :chatSubmit="appDisplayStore.aiConfigs.chatSubmitBtn"
+                                                    :query="searchTableResults.query">
+                                                    >
                                                 </ExploreResponse>
                                             </div>
                                         </div>
@@ -95,8 +98,8 @@ export default {
         Table,
         PdfViewer,
         PdfPlaceholder,
-
-        Splitpanes, Pane
+        Splitpanes, Pane,
+        ExploreResponse
     },
     data() {
         return {
@@ -135,16 +138,17 @@ export default {
             this.searchTableResults = { ...this.searchTableResults, resultIds: results.resultIds }
             this.searchTableResults = { ...this.searchTableResults, resultGroups: results.resultGroups }
         },
+        handleChatSubmit(){
+            this.appDisplayStore.aiConfigs.chatSubmitBtn = !this.appDisplayStore.aiConfigs.chatSubmitBtn
+        },
         toggleChatSidebar() {
             this.isSidebarOpen = !this.isSidebarOpen;
-
             // CRITICAL: Force the browser to evaluate layout sizes 
             // This instantly kicks off your `handleResize` function inside PdfViewer.vue
             this.$nextTick(() => {
               window.dispatchEvent(new Event('resize'));
             });
-        }
-        
+        },
     }
 }
 

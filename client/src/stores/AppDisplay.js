@@ -42,6 +42,10 @@ export const useAppDisplay = defineStore('appDisplay', {
         }
     },
     getters: {
+        handler(){
+            console.log(this.aiConfigs.chatSubmitBtn)
+            return
+        }
 
     },
     actions: {
@@ -62,6 +66,15 @@ export const useAppDisplay = defineStore('appDisplay', {
                 this.views.attrs.pdfViewer.size = 50
 
                 this.views.attrs.table.colsTable = 0
+                this.views.attrs.table.colsSnippets = 0
+            }
+            else if (checked == 'explore'){
+                this.views.attrs.table.size = 40
+                this.views.attrs.table.fields = exploreTableFields
+                this.views.attrs.table.toggleExpansionBtn = false
+                this.views.attrs.pdfViewer.size = 60
+
+                this.views.attrs.table.colsTable = 12
                 this.views.attrs.table.colsSnippets = 0
             }
         }
@@ -119,6 +132,22 @@ const searchTableFields = [{
 
 
 const readTableFields = [{
+    key: 'sort_key',
+    label: 'Score',
+    sortable: true,
+    sortDirection: 'desc',
+    formatter: "getFormattedScore"
+}, {
+    key: 'hit_count',
+    label: 'Hits',
+    sortable: true
+}, {
+    key: 'title',
+    label: 'Title',
+    sortable: true
+},]
+
+const exploreTableFields = [{
     key: 'sort_key',
     label: 'Score',
     sortable: true,
