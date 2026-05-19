@@ -16,7 +16,7 @@
 
                 <b-form-input type="search" class="form-control" id="search-field" v-model="query" @input="searchQuery"
                     :disabled="currentSelectedOption.disablePrompt" placeholder="type search text here..." />
-                <div v-if="currentSelectedOption.value=='Chat'">
+                <div v-if="['Concept','Chat'].includes(currentSelectedOption.value)">
                     <b-button @click="handleChatSubmit"
                         variant="primary"
                         >Submit
@@ -483,7 +483,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
 
                 // concept search
             } else if (this.searchQuery.type.value == 'Concept') {
-                this.searchConcept()
+                //this.searchConcept()
 
                 // prior-run models search
             } else if (this.searchQuery.type.value == 'Models') {
@@ -496,7 +496,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
 
             } else if (this.searchQuery.type.value == 'Chat') {
                 //finds docs and chunks that will be used to populate the chat
-                this.searchConcept()
+                //this.searchConcept()
                 //TODO: call chat logic
             } else {
                 return false
@@ -508,6 +508,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
         },*/
         resetAllItems() {
             this.query = ''
+            this.submitBtn = false
             this.searchTableResults = { ...this.searchTableResults, query: '' }
             this.searchTableResults = { ...this.searchTableResults, resultIds: [] }
             this.searchTableResults = { ...this.searchTableResults, resultGroups: [] }
@@ -517,7 +518,8 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
             this.searchDisplayResults = { ...this.searchDisplayResults, searchTerms: '' }
             this.searchDisplayResults = { ...this.searchDisplayResults, displayLimit: 0 }
         },
-        handleChatSubmit(){
+        async handleChatSubmit(){
+            await this.searchConcept()
             this.$emit('chat-submit')
         }
     },

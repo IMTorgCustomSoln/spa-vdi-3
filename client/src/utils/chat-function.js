@@ -16,7 +16,7 @@ let messages = [
 
 export async function getChatResponse(messages){
 
-    const model_id = 'Xenova/LaMini-GPT-124M'//'onnx-community/SmolLM2-135M-Instruct'
+    const model_id = 'Xenova/Qwen1.5-0.5B-Chat'//'onnx-community/SmolLM2-135M-Instruct'
     //let checkCached = isModelCached(model_id)
 
     if(!generator){
@@ -36,12 +36,13 @@ export async function getChatResponse(messages){
     const output = await generator(prompt, {
         max_new_tokens: 256,
         temperature: 0.7,
+        return_full_text: false,
         //callback to stream tokens to ui
         on_callback_function: (beams) => {
             const decoded = tokenizer.decode(beams[0].output_token_ids, {skip_special_tokens: true});
             self.postMessage({ status: 'update', content: decoded });
         }
     });
-    const assistantReponse = output.generated_text.replace(prompt, '').trim();
+    const assistantReponse = output[0].generated_text    //.replace(prompt, '').trim();
     return assistantReponse;
 };

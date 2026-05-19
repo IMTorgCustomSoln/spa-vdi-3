@@ -107,6 +107,11 @@ export default{
             this.conversationHistory[0].content = systemPrompt
             this.conversationHistory.push({ role: 'user', content: userPrompt})
             console.log('Convsation history:', this.conversationHistory)
+            const prompt = []
+            prompt.push({role: 'system', content: systemPrompt})
+            prompt.push({ role: 'user', content: userPrompt})
+            console.log(`prompt: ${prompt}`)
+            
 
             // 4. Send to worker
             if (!this.worker){
@@ -118,7 +123,7 @@ export default{
                 }
             }
             this.worker.postMessage({
-                message: toRaw(this.conversationHistory)
+                message: prompt  //toRaw(this.conversationHistory)
             })
             console.log('AI is thinking...')
         },
@@ -161,7 +166,7 @@ export default{
                 prompt += `[Document ${idx + 1}: "${chunk.title}"]\n${chunk.text}\n\n`
             })
             prompt += 'Answer concisely baed on the provided context.  If the context doesn\'t contain relevant information, say so.'
-            return prompt
+            return prompt.slice(0, 500)
         },
 
         handleWorkerResponse(e){
