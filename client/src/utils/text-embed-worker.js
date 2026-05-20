@@ -36,17 +36,19 @@ export async function getExtractor() {
 */
 
 self.onmessage = async (e) => {
-  if('text' in e.data){
+  //debugger
+  if('data' in e.data){
     try {
         //const { data } = e.data; // e.data.data is the text from WorkerPool.run()
-        const text = e.data.text
+        const id = e.data.id
+        const text = e.data.data.text
 
         //const pipe = await getExtractor();
-        env.allowLocalModels = false;
-        env.useBrowserCache = false;
+        //env.allowLocalModels = true;
+        //env.useBrowserCache = true;
         //extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
         // Run inference
-        const output = getVectorFromText(text)
+        const output = await getVectorFromText(text)
 
         /* Send back the result (output.data is a Float32Array)
         self.postMessage({
@@ -66,7 +68,9 @@ self.onmessage = async (e) => {
             error: error.message
         });
     */
-        self.postMessage({id, res: output.data});
+      const vectorItem = e.data.data
+      vectorItem['embedding'] = output
+      self.postMessage({id, res: vectorItem});
     } catch (error) {
       self.postMessage({id, res: null, error: error.messag });
     }

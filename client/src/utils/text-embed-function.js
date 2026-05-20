@@ -21,7 +21,7 @@ export const modelNames = [
 export const DEFAULT_MODEL_NAME = modelNames[0];
 
 const pipePromises = new Map();
-
+/*
 export let extractor = null;
 export async function getExtractor() {
     if (!extractor) {
@@ -30,12 +30,12 @@ export async function getExtractor() {
         extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
     }
     return extractor;
-};
+};*/
 
-export async function getVectorFromText(text, modelName){
-  env.allowLocalModels = true
-  env.useBrowserCache = true
-  const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
+export async function getVectorFromText(text){
+  env.allowLocalModels = false
+  env.useBrowserCache = false
+  const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')    //TODO: https://jsfiddle.net/o35ryzfw/
   const output = await extractor(text, {pooling: "mean", normalize: true})
   const embedding = Array.from(output.data)
   return embedding

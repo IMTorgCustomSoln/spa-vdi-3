@@ -264,16 +264,16 @@ export class DocumentRecord {
       const sentences  = await splitter.splitText(pageText)
       const embeddingPromises = []
       for (let [index, textLine] of sentences.entries()) {
-        embeddingPromises.push( embeddingPool.run(textLine) )
         const vectorItem = {
           'page': page,
           'index': index,
           'text': textLine,
           'embedding': null
         }
-      const embeddings = await Promise.all(embeddingPromises)
-      vectorRecords.push(...embeddings)
+        embeddingPromises.push( embeddingPool.run(vectorItem) )
       }
+      const vectorItems = await Promise.all(embeddingPromises)
+      vectorRecords.push(...vectorItems)
     }
     return vectorRecords
   }
