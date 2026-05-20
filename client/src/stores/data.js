@@ -6,7 +6,8 @@ import * as utils from '@/utils/utils.js'
 import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNameDocumentVector, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
-import { getVectorFromText } from '@/utils/text-embed-function.js'
+//import { getVectorFromText } from '@/utils/text-embed-function.js'
+import { embeddingPool } from '@/utils/tiny-pool.js'
 import { WorkerPool } from '@/utils/worker-pool.js'
 import { RecursiveCharacterTextSplitter } from "@/utils/langchain_mimic.js"
 import { summarizeText } from '@/utils/summarize.js'
@@ -239,6 +240,7 @@ export class DocumentRecord {
     workerPool.terminate()
     return vectorRecords
   }*/
+ /*
   async createVetors(){
     const vectorRecords = []
     for (let [page, pageText] of Object.entries(this.body_pages) ) {
@@ -252,6 +254,25 @@ export class DocumentRecord {
           'embedding': docEmbedding
         }
         vectorRecords.push(vectorItem)
+      }
+    }
+    return vectorRecords
+  }*/
+  async createVetors(){
+    const vectorRecords = []
+    for (let [page, pageText] of Object.entries(this.body_pages) ) {
+      const sentences  = await splitter.splitText(pageText)
+      const embeddingPromises = []
+      for (let [index, textLine] of sentences.entries()) {
+        embeddingPromises.push( embeddingPool.run(textLine) )
+        const vectorItem = {
+          'page': page,
+          'index': index,
+          'text': textLine,
+          'embedding': null
+        }
+      const embeddings = await Promise.all(embeddingPromises)
+      vectorRecords.push(...embeddings)
       }
     }
     return vectorRecords

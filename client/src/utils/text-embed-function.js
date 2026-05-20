@@ -33,8 +33,8 @@ export async function getExtractor() {
 };
 
 export async function getVectorFromText(text, modelName){
-  env.allowLocalModels = false
-  env.useBrowserCache = false
+  env.allowLocalModels = true
+  env.useBrowserCache = true
   const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
   const output = await extractor(text, {pooling: "mean", normalize: true})
   const embedding = Array.from(output.data)

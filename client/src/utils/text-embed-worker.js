@@ -21,6 +21,7 @@ export const modelNames = [
 ];
 export const DEFAULT_MODEL_NAME = modelNames[0];
 
+/*
 const pipePromises = new Map();
 
 export let extractor = null;
@@ -32,6 +33,7 @@ export async function getExtractor() {
     }
     return extractor;
 };
+*/
 
 self.onmessage = async (e) => {
   if('text' in e.data){
@@ -46,7 +48,7 @@ self.onmessage = async (e) => {
         // Run inference
         const output = getVectorFromText(text)
 
-        // Send back the result (output.data is a Float32Array)
+        /* Send back the result (output.data is a Float32Array)
         self.postMessage({
             success: true,
             result: {
@@ -63,9 +65,14 @@ self.onmessage = async (e) => {
             success: false,
             error: error.message
         });
+    */
+        self.postMessage({id, res: output.data});
+    } catch (error) {
+      self.postMessage({id, res: null, error: error.messag });
+    }
+
     }
 };
-}
 
 /*
 self.onmessage = async (e) => {
