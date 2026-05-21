@@ -24,7 +24,7 @@ import { mapStores } from 'pinia'
 import { useAppDisplay } from '@/stores/AppDisplay'
 import { useUserContent } from '@/stores/UserContent'
 
-import { getChatResponse } from '@/utils/chat-function'
+//import { getChatResponse } from '@/utils/chat-function'
 
 
 export default{

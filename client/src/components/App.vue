@@ -123,7 +123,7 @@ export default {
         }
     },
     async mounted(){
-        const result = await initializeModels()
+        const result = true //await initializeModels()
         if (result){
             console.log('AI models initialized (if needed)')
         }

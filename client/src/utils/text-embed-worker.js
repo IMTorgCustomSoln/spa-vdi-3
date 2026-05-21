@@ -1,12 +1,12 @@
 //import { FeatureExtractionPipeline, pipeline, env } from "@huggingface/transformers";
-import { getFromMapOrCreate } from 'rxdb/plugins/core';
-import { getVectorFromText } from './text-embed-function';
+//import { getFromMapOrCreate } from 'rxdb/plugins/core';
+import { textEmbeddingModel } from './text-embed-function';
 
 
 /**
  * You can try different models:
  * @link https://huggingface.co/models?pipeline_tag=feature-extraction&library=transformers.js
- */
+ 
 export const modelNames = [
   'Xenova/all-MiniLM-L6-v2',
   'Supabase/gte-small',
@@ -48,7 +48,8 @@ self.onmessage = async (e) => {
         //env.useBrowserCache = true;
         //extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
         // Run inference
-        const output = await getVectorFromText(text)
+        //const output = await getVectorFromText(text)
+        const output = await textEmbeddingModel.run(text)
 
         /* Send back the result (output.data is a Float32Array)
         self.postMessage({

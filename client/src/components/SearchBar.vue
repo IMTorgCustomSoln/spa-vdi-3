@@ -39,7 +39,8 @@
 import { mapStores } from 'pinia'
 import { useUserContent } from '@/stores/UserContent'
 import { getVectorFromTextWithWorker } from '@/utils/worker-scheduler.js'
-import { getVectorFromText } from '@/utils/text-embed-function'
+//import { getVectorFromText } from '@/utils/text-embed-function'
+import { textEmbeddingModel } from '../utils/text-embed-function'
 import { euclideanDistance } from '@/utils/vector.js'
 import { cosineSimilarity } from "fast-cosine-similarity";
 
@@ -324,7 +325,7 @@ The results are ordered by the 'Score' column, which is a weighted formula of th
             console.log(this.query)
             const results = []
             
-            const searchEmbedding = await getVectorFromText(this.query)
+            const searchEmbedding = await textEmbeddingModel.run(this.query)
             const resultGroups = []
             try {
                 for (let record of this.$props.records) {
