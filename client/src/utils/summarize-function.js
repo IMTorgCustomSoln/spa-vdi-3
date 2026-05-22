@@ -49,15 +49,15 @@ import { pipeline, env} from "@huggingface/transformers";
 //force the library to use the browser cache api instead of local asset files
 env.allowLocalModels = false;
 //critical: ensure local development ('/') and production assets match the same cache origin
-env.useBrowserCacheURL = window?.location?.origin || self?.location?.origin || '/';
-
+env.useBrowserCacheURL = self?.location?.origin || '/';
+//window?.location?.origin || 
 
 class SummaryModel {
 
     constructor(){
         this.model = 'Xenova/Qwen1.5-0.5B-Chat';
         this.generator = null;
-        this.tokenizer = null;
+        //this.tokenizer = null;
     }
 
     async initialize(){
