@@ -1,9 +1,18 @@
 
 
 class TinyPool {
+
     constructor(worker){
         const size = navigator.hardwareConcurrency - 1
         this.workers = Array.from({length: size}, () => new worker(), { type: 'module'});
+        /*
+        this.workers = Array.from({length: size}, () => {
+            new Worker(
+                //new worker(),
+                new URL('./text-embed-worker.js?worker', import.meta.url), 
+                { type: 'module'}
+            )
+        });*/
         this.reqs = new Map();
         this.id = 0;
 
@@ -31,3 +40,4 @@ class TinyPool {
 
 import TextWorker from '@/utils/text-embed-worker.js?worker';
 export const embeddingPool = new TinyPool(TextWorker);
+//export const embeddingPool = new TinyPool();

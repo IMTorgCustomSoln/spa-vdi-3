@@ -23,25 +23,32 @@ export const DEFAULT_MODEL_NAME = modelNames[0];
 import { AutoModel, AutoTokenizer, env, Tensor } from "@huggingface/transformers";
 
 
+//force the library to use the browser cache api instead of local asset files
+env.allowLocalModels = false;
+//critical: ensure local development ('/') and production assets match the same cache origin
+env.useBrowserCacheURL = self?.location?.origin || '/';
+//window?.location?.origin || 
+
 class TextEmbeddingModel {
 
   constructor(){
+    this.model_id = 'minishlab/potion-base-8M';
     this.model = null;
     this.tokenizer = null;
   }
 
   async initialize(){
-    const use_cache = false;
-    env.allowLocalModels = use_cache;
-    env.useBrowserCache = use_cache;
+    //const use_cache = false;
+    //env.allowLocalModels = use_cache;
+    env.useBrowserCache = true
     if(!this.model){
-      this.model = await AutoModel.from_pretrained('minishlab/potion-base-8M', {
+      this.model = await AutoModel.from_pretrained(this.model_id, {
         config: {model_type: 'model2vec'},
         dtype: 'fp32'
       });
     }
     if(!this.tokenizer){
-      this.tokenizer = await AutoTokenizer.from_pretrained('minishlab/potion-base-8M');
+      this.tokenizer = await AutoTokenizer.from_pretrained(this.model_id);
       return true
     }
   }

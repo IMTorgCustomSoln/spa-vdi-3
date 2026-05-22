@@ -105,7 +105,7 @@ export class RecursiveCharacterTextSplitter {
 
 
 import { pipeline } from "@huggingface/transformers";
-import { summarizeText } from './summarize';
+import { summaryModel } from './summarize-function';
 
 /** Transformers.js version of loadSummarizationChain
 
@@ -139,14 +139,14 @@ export const loadSummarizationChain = async (options = { type: "stuff" }) => {
 
   const stuffChain = async (docs) => {
     const fullText = docs.join("\n\n");
-    return await summarizeText(fullText);
+    return await summaryModel.summarizeText(fullText);
   };
 
   const mapReduceChain = async (docs) => {
     // Map: Summarize each chunk individually
-    const summaries = await Promise.all(docs.map(doc => summarizeText(doc)));
+    const summaries = await Promise.all(docs.map(doc => summaryModel.summarizeText(doc)));
     // Reduce: Combine and summarize the summaries
-    return await summarizeText(summaries.join("\n\n"));
+    return await summaryModel.summarizeText(summaries.join("\n\n"));
   };
 
   return {

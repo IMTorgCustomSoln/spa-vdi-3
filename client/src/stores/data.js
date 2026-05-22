@@ -8,9 +8,9 @@ import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
 //import { getVectorFromText } from '@/utils/text-embed-function.js'
 import { embeddingPool } from '@/utils/tiny-pool.js'
-import { WorkerPool } from '@/utils/worker-pool.js'
+//import { WorkerPool } from '@/utils/worker-pool.js'
 import { RecursiveCharacterTextSplitter } from "@/utils/langchain_mimic.js"
-import { summarizeText } from '@/utils/summarize.js'
+import { summaryModel } from '@/utils/summarize-function.js'
 
 
 // Config
@@ -178,7 +178,7 @@ export class DocumentRecord {
       const MAX_LENGTH = 1000
       const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
       const text = this.clean_body.slice(0, sliceLength)
-      this.summary = null //await this.setSummary(text)
+      this.summary = await this.setSummary(text)
     } else {
       const MAX_LENGTH = 500
       const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
@@ -292,7 +292,7 @@ export class DocumentRecord {
     return dataVector
   }
   async setSummary(text){
-    const summary = await summarizeText(text)
+    const summary = await summaryModel.summarizeText(text)
     return summary
   }
   async prepareForSave() {

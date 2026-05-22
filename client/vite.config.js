@@ -47,6 +47,14 @@ export default ({mode}) => {
         'top-level-await': true //browsers can handle top-level-await features
       }
     },
+    worker: {
+      //forces vite production build to compile workers as standard ES modules
+      format: 'es',
+    },
+    optimizeDeps: {
+      //stops vite from aggressively pre-bundling the transformer library during local dev
+      exclude: ['@hggingface/transformers']
+    }
     /* TODO: append version to output file
     build: {
       rollupOptions: {

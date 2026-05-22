@@ -38,10 +38,10 @@
 <script>
 import { mapStores } from 'pinia'
 import { useUserContent } from '@/stores/UserContent'
-import { getVectorFromTextWithWorker } from '@/utils/worker-scheduler.js'
+//import { getVectorFromTextWithWorker } from '@/utils/worker-scheduler.js'
 //import { getVectorFromText } from '@/utils/text-embed-function'
 import { textEmbeddingModel } from '../utils/text-embed-function'
-import { euclideanDistance } from '@/utils/vector.js'
+//import { euclideanDistance } from '@/utils/vector.js'
 import { cosineSimilarity } from "fast-cosine-similarity";
 
 import Guide from '@/components/support/Guide.vue'

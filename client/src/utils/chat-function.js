@@ -1,8 +1,8 @@
 import { pipeline, AutoTokenizer, env } from "@huggingface/transformers";
 import { isModelCached } from "@/utils/utils";
 
-let generator = null;
-let tokenizer = null;
+//let generator = null;
+//let tokenizer = null;
 
 
 /*
@@ -15,29 +15,35 @@ let messages = [
 */
 
 
+//force the library to use the browser cache api instead of local asset files
+env.allowLocalModels = false;
+//critical: ensure local development ('/') and production assets match the same cache origin
+env.useBrowserCacheURL = self?.location?.origin || '/';
+//window?.location?.origin || 
+
 class ChatModel{
 
     constructor(){
+        this.model_id = 'Xenova/Qwen1.5-0.5B-Chat';
         this.generator = null;
         this.tokenizer = null;
     }
 
     async initialize(){
-        const model_id = 'Xenova/Qwen1.5-0.5B-Chat'//'onnx-community/SmolLM2-135M-Instruct'
+        //const model_id = 'Xenova/Qwen1.5-0.5B-Chat'//'onnx-community/SmolLM2-135M-Instruct'
         //let checkCached = isModelCached(model_id)
-
-        const use_cache = false;
-        env.allowLocalModels = use_cache;
-        env.useBrowserCache = use_cache;
-        if(!generator){
-            this.generator = await pipeline('text-generation', model_id, {
+        //const use_cache = false;
+        //env.allowLocalModels = use_cache;
+        env.useBrowserCache = true;
+        if(!this.generator){
+            this.generator = await pipeline('text-generation', this.model_id, {
                 device: 'webgpu',
                 quantized: true,
                 dtype: 'q4'//'fp16',
             });
         }
         if(!this.tokenizer){
-            this.tokenizer = await AutoTokenizer.from_pretrained(model_id);
+            this.tokenizer = await AutoTokenizer.from_pretrained(this.model_id);
         }
         return true
     }
