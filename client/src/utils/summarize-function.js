@@ -67,7 +67,7 @@ class SummaryModel {
         //env.allowLocalModels = use_cache;
         env.useBrowserCache = true;
         if(!this.generator){
-            this.generator = await pipeline('text-generation', this.model_id, {
+            this.generator = await pipeline('summarization', this.model_id, {
                 device: 'webgpu',
                 quantized: true,
                 dtype: 'q4'//'fp16',

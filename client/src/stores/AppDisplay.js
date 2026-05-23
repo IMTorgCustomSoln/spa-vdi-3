@@ -13,6 +13,7 @@ export const useAppDisplay = defineStore('appDisplay', {
 
             aiConfigs:{
                 textEmbed: false,
+                disableCheckbox: true,
                 queryChat:{
                     disablePrompt: true,
                     state: true

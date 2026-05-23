@@ -6,11 +6,11 @@ import * as utils from '@/utils/utils.js'
 import { DatabaseName, DbVersion, StoreNameDocumentRecord, StoreNameDocumentVector, StoreNamesAndKeyFields } from './constants.js'
 import { updateItemsInStore, getItemFromStore } from './idb_mgmt.js'
 
-//import { getVectorFromText } from '@/utils/text-embed-function.js'
 import { embeddingPool } from '@/utils/tiny-pool.js'
-//import { WorkerPool } from '@/utils/worker-pool.js'
 import { RecursiveCharacterTextSplitter } from "@/utils/langchain_mimic.js"
 import { summaryModel } from '@/utils/summarize-function.js'
+//import summaryWorker from '@/utils/summarize-worker?worker';
+import chatWorker from '@/utils/chat-worker?worker';
 
 
 // Config
@@ -175,7 +175,7 @@ export class DocumentRecord {
       await this.setVectors()
     }
     if (textEmbed==true){
-      const MAX_LENGTH = 1000
+      const MAX_LENGTH = 3000
       const sliceLength = this.clean_body.length < MAX_LENGTH ? this.clean_body.length : MAX_LENGTH
       const text = this.clean_body.slice(0, sliceLength)
       this.summary = await this.setSummary(text)
@@ -292,7 +292,19 @@ export class DocumentRecord {
     return dataVector
   }
   async setSummary(text){
-    const summary = await summaryModel.summarizeText(text)
+    //const summary = await summaryModel.summarizeText(text)    //chatWorker performs better
+    function runWorkerTask(id, text) {
+      return new Promise((resolve, reject) => {
+      const myWorker = new chatWorker()
+      myWorker.onmessage = function(event) {
+          const { status, content, error } = event.data;
+          if (!error) { resolve(content);
+          } else { reject(new Error(error)); }
+      };
+      myWorker.postMessage({id: id, message: text});
+      })
+    };
+    const summary = await runWorkerTask(0, text)
     return summary
   }
   async prepareForSave() {

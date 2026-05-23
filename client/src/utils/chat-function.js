@@ -1,10 +1,6 @@
 import { pipeline, AutoTokenizer, env } from "@huggingface/transformers";
 import { isModelCached } from "@/utils/utils";
 
-//let generator = null;
-//let tokenizer = null;
-
-
 /*
 //define your conversation history (maintain context)
 //maintain context by continuously appending both user inputs and assistant responses to the messages array.
@@ -13,7 +9,6 @@ let messages = [
     { role: "user", content: "How do I use local storage in JS?"},
 ];
 */
-
 
 //force the library to use the browser cache api instead of local asset files
 env.allowLocalModels = false;
@@ -27,13 +22,12 @@ class ChatModel{
         this.model_id = 'Xenova/Qwen1.5-0.5B-Chat';
         this.generator = null;
         this.tokenizer = null;
+        this.defaultSystemPrompt = 'You are a concise AI assistant. Summarize the user\'s statement.'
     }
 
     async initialize(){
         //const model_id = 'Xenova/Qwen1.5-0.5B-Chat'//'onnx-community/SmolLM2-135M-Instruct'
         //let checkCached = isModelCached(model_id)
-        //const use_cache = false;
-        //env.allowLocalModels = use_cache;
         env.useBrowserCache = true;
         if(!this.generator){
             this.generator = await pipeline('text-generation', this.model_id, {
@@ -48,9 +42,24 @@ class ChatModel{
         return true
     }
 
+    preparePrompt(text){
+        const prompt = []
+        prompt.push({role: 'system', content: this.defaultSystemPrompt})
+        prompt.push({ role: 'user', content: text})
+        return prompt
+    }
+
     async getChatResponse(messages){
-        if(!this.generator){await this.initialize()}
-        const prompt = await this.tokenizer.apply_chat_template(messages, {
+        if (!this.generator){
+            await this.initialize()
+        }
+        let preparedMessages = null;
+        if (typeof(messages)=='string'){
+            preparedMessages = this.preparePrompt(messages)
+        } else {
+            preparedMessages = messages
+        }
+        const prompt = await this.tokenizer.apply_chat_template(preparedMessages, {
             tokenize: false,
             add_generator_prompt: true,
         });

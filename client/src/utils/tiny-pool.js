@@ -38,6 +38,5 @@ class TinyPool {
     }
 }
 
-import TextWorker from '@/utils/text-embed-worker.js?worker';
-export const embeddingPool = new TinyPool(TextWorker);
-//export const embeddingPool = new TinyPool();
+import textEmbeddingWorker from '@/utils/text-embed-worker.js?worker';
+export const embeddingPool = new TinyPool(textEmbeddingWorker);

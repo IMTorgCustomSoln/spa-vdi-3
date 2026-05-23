@@ -50,11 +50,15 @@
                             id="checkbox-text-embed"
                             v-model="textEmbed"
                             name="checkbox-text-embed"
+                            :disabled="appDisplayStore.aiConfigs.disableCheckbox"
                             >
                               Apply AI features
                         </b-form-checkbox>
                         <div>
-                            <em>
+                            <em v-if="this.appDisplayStore.aiConfigs.disableCheckbox">
+                                Note: AI features are not available on your machine - checkbox disabled. 
+                            </em>
+                            <em v-else>
                                 Note: AI features can add considerable time to processing files. 
                             </em>
                         </div>
@@ -242,7 +246,7 @@ export default {
             btnText: 'Import',
             activeTab: 0,
             componentBtn: true,
-            textEmbed: false,
+            textEmbed: false, 
             uploadBtn: true,
             processBtn: true,
             uploadWorkspaceBtn: true,

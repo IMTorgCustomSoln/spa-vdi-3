@@ -125,6 +125,7 @@ export default {
     async mounted(){
         const result = await initializeModels()
         if (result){
+            this.appDisplayStore.aiConfigs.disableCheckbox = !result
             console.log('AI models initialized (if needed)')
         }
     },

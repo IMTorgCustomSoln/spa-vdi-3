@@ -1,25 +1,5 @@
 //import { FeatureExtractionPipeline, pipeline, env } from "@huggingface/transformers";
 import { toRaw } from "vue";
-
-
-/**
- * You can try different models:
- * @link https://huggingface.co/models?pipeline_tag=feature-extraction&library=transformers.js
- *
-export const modelNames = [
-  'Xenova/all-MiniLM-L6-v2',
-  'Supabase/gte-small',
-  'mixedbread-ai/mxbai-embed-large-v1',
-  'jinaai/jina-embeddings-v2-base-zh',
-  'Xenova/paraphrase-multilingual-mpnet-base-v2',
-  'jinaai/jina-embeddings-v2-base-code',
-  'Xenova/multilingual-e5-large',
-  'WhereIsAI/UAE-Large-V1',
-  'jinaai/jina-embeddings-v2-base-de',
-  'jinaai/jina-embeddings-v2-base-en'
-];
-export const DEFAULT_MODEL_NAME = modelNames[0];
-*/
 import { AutoModel, AutoTokenizer, env, Tensor } from "@huggingface/transformers";
 
 
@@ -28,6 +8,7 @@ env.allowLocalModels = false;
 //critical: ensure local development ('/') and production assets match the same cache origin
 env.useBrowserCacheURL = self?.location?.origin || '/';
 //window?.location?.origin || 
+env.useBrowserCache = true
 
 class TextEmbeddingModel {
 
@@ -38,9 +19,6 @@ class TextEmbeddingModel {
   }
 
   async initialize(){
-    //const use_cache = false;
-    //env.allowLocalModels = use_cache;
-    env.useBrowserCache = true
     if(!this.model){
       this.model = await AutoModel.from_pretrained(this.model_id, {
         config: {model_type: 'model2vec'},
@@ -72,7 +50,6 @@ class TextEmbeddingModel {
         offsets: new Tensor('int64', offsets, [offsets.length]),
     }
     const { embeddings } = await this.model(model_inputs);
-    //console.log(embeddings.tolist());
     const embedding = Array.from( toRaw(embeddings)[0] )
     return embedding
   }
@@ -80,44 +57,3 @@ class TextEmbeddingModel {
 
 
 export const textEmbeddingModel = new TextEmbeddingModel()
-
-
-/*
-const pipePromises = new Map();
-
-export let extractor = null;
-export async function getExtractor() {
-    if (!extractor) {
-        env.allowLocalModels = false;
-        env.useBrowserCache = false;
-        extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-    }
-    return extractor;
-};*/
-/*
-export async function getVectorFromText(text){
-  env.allowLocalModels = false
-  env.useBrowserCache = false
-  const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')    //TODO: https://jsfiddle.net/o35ryzfw/
-  const output = await extractor(text, {pooling: "mean", normalize: true})
-  const embedding = Array.from(output.data)
-  return embedding
-}
-/*
-export async function getVectorFromText(text, modelName) {
-  const pipe = await getFromMapOrCreate(
-    pipePromises,
-    modelName,
-    () => pipeline(
-      "feature-extraction",
-      modelName
-    )
-  );
-  const output = await pipe(text, {
-    pooling: "mean",
-    normalize: true,
-  });
-  const embedding = Array.from(output.data);
-  return embedding;
-}
-*/
